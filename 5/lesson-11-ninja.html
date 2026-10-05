@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ниндзя Засварч</title>
+<style>
+:root{
+  --ink:#141A2E; --paper:#FBFAF7; --panel:#F2EFE8; --rule:#DCD6C8;
+  --deep:#D9342B; --ok:#0B7A55; --ok-soft:#DFF1EC; --no:#C0322B; --no-soft:#FBE7DC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1b1433;color:#fff;overflow:hidden;
+  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.hud{position:fixed;top:12px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none;z-index:3}
+#hudL{left:12px} #hudR{right:12px;justify-content:flex-end}
+.pill{background:rgba(10,8,24,.62);border-radius:10px;padding:6px 12px;font-weight:800;
+  font-size:clamp(13px,1.5vw,18px);line-height:1.15;display:flex;flex-direction:column;min-width:60px}
+.pill small{font-size:.62em;opacity:.8;letter-spacing:.06em}
+.hud button{pointer-events:auto;font:inherit;font-weight:800;font-size:clamp(14px,1.6vw,19px);
+  background:rgba(10,8,24,.62);color:#fff;border:0;border-radius:10px;padding:0 12px;cursor:pointer}
+.hud button:focus-visible{outline:3px solid #fff}
+#banner{position:fixed;left:50%;top:clamp(64px,9vh,92px);transform:translateX(-50%);z-index:3;pointer-events:none;
+  width:min(820px,calc(100vw - 24px));text-align:center;display:none}
+#banner.show{display:block}
+#banner .q{background:rgba(255,255,255,.95);color:var(--ink);border:3px solid var(--ink);border-radius:14px;
+  padding:10px 18px 12px;box-shadow:5px 5px 0 rgba(217,52,43,.6)}
+#banner .qt{font-weight:800;font-size:clamp(17px,2.2vw,28px);line-height:1.25}
+#banner .hint{font-size:clamp(12px,1.25vw,15px);color:#5C6278;margin-top:4px;font-weight:600}
+#toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;z-index:4;
+  font-weight:900;font-size:clamp(28px,5vw,64px);transition:opacity .2s,transform .2s;pointer-events:none;
+  text-shadow:3px 3px 0 rgba(10,8,24,.7);white-space:nowrap}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#help{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;pointer-events:none;
+  background:rgba(10,8,24,.55);padding:6px 14px;border-radius:10px;font-size:clamp(12px,1.3vw,15px);
+  white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
+#modal{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;
+  background:rgba(10,8,24,.55);padding:16px;overflow:auto}
+#modal.show{display:flex}
+.card:focus{outline:none}
+.card{background:var(--paper);color:var(--ink);width:min(680px,100%);max-height:100%;overflow:auto;
+  border:4px solid var(--ink);border-radius:14px;box-shadow:8px 8px 0 rgba(217,52,43,.55);
+  padding:22px 24px;font-size:clamp(16px,1.6vw,21px);line-height:1.45;user-select:text}
+.tag{display:inline-block;font-size:.68em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--deep);color:#fff;border:2px solid var(--ink);border-radius:2em;padding:.12em .8em}
+.card h1{font-size:1.75em;line-height:1.15;margin:.45em 0 .3em}
+.card h2{font-size:1.25em;line-height:1.3;margin:.55em 0 .2em}
+.card p{margin:.4em 0}
+.muted{color:#5C6278;font-size:.9em}
+.verdict{font-weight:900;font-size:1.5em;margin:.3em 0}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--no)}
+.ans{border:2.5px solid var(--ok);background:var(--ok-soft);border-radius:.6em;padding:.5em .8em;font-weight:700;margin:.5em 0}
+.ans.bad{border-color:var(--no);background:var(--no-soft)}
+.why{margin-top:.7em;padding:.7em .9em;border-left:5px solid var(--deep);background:var(--panel);border-radius:0 .5em .5em 0}
+.row{display:flex;gap:.6em;flex-wrap:wrap;align-items:center;margin-top:1em}
+.btn{font:inherit;font-weight:800;background:var(--ink);color:#fff;border:2.5px solid var(--ink);
+  border-radius:2em;padding:.5em 1.4em;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:.35em .9em;margin:.8em 0;font-size:.92em}
+.keys b{background:var(--panel);border:2px solid var(--rule);border-radius:.35em;padding:0 .45em;white-space:nowrap}
+.stars{font-size:2.6em;letter-spacing:.1em;line-height:1;margin:.2em 0;color:#E0A800}
+.stars .off{color:#D6D0C2}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5em;margin:.6em 0}
+.stats div{background:var(--panel);border-radius:.5em;padding:.4em .6em;font-weight:800;font-size:1.05em}
+.stats small{display:block;font-weight:600;font-size:.7em;color:#5C6278}
+.review{margin-top:.8em;display:grid;gap:.55em}
+.review div{border:2px solid var(--rule);border-radius:.55em;padding:.5em .75em;font-size:.88em}
+.review b{display:block}
+.review .a{color:var(--ok);font-weight:700}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Тоглоомын талбар"></canvas>
+<div class="hud" id="hudL">
+  <div class="pill"><small>АМЬ</small><span id="hHearts">❤❤❤</span></div>
+  <div class="pill"><small>ОНОО</small><span id="hScore">0</span></div>
+  <div class="pill"><small>АСУУЛТ</small><span id="hQ">0/12</span></div>
+  <div class="pill"><small>ЗӨВ</small><span id="hOk">✓ 0</span></div>
+</div>
+<div class="hud" id="hudR">
+  <div class="pill"><small>КОМБО</small><span id="hCombo">×1</span></div>
+  <button id="bPause" type="button" aria-label="Түр зогсоох">⏸</button>
+  <button id="bMute" type="button" aria-label="Дуу унтраах">🔊</button>
+  <button id="bFull" type="button" aria-label="Бүтэн дэлгэц">⛶</button>
+</div>
+<div id="banner"></div>
+<div id="toast"></div>
+<div id="help">Хулганаа дарсан чигтээ зүс (чир) · Таблет: хуруугаараа зүс · 1-4 товч — тэр дугаартай хуудсыг зүснэ · P — түр зогсоох</div>
+<div id="modal" role="dialog" aria-modal="true"><div class="card" id="card" tabindex="-1"></div></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ───────────── Асуултууд (5-р анги · Хичээл 11: Docs дэвшилт) ───────────── */
+const QUESTIONS = [
+  {q:'Найзынхаа тайланг засахад аль горим ХАМГИЙН ЗӨВ вэ?', opts:['Санал болгох (Suggesting) — эзэн нь шийднэ','Засах (Editing) — шууд өөрчилнө','Файлыг хуулж аваад өөрөө засах','Юу ч хийхгүй байх'], ans:0,
+   why:'Санал болгох горимд засвар өнгөөр тэмдэглэгдэж, эзэн нь хүлээн авах эсэхээ өөрөө шийднэ. Бусдын ажлыг мэдэгдэлгүй өөрчлөх нь зөв биш.'},
+  {q:'Сэтгэгдэл (comment) нь текстийг юу хийдэг вэ?', opts:['Өөрчилдөггүй, зөвхөн хажууд нь санал бичдэг','Устгадаг','Автоматаар засдаг'], ans:0,
+   why:'Сэтгэгдэл агуулгыг огт өөрчлөхгүй. Хажууд нь санал үлдээж, эзэн нь шийдвэрээ өөрөө гаргадаг.'},
+  {q:'Найз чинь тайлангийн нэг хэсгийг санамсаргүй устгачихлаа. Юу хийх вэ?', opts:['Хувилбарын түүхээс (Version history) сэргээнэ','Бүгдийг дахин бичнэ','Файлыг устгаж шинээр эхэлнэ','Багшид гомдоллоно'], ans:0,
+   why:'Docs бүх хувилбарыг хадгалдаг. Файл → Хувилбарын түүх гэж ороод устгагдахаас өмнөх хувилбарыг сэргээнэ.'},
+  {q:'Тайланд оруулсан зураг бүрийн доор юу бичих вэ?', opts:['1 мөр тайлбар («Зураг 1. …»)','Юу ч бичихгүй','Зөвхөн өөрийн нэрээ'], ans:0,
+   why:'Зураг бүрийн доор 1 мөр тайлбар бичнэ. Жишээ: «Зураг 1. Хорооллын ногоон талбайн байршил». Дугаарлавал бүр сайн.'},
+  {q:'Зургийн ЭШЛЭЛД юу заавал байх вэ?', opts:['Зохиогч, эх сурвалж, лиценз','Зөвхөн зургийн өнгө','Компьютерийн нэр'], ans:0,
+   why:'Эшлэлд зохиогч, эх сурвалж, лиценз байна. Тайлбарын ард эсвэл төгсгөлийн жагсаалтад бичнэ (Хичээл 7-г санаарай).'},
+  {q:'Тайлангийн зураг юуны тухай байх ёстой вэ?', opts:['Дэргэдэх текстийн тухай','Хуудас дүүргэх чимэг','Хамгийн хөөрхөн санамсаргүй зураг'], ans:0,
+   why:'Зураг дэргэдэх текстээ тайлбарлах ёстой. Асуу: «Энэ зураг юуг тайлбарлаж байна?» Чимэг зураг хуудас л дүүргэнэ.'},
+  {q:'Хосоороо тайлан сайжруулахын ЭХНИЙ алхам аль вэ?', opts:['Тайлангаа «Сэтгэгдэл» эрхээр хуваалцах','Resolve дарж сэтгэгдлийг хаах','Санал бүрийг тусгах эсэхээ шийдэх'], ans:0,
+   why:'Хуваалц → унш → шийд → хаа. Эхлээд тайлангаа «Сэтгэгдэл» эрхээр найздаа илгээнэ.'},
+  {q:'Шийдэгдсэн сэтгэгдлийг юу хийх вэ?', opts:['Resolve дарж хаана','Хэвээр нь үлдээнэ','Найзаасаа нуун устгана'], ans:0,
+   why:'Resolve дарахгүй бол шийдэгдсэн санал хуримтлагдаж, аль нь хийгдсэн нь ойлгогдохгүй болно.'},
+  {q:'Аль нь САЙН сэтгэгдэл вэ?', opts:['«2-р догол мөрөнд эх сурвалж дутуу байна»','«Сайн байна»','«Муу болжээ»'], ans:0,
+   why:'Сайн сэтгэгдэл «хаана, юуг, яаж» гурвыг хэлнэ. «Сайн байна» гэсэн ерөнхий үг юуг засахыг хэлэхгүй.'},
+  {q:'«Санал болгох» горимд хийсэн засвар хэрхэн харагдах вэ?', opts:['Өнгөөр тэмдэглэгдэж, эзэн нь хүлээн авах/татгалзах','Шууд орж, хэн ч мэдэхгүй','Огт харагдахгүй'], ans:0,
+   why:'Suggesting горимд засвар шууд орохгүй — өнгөөр тэмдэглэгдэж, эзэн нь «Хүлээн авах / Татгалзах» гэж шийднэ.'},
+  {q:'Хувилбарын түүх (Version history) гэж юу вэ?', opts:['Баримтын өмнөх бүх хувилбар хадгалагдсан газар','Файлын нэр','Хэвлэх тохиргоо'], ans:0,
+   why:'Баримтын өмнөх бүх хувилбар хадгалагдсан байдаг. Санамсаргүй устгасан зүйлээ эндээс сэргээж болно.'},
+  {q:'Сэтгэгдэл бол ЗАХИАЛГА уу?', opts:['Үгүй — САНАЛ, эзэн нь татгалзаж болно','Тийм — заавал хийх ёстой','Тийм — багшийн тушаал'], ans:0,
+   why:'Сэтгэгдэл бол санал. Эзэн нь татгалзаж болно — гэхдээ яагаад татгалзсанаа хариу бичих нь хамтын ажиллагааны соёл.'}
+];
+const BOMBS = ['Хулгайн зураг','Эшлэлгүй зураг','Мэдэгдэлгүй устгах','«Сайн байна» л гэх','Засах горимоор шууд өөрчлөх'];
+const OPT_COL = ['#2F80ED','#F2994A','#9B51E0','#27AE60'];
+
+/* ───────────── Дуу ───────────── */
+let AC = null, muted = false;
+function tone(f, dur, type='square', vol=.05, f2=0, delay=0){
+  if (muted) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(Math.max(20,f2), t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + dur + .02);
+  }catch(e){}
+}
+const SFX = {
+  toss:()=>tone(240,.18,'sine',.05,420),
+  swish:()=>tone(1400,.09,'sawtooth',.018,500),
+  slice:()=>{tone(900,.06,'square',.05,300);tone(1800,.08,'triangle',.05,900,.03);},
+  bomb:()=>{tone(120,.5,'sawtooth',.09,40);tone(60,.6,'square',.06,30,.05);},
+  miss:()=>tone(300,.3,'triangle',.06,120),
+  right:()=>[659,784,988,1319].forEach((f,i)=>tone(f,.14,'triangle',.08,0,i*.08)),
+  wrong:()=>{tone(300,.18,'sawtooth',.04);tone(220,.35,'sawtooth',.04,0,.18);},
+  win:()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.08,0,i*.12))
+};
+
+/* ───────────── Канвас (логик 1280×720) ───────────── */
+const W = 1280, H = 720;
+const cv = $('c'), ctx = cv.getContext('2d');
+let scale = 1, offX = 0, offY = 0, dpr = 1;
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = window.innerWidth, h = window.innerHeight;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  scale = Math.min(w / W, h / H); offX = (w - W*scale) / 2; offY = (h - H*scale) / 2;
+}
+window.addEventListener('resize', resize); resize();
+const toLogic = (cx, cy) => [(cx - offX) / scale, (cy - offY) / scale];
+
+/* ───────────── Төлөв ───────────── */
+const G = 300;
+let state = 'start', qi = 0, items = [], pieces = [], parts = [], trail = [], texts = [];
+let score = 0, combo = 1, bestCombo = 1, hearts = 3, wrongSlices = 0, bombsHit = 0, tGame = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let wave = null, shake = 0, flash = 0, ninjaPose = 0, pendingCard = 0, pendingInfo = null;
+
+function wrapText(text, maxW, font){
+  ctx.font = font;
+  const words = text.split(' '), lines = []; let cur = '';
+  for (const w of words){
+    const t = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function makeItem(kind, text, oi, num, i, n){
+  const card = kind === 'opt';
+  const w = card ? 250 : 150, font = '800 21px -apple-system,"Segoe UI",Arial,sans-serif';
+  const lines = card ? wrapText(text, w - 40, font).slice(0, 4) : wrapText(text, 170, '800 17px -apple-system,"Segoe UI",Arial,sans-serif');
+  const h = card ? Math.max(92, 34 + lines.length * 26) : 130;
+  const slot = (W - 260) / Math.max(1, n - 1);
+  const x = n === 1 ? W/2 : 130 + i * slot + (Math.random()-.5) * 40;
+  const peak = 250 + Math.random() * 110 + (card ? 0 : 60);
+  const vy = -Math.sqrt(2 * G * (H + 80 - peak));
+  const vx = (W/2 - x) * .05 + (Math.random()-.5) * 30;
+  return {kind, text, oi, num, lines, w, h, x, y:H + 80, vx, vy, rot:(Math.random()-.5)*.2, vr:(Math.random()-.5)*.18,
+          delay:i * .5, launched:false, alive:true, color:card ? OPT_COL[num-1] : '#222', font};
+}
+function startWave(){
+  const q = QUESTIONS[qi];
+  const order = q.opts.map((t,k)=>k).sort(()=>Math.random()-.5);
+  const list = order.map((oi, k) => ({kind:'opt', text:q.opts[oi], oi, num:k+1}));
+  const nb = qi < 2 ? 0 : (qi < 7 ? 1 : 2);
+  for (let b=0;b<nb;b++) list.splice(1 + Math.floor(Math.random() * list.length), 0, {kind:'bomb', text:BOMBS[(qi + b*2) % BOMBS.length]});
+  items = list.map((o, i) => makeItem(o.kind, o.text, o.oi, o.num, i, list.length));
+  wave = {decided:false, t:0};
+  showQBanner();
+}
+function showQBanner(){
+  const q = QUESTIONS[qi];
+  $('banner').innerHTML = `<div class="q"><div class="qt">⚔ ${esc(q.q)}</div><div class="hint">Зөв хариулттай хуудсыг ЗҮС! 💣 бөмбөгнөөс зайлсхий.</div></div>`;
+  $('banner').classList.add('show');
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function updateHud(){
+  $('hHearts').textContent = hearts > 0 ? '❤'.repeat(hearts) : '–';
+  $('hScore').textContent = score;
+  $('hQ').textContent = answers.filter(a=>a!==null).length + '/' + QUESTIONS.length;
+  $('hOk').textContent = '✓ ' + answers.filter(a=>a===true).length;
+  $('hCombo').textContent = '×' + combo;
+}
+let toastT = null;
+function toast(msg, color='#fff'){
+  const el = $('toast'); el.textContent = msg; el.style.color = color; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('show'), 900);
+}
+
+/* ───────────── Зүсэлт ───────────── */
+function segHitsItem(it, x1, y1, x2, y2){
+  const c = Math.cos(-it.rot), s = Math.sin(-it.rot);
+  const lx1 = (x1-it.x)*c - (y1-it.y)*s, ly1 = (x1-it.x)*s + (y1-it.y)*c;
+  const lx2 = (x2-it.x)*c - (y2-it.y)*s, ly2 = (x2-it.x)*s + (y2-it.y)*c;
+  const hw = it.w/2, hh = it.h/2;
+  let t0 = 0, t1 = 1; const dx = lx2-lx1, dy = ly2-ly1;
+  const clip = (p, q) => { if (p === 0) return q >= 0; const r = q / p; if (p < 0){ if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; } return true; };
+  return clip(-dx, lx1 + hw) && clip(dx, hw - lx1) && clip(-dy, ly1 + hh) && clip(dy, hh - ly1);
+}
+function slash(x1, y1, x2, y2){
+  if (state !== 'play') return;
+  if (Math.hypot(x2-x1, y2-y1) < 6) return;
+  const ang = Math.atan2(y2-y1, x2-x1);
+  const hits = items.filter(it => it.alive && it.launched && segHitsItem(it, x1, y1, x2, y2));
+  // нэг зураасаар хэд хэдэн хуудас огтолбол — зураасанд хамгийн ойр төвтэйг нь хариулт гэж үзнэ
+  const segD = it => { const vx = x2-x1, vy = y2-y1, L = vx*vx + vy*vy, t = Math.max(0, Math.min(1, ((it.x-x1)*vx + (it.y-y1)*vy) / L)); return Math.hypot(x1 + vx*t - it.x, y1 + vy*t - it.y); };
+  const opts = hits.filter(i => i.kind === 'opt').sort((p, q) => segD(p) - segD(q));
+  hits.filter(i => i.kind === 'bomb').forEach(it => cut(it, ang));
+  if (state !== 'play') return;
+  opts.forEach(it => cut(it, ang));
+}
+function cut(it, ang){
+  it.alive = false; ninjaPose = .35;
+  const nx = Math.cos(ang + Math.PI/2), ny = Math.sin(ang + Math.PI/2);
+  [-1,1].forEach(sd => pieces.push({it, side:sd, x:it.x, y:it.y, vx:it.vx + nx*sd*110, vy:it.vy*.3 + ny*sd*110 - 60, rot:it.rot, vr:sd*2.4, life:1.6}));
+  const col = it.kind === 'bomb' ? '#ff6a00' : it.color;
+  for (let k=0;k<(it.kind === 'bomb' ? 40 : 22);k++){
+    const a = Math.random()*Math.PI*2, sp = 80 + Math.random()*320;
+    parts.push({x:it.x, y:it.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 80, life:.6 + Math.random()*.5, col, r:3 + Math.random()*5});
+  }
+  if (it.kind === 'bomb'){
+    SFX.bomb(); shake = .45; flash = .5; hearts--; bombsHit++; combo = 1;
+    texts.push({x:it.x, y:it.y - 40, t:'💥 −1 амь', col:'#ff5a4f', life:1.2});
+    updateHud();
+    if (hearts <= 0) return gameOver();
+    return;
+  }
+  SFX.slice();
+  if (!wave || wave.decided) return;
+  wave.decided = true;
+  const q = QUESTIONS[qi], ok = it.oi === q.ans;
+  answers[qi] = ok;
+  if (ok){ score += 100 * combo; texts.push({x:it.x, y:it.y - 40, t:'+' + 100*combo + (combo > 1 ? '  КОМБО ×' + combo : ''), col:'#ffe066', life:1.2}); combo++; bestCombo = Math.max(bestCombo, combo - 1); }
+  else { wrongSlices++; combo = 1; texts.push({x:it.x, y:it.y - 40, t:'✕', col:'#ff5a4f', life:1}); }
+  ok ? SFX.right() : SFX.wrong();
+  // бусад хуудас бүдгэрнэ
+  items.forEach(o => { if (o.alive && o.kind === 'opt') o.fade = true; });
+  pendingInfo = {ok, chosen:it.oi}; pendingCard = .75;
+  updateHud();
+}
+
+/* ───────────── Шинэчлэл ───────────── */
+function update(dt){
+  // эффект үргэлж хөдөлнө (цонх нээлттэй үед зогсоно)
+  if (state === 'modal' || state === 'paused' || state === 'start' || state === 'over' || state === 'done') return;
+  tGame += dt;
+  if (shake > 0) shake -= dt; if (flash > 0) flash -= dt; if (ninjaPose > 0) ninjaPose -= dt;
+  for (const p of pieces){ p.vy += G*1.4*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.rot += p.vr*dt; p.life -= dt; }
+  pieces = pieces.filter(p => p.life > 0 && p.y < H + 200);
+  for (const p of parts){ p.vy += 500*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; }
+  parts = parts.filter(p => p.life > 0);
+  for (const t of texts){ t.y -= 40*dt; t.life -= dt; }
+  texts = texts.filter(t => t.life > 0);
+  const now = performance.now(); trail = trail.filter(p => now - p.t < 160);
+  if (state !== 'play' || !wave) return;
+  wave.t += dt;
+  for (const it of items){
+    if (!it.launched){ if (wave.t >= it.delay){ it.launched = true; SFX.toss(); } else continue; }
+    it.vy += G*dt; it.x += it.vx*dt; it.y += it.vy*dt; it.rot += it.vr*dt;
+    if (it.x < it.w/2) { it.x = it.w/2; it.vx = Math.abs(it.vx); }
+    if (it.x > W - it.w/2){ it.x = W - it.w/2; it.vx = -Math.abs(it.vx); }
+    if (it.fade) it.alpha = Math.max(0, (it.alpha ?? 1) - dt*2);
+    if (it.vy > 0 && it.y > H + 90) it.alive = false, it.gone = true;
+  }
+  if (pendingCard > 0){ pendingCard -= dt; if (pendingCard <= 0) showAnswerCard(); return; }
+  // бүх хариулт унасан бол — амь хасагдаж, дахин шиднэ
+  if (!wave.decided && items.filter(i=>i.kind==='opt').every(i => i.launched && !i.alive)){
+    hearts--; combo = 1; SFX.miss(); toast('Унагаачихлаа! −1 ❤', '#ff8a80'); updateHud();
+    if (hearts <= 0) return gameOver();
+    startWave();
+  }
+}
+
+/* ───────────── Зураг ───────────── */
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawItemBody(it){
+  if (it.kind === 'bomb'){
+    ctx.fillStyle = '#1d1d26'; ctx.beginPath(); ctx.arc(0, -14, 40, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(-13, -28, 11, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#8a6a3a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(18,-48); ctx.quadraticCurveTo(30,-66,42,-60); ctx.stroke();
+    const sp = (performance.now()/60) % 2 < 1;
+    ctx.fillStyle = sp ? '#ffd23f' : '#ff6a00'; ctx.beginPath(); ctx.arc(43,-61, sp ? 8 : 6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '900 30px -apple-system,"Segoe UI",Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('✕', 0, -12);
+    ctx.fillStyle = '#e0384a'; roundRect(-82, 30, 164, 36, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '800 15px -apple-system,"Segoe UI",Arial';
+    let fs = 15; while (ctx.measureText(it.text).width > 150 && fs > 10){ fs--; ctx.font = `800 ${fs}px -apple-system,"Segoe UI",Arial`; }
+    ctx.fillText(it.text, 0, 48);
+    return;
+  }
+  const w = it.w, h = it.h;
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; roundRect(-w/2+5, -h/2+7, w, h, 14); ctx.fill();
+  ctx.fillStyle = '#fffdf6'; roundRect(-w/2, -h/2, w, h, 14); ctx.fill();
+  ctx.fillStyle = it.color; roundRect(-w/2, -h/2, 14, h, 7); ctx.fill();
+  ctx.strokeStyle = it.color; ctx.lineWidth = 4; roundRect(-w/2, -h/2, w, h, 14); ctx.stroke();
+  // нугалсан булан
+  ctx.fillStyle = '#e8e1cc'; ctx.beginPath(); ctx.moveTo(w/2-22, -h/2); ctx.lineTo(w/2, -h/2+22); ctx.lineTo(w/2-22, -h/2+22); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = it.color; ctx.beginPath(); ctx.arc(-w/2 + 8, -h/2 + 8, 19, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = '900 21px -apple-system,"Segoe UI",Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(String(it.num), -w/2 + 8, -h/2 + 9);
+  ctx.fillStyle = '#141A2E'; ctx.font = it.font;
+  const lh = 26, y0 = -((it.lines.length - 1) * lh) / 2 + 4;
+  it.lines.forEach((l, k) => ctx.fillText(l, 8, y0 + k*lh));
+}
+function drawBackground(t){
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#24184a'); g.addColorStop(.65, '#4a2457'); g.addColorStop(1, '#7a2f45');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // сар
+  ctx.fillStyle = 'rgba(255,236,190,.9)'; ctx.beginPath(); ctx.arc(1080, 150, 70, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,236,190,.15)'; ctx.beginPath(); ctx.arc(1080, 150, 110, 0, 7); ctx.fill();
+  // хөвөх баримтын сүүдэр
+  ctx.fillStyle = 'rgba(255,255,255,.05)';
+  for (let i=0;i<9;i++){ const x = (i*157 + t*12) % (W + 120) - 60, y = 120 + (i*97) % 380; ctx.save(); ctx.translate(x, y); ctx.rotate(i); ctx.fillRect(-24,-32,48,64); ctx.restore(); }
+  // хулс
+  for (const bx of [36, 82, W - 60]){
+    ctx.fillStyle = '#2f7a3e'; ctx.fillRect(bx, 0, 18, H);
+    ctx.fillStyle = '#245e30'; for (let y=60;y<H;y+=120) ctx.fillRect(bx - 2, y, 22, 6);
+    ctx.fillStyle = '#3f9a52'; ctx.beginPath(); ctx.ellipse(bx + 34, 110 + (bx%3)*40, 34, 9, -.5, 0, 7); ctx.fill();
+  }
+  // шал (тоглоомын хүрээ)
+  ctx.fillStyle = '#3a1f2a'; ctx.fillRect(0, H - 40, W, 40);
+  ctx.fillStyle = '#5a3040'; for (let x=0;x<W;x+=80) ctx.fillRect(x, H - 40, 76, 4);
+}
+function drawNinja(){
+  const x = 150, y = H - 52, p = ninjaPose > 0 ? 1 : 0;
+  ctx.save(); ctx.translate(x, y - p*10);
+  ctx.fillStyle = '#141A2E'; roundRect(-42, -70, 84, 70, 24); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, -98, 40, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffd9b3'; roundRect(-30, -110, 60, 22, 10); ctx.fill();
+  ctx.fillStyle = '#141A2E'; ctx.beginPath(); ctx.arc(-12, -99, 5, 0, 7); ctx.arc(12, -99, 5, 0, 7); ctx.fill();
+  ctx.fillStyle = '#D9342B'; ctx.fillRect(-41, -128, 82, 12);
+  ctx.beginPath(); ctx.moveTo(38,-126); ctx.lineTo(70 + Math.sin(performance.now()/180)*6, -138); ctx.lineTo(66,-116); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '900 9px -apple-system,"Segoe UI",Arial'; ctx.textAlign = 'center'; ctx.fillText('ЗАСВАРЧ', 0, -120);
+  // сэлэм
+  ctx.save(); ctx.translate(36, -48); ctx.rotate(p ? -1.6 : -.5);
+  ctx.fillStyle = '#c9ced8'; ctx.fillRect(0, -4, 78, 8); ctx.fillStyle = '#f5cd30'; ctx.fillRect(-8, -9, 8, 18); ctx.fillStyle = '#6b3a2a'; ctx.fillRect(-26, -4, 18, 8);
+  ctx.restore();
+  ctx.restore();
+}
+function render(){
+  const t = performance.now() / 1000;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#1b1433'; ctx.fillRect(0, 0, cv.width, cv.height);
+  const sx = shake > 0 ? (Math.random()-.5) * 18 : 0, sy = shake > 0 ? (Math.random()-.5) * 18 : 0;
+  ctx.setTransform(dpr*scale, 0, 0, dpr*scale, dpr*(offX + sx*scale), dpr*(offY + sy*scale));
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+  drawBackground(t);
+  drawNinja();
+  for (const it of items){
+    if (!it.alive || !it.launched) continue;
+    ctx.save(); ctx.globalAlpha = it.alpha ?? 1; ctx.translate(it.x, it.y); ctx.rotate(it.rot); drawItemBody(it); ctx.restore();
+  }
+  for (const p of pieces){
+    const it = p.it;
+    ctx.save(); ctx.globalAlpha = Math.min(1, p.life); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.beginPath(); if (p.side < 0) ctx.rect(-400, -400, 800, 400); else ctx.rect(-400, 0, 800, 400); ctx.clip();
+    drawItemBody(it); ctx.restore();
+  }
+  for (const p of parts){ ctx.globalAlpha = Math.min(1, p.life*2); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  for (const tx of texts){
+    ctx.globalAlpha = Math.min(1, tx.life*2); ctx.font = '900 34px -apple-system,"Segoe UI",Arial'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillText(tx.t, tx.x + 3, tx.y + 3); ctx.fillStyle = tx.col; ctx.fillText(tx.t, tx.x, tx.y);
+  }
+  ctx.globalAlpha = 1;
+  // сэлэмний мөр
+  if (trail.length > 1){
+    const now = performance.now();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let i=1;i<trail.length;i++){
+      const a = 1 - (now - trail[i].t) / 160;
+      ctx.strokeStyle = `rgba(255,255,255,${Math.max(0,a)})`; ctx.lineWidth = 3 + 11*Math.max(0,a);
+      ctx.beginPath(); ctx.moveTo(trail[i-1].x, trail[i-1].y); ctx.lineTo(trail[i].x, trail[i].y); ctx.stroke();
+      ctx.strokeStyle = `rgba(120,200,255,${Math.max(0,a)*.5})`; ctx.lineWidth = 2 + 20*Math.max(0,a); ctx.stroke();
+    }
+  }
+  if (flash > 0){ ctx.fillStyle = `rgba(255,120,60,${flash*.6})`; ctx.fillRect(0, 0, W, H); }
+  ctx.restore();
+}
+let last = performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  update(dt); render();
+}
+
+/* ───────────── Цонх ───────────── */
+const modal = $('modal'), card = $('card');
+let modalKey = null;
+function openModal(html){ card.innerHTML = html; modal.classList.add('show'); card.scrollTop = 0; drawing = false; trail = []; }
+function closeModal(){ modal.classList.remove('show'); modalKey = null; }
+
+function showAnswerCard(){
+  state = 'modal';
+  $('banner').classList.remove('show');
+  const q = QUESTIONS[qi], {ok, chosen} = pendingInfo;
+  openModal(`<span class="tag">Асуулт ${qi+1} / ${QUESTIONS.length}</span>
+    <h2>${esc(q.q)}</h2>
+    <p class="verdict ${ok?'ok':'no'}">${ok ? '✓ Зөв зүслээ!' : '✕ Буруу хуудас'}</p>
+    ${ok ? '' : `<div class="ans bad">Чиний зүссэн: ${esc(q.opts[chosen])}</div>`}
+    <div class="ans">✓ Зөв хариулт: ${esc(q.opts[q.ans])}</div>
+    <div class="why">💡 ${esc(q.why)}</div>
+    <div class="row"><button class="btn go" type="button">${qi + 1 < QUESTIONS.length ? 'Дараагийн асуулт ⚔' : 'Дүнгээ харах 🏆'}</button><span class="muted">Space / Enter</span></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => {
+    closeModal();
+    qi++; items = [];
+    if (qi >= QUESTIONS.length) return finishGame();
+    state = 'play'; last = performance.now(); startWave();
+  };
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+}
+function resetAll(){
+  qi = 0; items = []; pieces = []; parts = []; texts = []; trail = [];
+  score = 0; combo = 1; bestCombo = 1; hearts = 3; wrongSlices = 0; bombsHit = 0; tGame = 0;
+  answers = new Array(QUESTIONS.length).fill(null); wave = null; pendingCard = 0;
+  updateHud();
+}
+function showStart(){
+  state = 'start';
+  openModal(`<span class="tag">5-р анги · Хичээл 11 · Бататгал тоглоом</span>
+    <h1>Ниндзя Засварч ⚔📄</h1>
+    <p>Ангийн хамтын тайлан замбараагүй болжээ! Агаарт <b>хариултын хуудсууд</b> нисэж байна. Чи бол <b>Ниндзя Засварч</b> — асуултыг уншаад <b>зөв хариулттай хуудсыг сэлмээрээ зүс!</b></p>
+    <p>💣 <b>Бөмбөг</b> («Хулгайн зураг», «Эшлэлгүй зураг»…) зүсвэл амь хасагдана. Хариулт бүгд унавал мөн амь хасагдана.</p>
+    <div class="keys">
+      <b>Хулгана / trackpad</b><span>дарсан чигтээ чирж зүснэ</span>
+      <b>Таблет</b><span>хуруугаараа зүснэ</span>
+      <b>1 2 3 4</b><span>тэр дугаартай хуудсыг шууд зүснэ</span>
+      <b>P</b><span>түр зогсоох</span>
+    </div>
+    <p class="muted">12 асуулт · 3 амь · Дараалан зөв зүсвэл КОМБО өснө!</p>
+    <div class="row"><button class="btn go" type="button">Сэлмээ сугал ⚔</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); tone(1,.01,'sine',.0001); startWave(); };
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+}
+function showPause(){
+  if (state !== 'play') return;
+  state = 'paused';
+  openModal(`<span class="tag">Түр зогслоо</span><h1>⏸ Амсхийе</h1>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэх ▶</button><button class="btn alt again" type="button">Эхнээс нь</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); state = 'play'; last = performance.now(); };
+  card.querySelector('.again').onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); startWave(); };
+  modalKey = e => { if (['Enter',' ','p','P','Escape'].includes(e.key)){ e.preventDefault(); go.click(); } };
+}
+function gameOver(){
+  state = 'over'; $('banner').classList.remove('show');
+  openModal(`<span class="tag">Амь дууслаа</span><h1>Сэлэм мохов… 🗡💤</h1>
+    <p>Санаа зоволтгүй — хариулсан асуултууд чинь хадгалагдсан. 3 шинэ амьтайгаар энэ асуултаасаа үргэлжлүүлье.</p>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэх ▶</button><button class="btn alt again" type="button">Эхнээс нь</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => {
+    closeModal(); hearts = 3; updateHud(); last = performance.now();
+    if (wave && wave.decided){ state = 'play'; pendingCard = Math.max(pendingCard, .01); }
+    else { state = 'play'; startWave(); }
+  };
+  card.querySelector('.again').onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); startWave(); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+function finishGame(){
+  state = 'done'; SFX.win(); $('banner').classList.remove('show'); updateHud();
+  const ok = answers.filter(a=>a===true).length, n = QUESTIONS.length;
+  const stars = ok >= 11 ? 3 : ok >= 8 ? 2 : ok >= 1 ? 1 : 0;
+  const msg = stars === 3 ? 'Гайхалтай! Чи жинхэнэ Ниндзя Засварч боллоо!' :
+              stars === 2 ? 'Сайн байна! Алдсан асуултаа доороос уншаад дахин тогло.' :
+              'Эхлэл сайн! Доорх тайлбаруудыг уншаад дахин оролдоорой.';
+  let best = 0; try { best = +localStorage.getItem('g5h11best') || 0; if (score > best) localStorage.setItem('g5h11best', score); } catch(e){}
+  const miss = QUESTIONS.map((q,i)=>({q,i})).filter(o=>answers[o.i] !== true);
+  openModal(`<span class="tag">🏆 Тайлан аврагдлаа!</span><h1>Дүн</h1>
+    <div class="stars">${[0,1,2].map(i=>`<span class="${i<stars?'':'off'}">★</span>`).join('')}</div>
+    <h2>${ok} / ${n} асуулт зөв</h2>
+    <div class="stats"><div>${score}<small>оноо</small></div><div>×${bestCombo}<small>шилдэг комбо</small></div><div>${bombsHit}<small>бөмбөг</small></div><div>${Math.floor(tGame/60)}:${String(Math.floor(tGame%60)).padStart(2,'0')}<small>цаг</small></div></div>
+    <p>${msg}${score > best && best ? ' 🏆 Шинэ дээд оноо!' : ''}</p>
+    ${miss.length ? `<p class="muted" style="margin-top:1em">Давтаж уншаарай:</p><div class="review">${miss.map(o=>`<div><b>${o.i+1}. ${esc(o.q.q)}</b><span class="a">✓ ${esc(o.q.opts[o.q.ans])}</span><br><span class="muted">${esc(o.q.why)}</span></div>`).join('')}</div>` : ''}
+    <div class="row"><button class="btn go" type="button">Дахин тоглох ↻</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); startWave(); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+
+/* ───────────── Оролт ───────────── */
+let drawing = false, lastPt = null, swishT = 0;
+cv.addEventListener('pointerdown', e => {
+  drawing = true; try { cv.setPointerCapture(e.pointerId); } catch(err){}
+  const [x, y] = toLogic(e.clientX, e.clientY); lastPt = {x, y}; trail = [{x, y, t:performance.now()}];
+});
+cv.addEventListener('pointermove', e => {
+  if (!drawing) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  for (const ev of (evs.length ? evs : [e])){
+    const [x, y] = toLogic(ev.clientX, ev.clientY);
+    if (lastPt){ slash(lastPt.x, lastPt.y, x, y); if (Math.hypot(x-lastPt.x, y-lastPt.y) > 25 && performance.now() - swishT > 180){ SFX.swish(); swishT = performance.now(); } }
+    lastPt = {x, y}; trail.push({x, y, t:performance.now()});
+  }
+});
+const endDraw = () => { drawing = false; lastPt = null; };
+cv.addEventListener('pointerup', endDraw); cv.addEventListener('pointercancel', endDraw);
+function sliceByNumber(n){
+  if (state !== 'play') return;
+  const it = items.find(i => i.kind === 'opt' && i.num === n && i.alive && i.launched && i.y < H - 20);
+  if (!it) return;
+  const a = -.4;
+  for (let k=0;k<6;k++) trail.push({x:it.x - 160 + k*64, y:it.y + 70 - k*28, t:performance.now() + k*10});
+  SFX.swish(); cut(it, a);
+}
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('show')){ if (e.code === 'Space') e.preventDefault(); if (modalKey) modalKey(e); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape'){ showPause(); return; }
+  if (e.code === 'KeyM'){ toggleMute(); return; }
+  const n = parseInt(e.key, 10); if (n >= 1 && n <= 4){ e.preventDefault(); sliceByNumber(n); }
+});
+function toggleMute(){ muted = !muted; $('bMute').textContent = muted ? '🔇' : '🔊'; }
+$('bMute').onclick = e => { toggleMute(); e.currentTarget.blur(); };
+$('bPause').onclick = e => { e.currentTarget.blur(); showPause(); };
+$('bFull').onclick = e => {
+  e.currentTarget.blur();
+  try {
+    const d = document, el = d.documentElement;
+    if (!(d.fullscreenElement || d.webkitFullscreenElement)) (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    else (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+  } catch(err){}
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden) showPause(); });
+
+resetAll();
+showStart();
+requestAnimationFrame(loop);
+window.__game = {update, render, slash, sliceByNumber, get items(){ return items; }, get state(){ return state; }, set state(v){ state = v; },
+  get qi(){ return qi; }, answers:()=>answers, hearts:()=>hearts, score:()=>score, QUESTIONS, W, H};
+})();
+</script>
+</body>
+</html>

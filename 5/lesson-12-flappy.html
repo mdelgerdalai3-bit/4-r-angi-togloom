@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Слайдаагийн нислэг</title>
+<style>
+:root{
+  --ink:#141A2E; --paper:#FBFAF7; --panel:#F2EFE8; --rule:#DCD6C8;
+  --deep:#2563EB; --ok:#0B7A55; --ok-soft:#DFF1EC; --no:#C0322B; --no-soft:#FBE7DC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1b2140;color:#fff;overflow:hidden;
+  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:min(100vw,calc(100vh * 16 / 9));aspect-ratio:16/9}
+#c{display:block;width:100%;height:100%;cursor:pointer}
+.hud{position:absolute;top:10px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none;z-index:3}
+#hudL{left:10px} #hudR{right:10px;justify-content:flex-end}
+.pill{background:rgba(20,26,46,.62);border-radius:10px;padding:5px 11px;font-weight:800;
+  font-size:clamp(12px,1.4vw,18px);line-height:1.15;display:flex;flex-direction:column;min-width:56px}
+.pill small{font-size:.62em;opacity:.8;letter-spacing:.06em}
+.hud button{pointer-events:auto;font:inherit;font-weight:800;font-size:clamp(13px,1.5vw,19px);
+  background:rgba(20,26,46,.62);color:#fff;border:0;border-radius:10px;padding:0 11px;cursor:pointer}
+.hud button:focus-visible{outline:3px solid #fff}
+#banner{position:absolute;left:50%;bottom:1.2%;transform:translateX(-50%);z-index:4;pointer-events:none;
+  width:min(820px,calc(100% - 20px));display:none}
+#banner.show + #help{display:none}
+#banner.show{display:block}
+#banner .q{background:rgba(255,255,255,.96);color:var(--ink);border:3px solid var(--ink);border-radius:12px;
+  padding:5px 12px 6px;box-shadow:4px 4px 0 rgba(20,26,46,.45)}
+#banner .hint{font-size:clamp(11px,1.15vw,14px);font-weight:700;color:#5C6278;text-align:center}
+#banner .qt{font-weight:800;font-size:clamp(15px,2vw,24px);line-height:1.25;text-align:center}
+#banner .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+#banner .ln{border-radius:10px;padding:5px 8px;font-weight:800;font-size:clamp(12px,1.45vw,18px);color:#fff;line-height:1.2;text-align:center}
+#banner .ln b{display:block;font-size:.78em;opacity:.92}
+#help{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:3;pointer-events:none;
+  background:rgba(20,26,46,.55);padding:5px 13px;border-radius:10px;font-size:clamp(11px,1.25vw,15px);
+  white-space:nowrap;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis}
+#modal{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;
+  background:rgba(20,26,46,.5);padding:16px;overflow:auto}
+#modal.show{display:flex}
+.card:focus{outline:none}
+.card{background:var(--paper);color:var(--ink);width:min(680px,100%);max-height:100%;overflow:auto;
+  border:4px solid var(--ink);border-radius:14px;box-shadow:8px 8px 0 rgba(37,99,235,.5);
+  padding:22px 24px;font-size:clamp(16px,1.6vw,21px);line-height:1.45;user-select:text}
+.tag{display:inline-block;font-size:.68em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--deep);color:#fff;border:2px solid var(--ink);border-radius:2em;padding:.12em .8em}
+.card h1{font-size:1.75em;line-height:1.15;margin:.45em 0 .3em}
+.card h2{font-size:1.25em;line-height:1.3;margin:.55em 0 .2em}
+.card p{margin:.4em 0}
+.muted{color:#5C6278;font-size:.9em}
+.verdict{font-weight:900;font-size:1.5em;margin:.3em 0}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--no)}
+.ans{border:2.5px solid var(--ok);background:var(--ok-soft);border-radius:.6em;padding:.5em .8em;font-weight:700;margin:.5em 0}
+.ans.bad{border-color:var(--no);background:var(--no-soft)}
+.why{margin-top:.7em;padding:.7em .9em;border-left:5px solid var(--deep);background:var(--panel);border-radius:0 .5em .5em 0}
+.row{display:flex;gap:.6em;flex-wrap:wrap;align-items:center;margin-top:1em}
+.btn{font:inherit;font-weight:800;background:var(--ink);color:#fff;border:2.5px solid var(--ink);
+  border-radius:2em;padding:.5em 1.4em;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:.35em .9em;margin:.8em 0;font-size:.92em}
+.keys b{background:var(--panel);border:2px solid var(--rule);border-radius:.35em;padding:0 .45em;white-space:nowrap}
+.stars{font-size:2.6em;letter-spacing:.1em;line-height:1;margin:.2em 0;color:#E0A800}
+.stars .off{color:#D6D0C2}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5em;margin:.6em 0}
+.stats div{background:var(--panel);border-radius:.5em;padding:.4em .6em;font-weight:800;font-size:1.05em}
+.stats small{display:block;font-weight:600;font-size:.7em;color:#5C6278}
+.review{margin-top:.8em;display:grid;gap:.55em}
+.review div{border:2px solid var(--rule);border-radius:.55em;padding:.5em .75em;font-size:.88em}
+.review b{display:block}
+.review .a{color:var(--ok);font-weight:700}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <canvas id="c" aria-label="Тоглоомын талбар"></canvas>
+  <div class="hud" id="hudL">
+    <div class="pill"><small>АМЬ</small><span id="hHearts">❤❤❤</span></div>
+    <div class="pill"><small>САНАА</small><span id="hBulbs">💡 0</span></div>
+    <div class="pill"><small>АСУУЛТ</small><span id="hQ">0/12</span></div>
+    <div class="pill"><small>ЗӨВ</small><span id="hOk">✓ 0</span></div>
+  </div>
+  <div class="hud" id="hudR">
+    <button id="bPause" type="button" aria-label="Түр зогсоох">⏸</button>
+    <button id="bMute" type="button" aria-label="Дуу унтраах">🔊</button>
+    <button id="bFull" type="button" aria-label="Бүтэн дэлгэц">⛶</button>
+  </div>
+  <div id="banner"></div>
+  <div id="help">Space / ↑ / хулгана товших — дээш нисэх · P — түр зогсоох · Таблет: дэлгэц товших</div>
+</div></div>
+<div id="modal" role="dialog" aria-modal="true"><div class="card" id="card" tabindex="-1"></div></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ───────────── Асуултууд (5-р анги · Хичээл 12: Slides) ───────────── */
+const QUESTIONS = [
+  {q:'Нэг слайдад хэдэн ГОЛ санаа байх ёстой вэ?', opts:['Нэг','Хоёр','Хэд ч байж болно'], ans:0,
+   why:'«1 слайд = 1 санаа». Хоёр санаа байвал хоёр слайд болгож хуваана. Ингэвэл үзэгч төөрөхгүй.'},
+  {q:'6×6 дүрэм гэж юу вэ?', opts:['6-аас цөөн мөр, мөр бүрд 6-аас цөөн үг','6 слайд, слайд бүрд 6 зураг','6 өнгө, 6 фонт'], ans:0,
+   why:'6×6 нь хэт их текстээс сэргийлэх хэмжүүр. Дэлгэрэнгүйг илтгэгч амаараа хэлнэ.'},
+  {q:'Слайд дээрх ХООСОН ЗАЙ юу гэсэн үг вэ?', opts:['Нүд амарч, гол санаа тодорно','Ажил дутуу гэсэн үг','Алдаа гарсан'], ans:0,
+   why:'Хоосон зай нь «дутуу» биш — нүдэнд амрах, гол санааг тодруулах дизайны хэрэгсэл.'},
+  {q:'Аль нь АЧААЛАЛТАЙ слайдын асуудал вэ?', opts:['Бүтэн догол мөр текст байх','Нэг тод зураг байх','Хоосон зай үлдээх'], ans:0,
+   why:'Хэт их текст, нэг слайдад олон сэдэв — гол асуудал. Тод зураг, хоосон зай нь эсрэгээрээ слайдыг сайжруулна.'},
+  {q:'Нэг слайд дээр ХОЁР санаа байвал яах вэ?', opts:['Хоёр слайд болгож хуваана','Нэг слайдад шахаж багтаана','Фонтыг жижигрүүлнэ'], ans:0,
+   why:'Слайд болгон хуваа — слайд бүрд ганцхан гол санаа.'},
+  {q:'Танилцуулгын ЭХНИЙ слайдад юу байх вэ?', opts:['Нүүр — гарчиг ба нэр','Дүгнэлт','Эх сурвалжийн жагсаалт'], ans:0,
+   why:'5 слайдын бүтэц: Нүүр → Асуудал → Гол санаа (2 слайд) → Дүгнэлт.'},
+  {q:'Танилцуулгын СҮҮЛИЙН слайдад юу байх вэ?', opts:['Дүгнэлт — хамгийн чухал 1 зурвас','Нүүр хуудас','Бүх текстийн хуулбар'], ans:0,
+   why:'Дүгнэлт: «Үзэгч юуг санаасай гэж хүсэж байна вэ?» Доор нь эх сурвалжаа бичнэ.'},
+  {q:'Хэлэх бүх үгээ слайдад бичвэл юу болох вэ?', opts:['Үзэгч уншина — чамайг сонсохгүй','Үзэгч илүү сайн ойлгоно','Юу ч өөрчлөгдөхгүй'], ans:0,
+   why:'Слайд бол хэлэх үгийн ХУУЛБАР биш, харин ЗУРАГ. Бүх үг байвал үзэгч уншаад чамайг сонсохоо больдог.'},
+  {q:'Замбараагүй слайдыг яаж засах вэ?', opts:['2 өнгө, 1 фонт, тод зураг','5 өнгө, 3 фонт нэмэх','Бүдэг зураг тавих'], ans:0,
+   why:'Замбараагүй харагдац (5 өнгө, 3 фонт, бүдэг зураг)-ын засвар: 2 өнгө, 1 фонт, тод зураг.'},
+  {q:'«Гол шалгуур»: слайдыг хэдэн секунд хараад гол санаа ойлгогдох ёстой вэ?', opts:['3 секунд','30 секунд','1 минут'], ans:0,
+   why:'3 секундын шалгуур: слайдыг 3 секунд хараад гол санаа нь ойлгогдож байвал сайн слайд.'},
+  {q:'Урт текстийг слайд болгох 4 алхмын СҮҮЛИЙНХ нь аль вэ?', opts:['Зурагла — 1 тохирох зураг нэм','Унш — догол мөрөө унш','Хураангуйл — 1 өгүүлбэр болго'], ans:0,
+   why:'Унш → Хураангуйл → Товчил (6-аас цөөн үг) → Зурагла (1 зураг).'},
+  {q:'Мөр бүрийг хэдээс цөөн үгтэй болгох вэ?', opts:['6','16','60'], ans:0,
+   why:'Мөр бүр 6-аас цөөн үг — 6×6 дүрэм. Хураангуйлах нь мэдээлэл алдах биш, дэлгэрэнгүйг амаараа хэлнэ.'}
+];
+
+/* ───────────── Дуу ───────────── */
+let AC = null, muted = false;
+function tone(f, dur, type='square', vol=.05, f2=0, delay=0){
+  if (muted) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.linearRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + dur + .02);
+  }catch(e){}
+}
+const SFX = {
+  flap:()=>tone(460,.09,'triangle',.06,720),
+  bulb:()=>tone(1180,.07,'triangle',.06,1560),
+  hit:()=>{tone(170,.22,'sawtooth',.07,70);},
+  open:()=>{tone(660,.08,'sine',.08);tone(990,.12,'sine',.08,0,.08);},
+  right:()=>[659,784,988,1319].forEach((f,i)=>tone(f,.14,'triangle',.08,0,i*.08)),
+  wrong:()=>{tone(300,.18,'sawtooth',.04);tone(220,.35,'sawtooth',.04,0,.18);},
+  win:()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.08,0,i*.12))
+};
+
+/* ───────────── Канвас ───────────── */
+const W = 800, H = 450, FLOOR = 400;
+const cv = $('c'), ctx = cv.getContext('2d');
+let SC = 1;
+function resize(){
+  const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  SC = cv.width / W;
+}
+window.addEventListener('resize', resize); resize();
+document.addEventListener('fullscreenchange', () => setTimeout(resize, 60));
+
+/* ───────────── Зам бүтээх ───────────── */
+const PX = 200;                          // онгоцны дэлгэц дээрх X
+const PIPE_W = 70, QW = 44;
+const GAPS = [70, 200, 330], GAP_HALF = 56;
+const OPT_COL = ['#2563EB','#E8541C','#7C3AED'], OPT_LAB = ['▲ A','■ B','▼ C'];
+let cols = [], bulbs = [], END_X = 0;
+let seed = 12;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+function buildCourse(){
+  cols = []; bulbs = []; seed = 12;
+  let x = 620, gy = 200;
+  QUESTIONS.forEach((q, qi) => {
+    const n = 2 + (qi % 2);
+    const gapH = Math.max(150, 175 - qi * 2);
+    for (let k=0;k<n;k++){
+      gy = Math.max(115, Math.min(290, gy + (rnd() - .5) * 190));
+      cols.push({type:'pipe', x, gy, gh:gapH, hit:false});
+      bulbs.push({x: x + 125, y: gy + (rnd() - .5) * 40, got:false});
+      x += 255;
+    }
+    x += 90;
+    const order = [0,1,2].sort(() => Math.random() - .5);
+    cols.push({type:'q', x, qi, order, done:false, hit:false});
+    x += 380; gy = 200;
+  });
+  END_X = x + 120;
+}
+
+/* ───────────── Төлөв ───────────── */
+const pl = {wx:0, y:200, vy:0, inv:0, hearts:3, rot:0};
+let state = 'start', speed = 0, bulbCount = 0, hits = 0, tGame = 0, tAll = 0, readyT = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+const trail = [];
+const G = 1050, FLAP = -320, MAXFALL = 430, BASE = 118, SLOW = 66;
+
+function updateHud(){
+  $('hHearts').textContent = pl.hearts > 0 ? '❤'.repeat(pl.hearts) : '–';
+  $('hBulbs').textContent = '💡 ' + bulbCount;
+  $('hQ').textContent = answers.filter(a=>a!==null).length + '/' + QUESTIONS.length;
+  $('hOk').textContent = '✓ ' + answers.filter(a=>a===true).length;
+}
+const banner = $('banner'); let bannerKey = '';
+function setBanner(key, html){
+  if (key === bannerKey) return; bannerKey = key;
+  if (!key){ banner.classList.remove('show'); banner.innerHTML = ''; return; }
+  banner.innerHTML = html; banner.classList.add('show');
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function flap(){
+  if (state === 'ready'){ state = 'play'; }
+  if (state !== 'play') return;
+  pl.vy = FLAP; SFX.flap();
+}
+function circleRect(cx, cy, r, x0, y0, x1, y1){
+  const nx = Math.max(x0, Math.min(cx, x1)), ny = Math.max(y0, Math.min(cy, y1));
+  return (cx-nx)*(cx-nx) + (cy-ny)*(cy-ny) < r*r;
+}
+function hurt(){
+  if (pl.inv > 0) return;
+  pl.hearts--; hits++; pl.inv = 1.6; SFX.hit(); updateHud();
+  if (pl.hearts <= 0) showGameOver();
+}
+
+function nextQ(){ return cols.find(c => c.type === 'q' && !c.done); }
+function update(dt){
+  tAll += dt;
+  if (state === 'ready'){ pl.y = 200 + Math.sin(tAll * 4) * 8; pl.rot = 0; return; }
+  if (state !== 'play') return;
+  tGame += dt;
+  const q = nextQ();
+  const dq = q ? q.x - (pl.wx + PX) : 1e9;
+  const target = dq < 560 && dq > -40 ? SLOW : BASE;
+  speed += (target - speed) * Math.min(1, dt * 2.5);
+  pl.wx += speed * dt;
+  pl.vy = Math.min(MAXFALL, pl.vy + G * dt);
+  pl.y += pl.vy * dt;
+  if (pl.y < 12){ pl.y = 12; pl.vy = 0; }
+  pl.rot = Math.max(-.5, Math.min(1.1, pl.vy / 420));
+  if (pl.inv > 0) pl.inv -= dt;
+  const ax = pl.wx + PX, R = 12;
+  if (pl.y > FLOOR - R){ pl.y = FLOOR - R; pl.vy = FLAP * .9; hurt(); if (state !== 'play') return; }
+  // саад
+  for (const c of cols){
+    if (c.x < ax - 120 || c.x > ax + 120) continue;
+    if (c.type === 'pipe'){
+      const x0 = c.x - PIPE_W/2, x1 = c.x + PIPE_W/2;
+      if (circleRect(ax, pl.y, R, x0, 0, x1, c.gy - c.gh/2) || circleRect(ax, pl.y, R, x0, c.gy + c.gh/2, x1, FLOOR)){ hurt(); if (state !== 'play') return; }
+    } else {
+      const x0 = c.x - QW/2, x1 = c.x + QW/2;
+      const walls = [[0, GAPS[0]-GAP_HALF], [GAPS[0]+GAP_HALF, GAPS[1]-GAP_HALF], [GAPS[1]+GAP_HALF, GAPS[2]-GAP_HALF], [GAPS[2]+GAP_HALF, FLOOR]];
+      for (const [y0, y1] of walls) if (circleRect(ax, pl.y, R, x0, y0, x1, y1)){ hurt(); if (state !== 'play') return; break; }
+      if (!c.done && ax > c.x + QW/2 + R + 2){
+        let k = 0, bd = 1e9; GAPS.forEach((g, i) => { const d = Math.abs(g - pl.y); if (d < bd){ bd = d; k = i; } });
+        c.done = true; answer(c, k); return;
+      }
+    }
+  }
+  for (const b of bulbs) if (!b.got && Math.abs(b.x - ax) < 22 && Math.abs(b.y - pl.y) < 24){ b.got = true; bulbCount++; SFX.bulb(); updateHud(); }
+  trail.push({x:ax, y:pl.y}); if (trail.length > 26) trail.shift();
+  // самбар
+  if (q && dq < 560){
+    const qq = QUESTIONS[q.qi];
+    setBanner('q' + q.qi, `<div class="q"><div class="qt">❓ ${esc(qq.q)}</div><div class="hint">Зөв хариулттай хаалгаар нисэн гар: ▲ A · ■ B · ▼ C</div></div>`);
+  } else setBanner('', '');
+  if (!q && ax > END_X) finishGame();
+}
+
+/* ───────────── Зураг ───────────── */
+const clouds = Array.from({length:9}, (_,i) => ({x:i*190 + 40, y:40 + (i*73)%170, s:.7 + (i%3)*.2}));
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function wrapText(text, maxW, font){
+  ctx.font = font; const words = text.split(' '), lines = []; let cur = '';
+  for (const w of words){ const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur); return lines;
+}
+function drawBg(cam){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#8ec5ff'); g.addColorStop(.7,'#d9e8ff'); g.addColorStop(1,'#f3e8ff');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  // хөвөгч «слайд» үүлс
+  for (const c of clouds){
+    const x = ((c.x - cam*.25) % 1710 + 1710) % 1710 - 120, w = 90*c.s, h = 54*c.s;
+    ctx.globalAlpha = .55;
+    ctx.fillStyle = '#ffffff'; roundRect(x, c.y, w, h, 6); ctx.fill();
+    ctx.fillStyle = '#93b4ff'; ctx.fillRect(x+8*c.s, c.y+8*c.s, w*.5, 6*c.s);
+    ctx.fillStyle = '#c7d2fe'; ctx.fillRect(x+8*c.s, c.y+22*c.s, w*.35, 18*c.s);
+    ctx.fillStyle = '#fcd34d'; ctx.beginPath(); ctx.arc(x+w*.72, c.y+h*.6, 9*c.s, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  // тайз
+  const fg = ctx.createLinearGradient(0,FLOOR,0,H); fg.addColorStop(0,'#3b2f6b'); fg.addColorStop(1,'#241c47');
+  ctx.fillStyle = fg; ctx.fillRect(0,FLOOR,W,H-FLOOR);
+  ctx.fillStyle = '#fcd34d'; ctx.fillRect(0,FLOOR,W,3);
+  ctx.fillStyle = 'rgba(255,255,255,.12)';
+  for (let x = -((cam) % 40); x < W; x += 40) ctx.fillRect(x, FLOOR+14, 22, 4);
+}
+function drawPipe(c, cam){
+  const x = c.x - cam - PIPE_W/2;
+  const parts = [[0, c.gy - c.gh/2, true], [c.gy + c.gh/2, FLOOR, false]];
+  for (const [y0, y1, top] of parts){
+    const h = y1 - y0; if (h <= 0) continue;
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 3;
+    ctx.fillRect(x, y0, PIPE_W, h); ctx.strokeRect(x, y0, PIPE_W, h);
+    // «хэт их текст»
+    ctx.fillStyle = '#cbd5e1';
+    for (let yy = y0 + 10; yy < y1 - 6; yy += 9){ const w = 34 + ((yy * 7 + c.x) % 22); ctx.fillRect(x + 8, yy, Math.min(PIPE_W-16, w), 4); }
+    // малгай
+    const capY = top ? y1 - 20 : y0;
+    ctx.fillStyle = '#ef4444'; ctx.fillRect(x - 6, capY, PIPE_W + 12, 20);
+    ctx.strokeRect(x - 6, capY, PIPE_W + 12, 20);
+    ctx.fillStyle = '#fff'; ctx.font = '800 11px -apple-system,"Segoe UI",Arial'; ctx.textAlign = 'center';
+    ctx.fillText('БЛА БЛА…', x + PIPE_W/2, capY + 14); ctx.textAlign = 'left';
+  }
+}
+function drawQ(c, cam){
+  const x = c.x - cam;
+  const q = QUESTIONS[c.qi];
+  const walls = [[0, GAPS[0]-GAP_HALF], [GAPS[0]+GAP_HALF, GAPS[1]-GAP_HALF], [GAPS[1]+GAP_HALF, GAPS[2]-GAP_HALF], [GAPS[2]+GAP_HALF, FLOOR]];
+  ctx.fillStyle = '#1e293b';
+  for (const [y0, y1] of walls){ ctx.fillRect(x - QW/2, y0, QW, y1 - y0); }
+  GAPS.forEach((g, k) => {
+    const col = OPT_COL[k];
+    // хаалганы хүрээ
+    ctx.fillStyle = col; ctx.fillRect(x - QW/2 - 4, g - GAP_HALF - 6, QW + 8, 8); ctx.fillRect(x - QW/2 - 4, g + GAP_HALF - 2, QW + 8, 8);
+    ctx.globalAlpha = c.done ? .12 : .22; ctx.fillRect(x - QW/2, g - GAP_HALF, QW, GAP_HALF*2); ctx.globalAlpha = 1;
+    // хариултын шошго (хаалганы өмнө)
+    if (!c.done){
+      const bw = 150, bx = x - QW/2 - bw - 14;
+      const lines = wrapText(q.opts[c.order[k]], bw - 16, '800 13px -apple-system,"Segoe UI",Arial').slice(0, 3);
+      const bh = 22 + lines.length * 15;
+      ctx.globalAlpha = .93; ctx.fillStyle = col; roundRect(bx, g - bh/2, bw, bh, 9); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+      ctx.font = '800 10px -apple-system,"Segoe UI",Arial'; ctx.fillText(OPT_LAB[k], bx + bw/2, g - bh/2 + 13);
+      ctx.font = '800 13px -apple-system,"Segoe UI",Arial';
+      lines.forEach((l, i) => ctx.fillText(l, bx + bw/2, g - bh/2 + 29 + i*15));
+      ctx.textAlign = 'left';
+      // сум
+      ctx.beginPath(); ctx.moveTo(bx + bw + 2, g - 7); ctx.lineTo(bx + bw + 12, g); ctx.lineTo(bx + bw + 2, g + 7); ctx.fillStyle = col; ctx.fill();
+    }
+  });
+}
+function drawPlane(){
+  const x = PX, y = pl.y;
+  if (state === 'play' || state === 'modal'){
+    ctx.fillStyle = 'rgba(255,255,255,.7)';
+    const cam = pl.wx;
+    trail.forEach((t, i) => { if (i % 3 === 0){ ctx.globalAlpha = i / trail.length * .7; ctx.beginPath(); ctx.arc(t.x - cam, t.y, 2.2, 0, 7); ctx.fill(); } });
+    ctx.globalAlpha = 1;
+  }
+  if (pl.inv > 0 && Math.floor(pl.inv * 12) % 2 === 0) return;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(pl.rot);
+  ctx.lineJoin = 'round'; ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-18, -14); ctx.lineTo(-10, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#bfdbfe';
+  ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-10, 0); ctx.lineTo(-18, 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#93c5fd';
+  ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(-10, 0); ctx.lineTo(-6, 6); ctx.closePath(); ctx.fill();
+  // нүд
+  ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.arc(6, -4, 2.4, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(6.8, -4.8, .9, 0, 7); ctx.fill();
+  ctx.restore();
+}
+function drawEnd(cam){
+  const x = END_X - cam;
+  if (x > W + 200) return;
+  ctx.fillStyle = '#7c2d12'; ctx.fillRect(x - 10, 60, 20, FLOOR - 60);
+  ctx.fillStyle = '#fcd34d'; roundRect(x - 90, 70, 180, 64, 12); ctx.fill();
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.fillStyle = '#1e293b'; ctx.textAlign = 'center'; ctx.font = '900 20px -apple-system,"Segoe UI",Arial';
+  ctx.fillText('🎤 ТАЙЗ', x, 98); ctx.font = '800 13px -apple-system,"Segoe UI",Arial'; ctx.fillText('1 слайд = 1 санаа', x, 120); ctx.textAlign = 'left';
+}
+function render(){
+  ctx.setTransform(SC,0,0,SC,0,0);
+  const cam = pl.wx;
+  drawBg(cam);
+  for (const c of cols){ const sx = c.x - cam; if (sx < -260 || sx > W + 260) continue; c.type === 'pipe' ? drawPipe(c, cam) : drawQ(c, cam); }
+  for (const b of bulbs){
+    if (b.got) continue; const sx = b.x - cam; if (sx < -20 || sx > W + 20) continue;
+    ctx.font = '22px -apple-system,"Segoe UI Emoji",sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💡', sx, b.y + 8 + Math.sin(tAll*4 + b.x)*3); ctx.textAlign = 'left';
+  }
+  drawEnd(cam);
+  drawPlane();
+  if (state === 'ready'){
+    ctx.fillStyle = 'rgba(20,26,46,.75)'; roundRect(W/2 - 170, 300, 340, 50, 14); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '800 20px -apple-system,"Segoe UI",Arial';
+    ctx.fillText('Space / товш — нисээрэй! ✈', W/2, 332); ctx.textAlign = 'left';
+  }
+}
+
+let last = performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.033, (now - last) / 1000); last = now;
+  update(dt / 2); update(dt / 2);
+  render();
+}
+
+/* ───────────── Цонх ───────────── */
+const modal = $('modal'), card = $('card');
+let modalKey = null;
+function openModal(html){ card.innerHTML = html; modal.classList.add('show'); card.scrollTop = 0; }
+function closeModal(){ modal.classList.remove('show'); modalKey = null; }
+
+function answer(c, k){
+  state = 'modal';
+  const q = QUESTIONS[c.qi], chosen = c.order[k], ok = chosen === q.ans;
+  answers[c.qi] = ok; setBanner('', '');
+  ok ? SFX.right() : SFX.wrong();
+  if (ok) bulbCount += 5;
+  updateHud();
+  openModal(`<span class="tag">Асуулт ${c.qi+1} / ${QUESTIONS.length}</span>
+    <h2>${esc(q.q)}</h2>
+    <p class="verdict ${ok?'ok':'no'}">${ok ? '✓ Зөв! +5 💡' : '✕ Буруу хаалга'}</p>
+    ${ok ? '' : `<div class="ans bad">Чиний сонголт: ${esc(q.opts[chosen])}</div>`}
+    <div class="ans">✓ Зөв хариулт: ${esc(q.opts[q.ans])}</div>
+    <div class="why">💡 ${esc(q.why)}</div>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэн нисэх ▶</button><span class="muted">Space / Enter</span></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); pl.vy = Math.min(pl.vy, 0); state = 'play'; last = performance.now(); };
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+}
+function resetAll(){
+  buildCourse();
+  Object.assign(pl, {wx:0, y:200, vy:0, inv:0, hearts:3, rot:0});
+  speed = BASE; bulbCount = 0; hits = 0; tGame = 0; trail.length = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  setBanner('', ''); updateHud();
+}
+function showStart(){
+  state = 'start';
+  openModal(`<span class="tag">5-р анги · Хичээл 12 · Бататгал тоглоом</span>
+    <h1>Слайдаагийн нислэг ✈️</h1>
+    <p>Цаасан онгоц <b>Слайдаа</b> «бла бла…» гэсэн <b>хэт их текстээр</b> дүүрсэн слайдын хананы дундуур нисэж, <b>🎤 Тайз</b> хүрэх ёстой!</p>
+    <p>Замд <b>💡 санаа</b> цуглуул. <b>Асуултын хана</b> ойртоход нислэг удааширч, асуулт гарна — <b>зөв хариулттай хаалгаар</b> (▲ A · ■ B · ▼ C) нисэн гараарай!</p>
+    <div class="keys">
+      <b>Space / ↑ / товших</b><span>дээш нисэх</span>
+      <b>P</b><span>түр зогсоох</span>
+      <b>Таблет</b><span>дэлгэцэн дээр товших</span>
+    </div>
+    <p class="muted">12 асуулт · 3 амь · Хананд хүрвэл амь хасагдана.</p>
+    <div class="row"><button class="btn go" type="button">Эхлэх ▶</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'ready'; last = performance.now(); tone(1,.01,'sine',.0001); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+function showPause(){
+  if (state !== 'play' && state !== 'ready') return;
+  const prev = state; state = 'paused';
+  openModal(`<span class="tag">Түр зогслоо</span><h1>⏸ Амсхийе</h1>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэх ▶</button><button class="btn alt again" type="button">Эхнээс нь</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); state = prev; last = performance.now(); };
+  card.querySelector('.again').onclick = () => { closeModal(); resetAll(); state = 'ready'; last = performance.now(); };
+  modalKey = e => { if (['Enter','p','P','Escape'].includes(e.key)){ e.preventDefault(); go.click(); } };
+}
+function showGameOver(){
+  state = 'over'; setBanner('', '');
+  openModal(`<span class="tag">Амь дууслаа</span><h1>Онгоц нугалчихлаа… ✈️💤</h1>
+    <p>Санаа зоволтгүй — хариулсан асуултууд чинь хадгалагдсан. 3 шинэ амьтайгаар яг энэ газраасаа үргэлжлүүлье.</p>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэх ▶</button><button class="btn alt again" type="button">Эхнээс нь</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); pl.hearts = 3; pl.inv = 2; pl.y = 200; pl.vy = 0; updateHud(); state = 'ready'; last = performance.now(); };
+  card.querySelector('.again').onclick = () => { closeModal(); resetAll(); state = 'ready'; last = performance.now(); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+function finishGame(){
+  state = 'done'; SFX.win(); setBanner('', ''); updateHud();
+  const ok = answers.filter(a=>a===true).length, n = QUESTIONS.length;
+  const stars = ok >= 11 ? 3 : ok >= 8 ? 2 : ok >= 1 ? 1 : 0;
+  const msg = stars === 3 ? 'Гайхалтай! Чи жинхэнэ слайдын мастер — 1 слайд = 1 санаа!' :
+              stars === 2 ? 'Сайн байна! Алдсан асуултаа доороос уншаад дахин нисээрэй.' :
+              'Эхлэл сайн! Доорх тайлбаруудыг уншаад дахин тоглоод үзээрэй.';
+  let best = 0; try { best = +localStorage.getItem('g5h12best') || 0; if (bulbCount > best) localStorage.setItem('g5h12best', bulbCount); } catch(e){}
+  const miss = QUESTIONS.map((q,i)=>({q,i})).filter(o=>answers[o.i] !== true);
+  openModal(`<span class="tag">🎤 Тайзанд хүрлээ!</span><h1>Дүн</h1>
+    <div class="stars">${[0,1,2].map(i=>`<span class="${i<stars?'':'off'}">★</span>`).join('')}</div>
+    <h2>${ok} / ${n} асуулт зөв</h2>
+    <div class="stats"><div>💡 ${bulbCount}<small>санаа</small></div><div>${hits}<small>мөргөсөн</small></div><div>${pl.hearts}<small>үлдсэн амь</small></div><div>${Math.floor(tGame/60)}:${String(Math.floor(tGame%60)).padStart(2,'0')}<small>цаг</small></div></div>
+    <p>${msg}${bulbCount > best && best ? ' 🏆 Шинэ дээд амжилт!' : ''}</p>
+    ${miss.length ? `<p class="muted" style="margin-top:1em">Давтаж уншаарай:</p><div class="review">${miss.map(o=>`<div><b>${o.i+1}. ${esc(o.q.q)}</b><span class="a">✓ ${esc(o.q.opts[o.q.ans])}</span><br><span class="muted">${esc(o.q.why)}</span></div>`).join('')}</div>` : ''}
+    <div class="row"><button class="btn go" type="button">Дахин нисэх ↻</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'ready'; last = performance.now(); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+
+/* ───────────── Оролт ───────────── */
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('show')){ if (e.code === 'Space') e.preventDefault(); if (modalKey) modalKey(e); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape'){ showPause(); return; }
+  if (e.code === 'KeyM'){ toggleMute(); return; }
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW'){ e.preventDefault(); if (!e.repeat) flap(); }
+});
+cv.addEventListener('pointerdown', e => { e.preventDefault(); flap(); });
+
+function toggleMute(){ muted = !muted; $('bMute').textContent = muted ? '🔇' : '🔊'; }
+$('bMute').onclick = e => { toggleMute(); e.currentTarget.blur(); };
+$('bPause').onclick = e => { e.currentTarget.blur(); showPause(); };
+$('bFull').onclick = e => {
+  e.currentTarget.blur();
+  try {
+    const d = document, el = d.documentElement;
+    if (!(d.fullscreenElement || d.webkitFullscreenElement)) (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    else (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+  } catch(err){}
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden) showPause(); });
+
+resetAll();
+showStart();
+requestAnimationFrame(loop);
+window.__game = {pl, update, render, flap, get cols(){ return cols; }, GAPS, get state(){ return state; }, set state(v){ state = v; }, answers:()=>answers, hits:()=>hits, bulbs:()=>bulbCount, get END_X(){ return END_X; }, get tGame(){ return tGame; }};
+})();
+</script>
+</body>
+</html>

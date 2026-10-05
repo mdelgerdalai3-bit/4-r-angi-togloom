@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Будгийн чавх</title>
+<style>
+:root{
+  --ink:#141A2E; --paper:#FBFAF7; --panel:#F2EFE8; --rule:#DCD6C8;
+  --deep:#D9367A; --ok:#0B7A55; --ok-soft:#DFF1EC; --no:#C0322B; --no-soft:#FBE7DC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1b2440;color:#fff;overflow:hidden;
+  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.hud{position:fixed;top:12px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none;z-index:3}
+#hudL{left:12px} #hudR{right:12px;justify-content:flex-end}
+.pill{background:rgba(20,26,46,.62);border-radius:10px;padding:6px 12px;font-weight:800;
+  font-size:clamp(13px,1.5vw,18px);line-height:1.15;display:flex;flex-direction:column;min-width:60px}
+.pill small{font-size:.62em;opacity:.8;letter-spacing:.06em}
+.hud button{pointer-events:auto;font:inherit;font-weight:800;font-size:clamp(14px,1.6vw,19px);
+  background:rgba(20,26,46,.62);color:#fff;border:0;border-radius:10px;padding:0 12px;cursor:pointer}
+.hud button:focus-visible{outline:3px solid #fff}
+#banner{position:fixed;left:50%;top:clamp(64px,9vh,90px);transform:translateX(-50%);z-index:3;pointer-events:none;
+  width:min(760px,calc(100vw - 24px));text-align:center;display:none}
+#banner.show{display:block}
+#banner .q{background:rgba(255,255,255,.95);color:var(--ink);border:3px solid var(--ink);border-radius:14px;
+  padding:10px 16px 12px;box-shadow:5px 5px 0 rgba(20,26,46,.45)}
+#banner .qt{font-weight:800;font-size:clamp(16px,2vw,25px);line-height:1.25}
+#banner .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+#banner .ln{border-radius:10px;padding:6px 8px;font-weight:800;font-size:clamp(12px,1.5vw,18px);color:#fff;line-height:1.2}
+#banner .ln b{display:block;font-size:.85em;opacity:.95}
+#toast{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%) scale(.9);opacity:0;z-index:4;
+  font-weight:900;font-size:clamp(26px,4.6vw,58px);transition:opacity .2s,transform .2s;pointer-events:none;
+  text-shadow:3px 3px 0 rgba(20,26,46,.6);white-space:nowrap}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#help{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;pointer-events:none;
+  background:rgba(20,26,46,.55);padding:6px 14px;border-radius:10px;font-size:clamp(12px,1.3vw,15px);
+  white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
+#modal{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;
+  background:rgba(20,26,46,.5);padding:16px;overflow:auto}
+#modal.show{display:flex}
+.card:focus{outline:none}
+.card{background:var(--paper);color:var(--ink);width:min(680px,100%);max-height:100%;overflow:auto;
+  border:4px solid var(--ink);border-radius:14px;box-shadow:8px 8px 0 rgba(217,54,122,.55);
+  padding:22px 24px;font-size:clamp(16px,1.6vw,21px);line-height:1.45;user-select:text}
+.tag{display:inline-block;font-size:.68em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--deep);color:#fff;border:2px solid var(--ink);border-radius:2em;padding:.12em .8em}
+.card h1{font-size:1.75em;line-height:1.15;margin:.45em 0 .3em}
+.card h2{font-size:1.25em;line-height:1.3;margin:.55em 0 .2em}
+.card p{margin:.4em 0}
+.muted{color:#5C6278;font-size:.9em}
+.verdict{font-weight:900;font-size:1.5em;margin:.3em 0}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--no)}
+.ans{border:2.5px solid var(--ok);background:var(--ok-soft);border-radius:.6em;padding:.5em .8em;font-weight:700;margin:.5em 0}
+.ans.bad{border-color:var(--no);background:var(--no-soft)}
+.why{margin-top:.7em;padding:.7em .9em;border-left:5px solid var(--deep);background:var(--panel);border-radius:0 .5em .5em 0}
+.row{display:flex;gap:.6em;flex-wrap:wrap;align-items:center;margin-top:1em}
+.btn{font:inherit;font-weight:800;background:var(--ink);color:#fff;border:2.5px solid var(--ink);
+  border-radius:2em;padding:.5em 1.4em;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:.35em .9em;margin:.8em 0;font-size:.92em}
+.keys b{background:var(--panel);border:2px solid var(--rule);border-radius:.35em;padding:0 .45em;white-space:nowrap}
+.stars{font-size:2.6em;letter-spacing:.1em;line-height:1;margin:.2em 0;color:#E0A800}
+.stars .off{color:#D6D0C2}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5em;margin:.6em 0}
+.stats div{background:var(--panel);border-radius:.5em;padding:.4em .6em;font-weight:800;font-size:1.05em}
+.stats small{display:block;font-weight:600;font-size:.7em;color:#5C6278}
+.review{margin-top:.8em;display:grid;gap:.55em}
+.review div{border:2px solid var(--rule);border-radius:.55em;padding:.5em .75em;font-size:.88em}
+.review b{display:block}
+.review .a{color:var(--ok);font-weight:700}
+.poster{display:block;margin:.6em auto;max-width:220px;width:60%;border-radius:8px;border:3px solid var(--ink)}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Чавхны тоглоомын талбар"></canvas>
+<div class="hud" id="hudL">
+  <div class="pill"><small>ОНОО</small><span id="hScore">0</span></div>
+  <div class="pill"><small>АСУУЛТ</small><span id="hQ">0/12</span></div>
+  <div class="pill"><small>ЗӨВ</small><span id="hOk">✓ 0</span></div>
+  <div class="pill"><small>БӨМБӨЛӨГ</small><span id="hShots">● ● ●</span></div>
+</div>
+<div class="hud" id="hudR">
+  <button id="bPause" type="button" aria-label="Түр зогсоох">⏸</button>
+  <button id="bMute" type="button" aria-label="Дуу унтраах">🔊</button>
+  <button id="bFull" type="button" aria-label="Бүтэн дэлгэц">⛶</button>
+</div>
+<div id="banner"></div>
+<div id="toast"></div>
+<div id="help">Хулганаар чирж татаад тавь · ← → өнцөг, ↑ ↓ хүч, Space — харвах · P — түр зогсоох</div>
+<div id="modal" role="dialog" aria-modal="true"><div class="card" id="card" tabindex="-1"></div></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ───────────── Асуултууд (5-р анги · Хичээл 14: Постер, визуал шатлал) ───────────── */
+const QUESTIONS = [
+  {q:'Постер дээр нүд юуг ХАМГИЙН ТҮРҮҮНД хардаг вэ?', opts:['Хамгийн том, тод, дээд талын элемент','Хамгийн олон үгтэй хэсэг','Доод булангийн жижиг текст'], ans:0,
+   why:'Нүд хамгийн ТОМ, хамгийн ТОД, хамгийн ДЭЭД зүйлийг эхэлж хардаг. Тиймээс гол зурвасаа яг тэнд байрлуулна.'},
+  {q:'Визуал шатлалын 3 хэрэгсэл аль нь вэ?', opts:['Хэмжээ · өнгө ба тодосгогч · байрлал','Файлын нэр · файлын хэмжээ · огноо','Фонтын нэр · үгийн тоо · хуудасны тоо'], ans:0,
+   why:'Шатлалыг хэмжээ, өнгө/тодосгогч, байрлал ба зай гурваар байгуулна. Файлын нэр, МБ хэмжээ харагдацад нөлөөлөхгүй.'},
+  {q:'Аль хослол ХАМГИЙН САЙН уншигдах вэ?', opts:['Цайвар дэвсгэр + бараан үсэг','Цайвар шар дэвсгэр + цагаан үсэг','Хөх дэвсгэр + ягаан үсэг'], ans:0,
+   why:'Тодосгогч өндөр байх тусам уншигдац сайн. Ойролцоо өнгө хоорондоо «уусдаг».'},
+  {q:'«Тодосгогч» (contrast) гэж юу вэ?', opts:['Хоёр зүйлийн хоорондын ялгаа','Зургийн файлын хэмжээ','Фонтын нэр'], ans:0,
+   why:'Contrast — хоёр зүйлийн ялгаа. Цайвар дэвсгэр дээр бараан үсэг хамгийн сайн уншигддаг.'},
+  {q:'Гарчиг : дэд гарчиг : тайлбарын хэмжээний харьцаа ямар байх вэ?', opts:['3 : 2 : 1','1 : 1 : 1','1 : 2 : 3'], ans:0,
+   why:'Гарчиг — хамгийн том, дэд гарчиг — дунд, тайлбар — жижиг. Харьцаа 3 : 2 : 1.'},
+  {q:'Нэг постерт хэдэн өнгө хэрэглэх нь зөв вэ?', opts:['2-3 өнгө','5-6 өнгө','10-аас олон өнгө'], ans:0,
+   why:'2-3 өнгөнөөс хэтрүүлэхгүй. 5-6 өнгө хольж хэрэглэх нь түгээмэл алдаа.'},
+  {q:'Нүд постерыг ихэвчлэн хаанаас уншиж эхэлдэг вэ?', opts:['Зүүн дээд талаас','Баруун доод булангаас','Голоос нь доошоо'], ans:0,
+   why:'Нүд зүүн дээрээс эхэлдэг. Чухал зүйлийг дээд талд тавь; эргэн тойрны хоосон зай түүнийг тодруулна.'},
+  {q:'Загвар (template)-ыг ашиглах хамгийн ухаалаг арга аль нь вэ?', opts:['Байрлалыг үлдээж, агуулгыг солих','Байрлалыг бүрэн эвдэж шинээр хийх','Загварын бүх текстийг хэвээр үлдээх'], ans:0,
+   why:'«Байрлалыг үлдээ, агуулгыг соль». Байрлалыг эвдвэл мэргэжлийн дизайны давуу тал алдагдана.'},
+  {q:'Canva-д загвар дээр постер бүтээх ЭХНИЙ алхам аль нь вэ?', opts:['Хэмжээ, загвараа сонгох','Зургийг солих','Доод мөрөнд эх сурвалж бичих'], ans:0,
+   why:'Дараалал: хэмжээ, загвар сонгох → гарчгийг солих → хэрэггүй элементийг устгаж зай гаргах → зургийг лиценз шалгасан зургаар солих.'},
+  {q:'Постерын гол зурвас хэдэн үгтэй байх нь зөв вэ?', opts:['6-аас цөөн үг','20-30 үг','50-аас олон үг'], ans:0,
+   why:'Хүн коридороор өнгөрөхдөө 4-5 секунд л хардаг. Гол зурвасаа 6-аас цөөн үгээр бич.'},
+  {q:'«3 метрийн шалгуур» юуг шалгадаг вэ?', opts:['Гол зурвас 5 секундэд ойлгогдох эсэх','Зургийн чанар сайн эсэх','Фонтын нэр зөв эсэх'], ans:0,
+   why:'3 метр ухарч 5 секунд хараад «гол зурвас нь юу байв?» гэж асууна. Хариулж чадвал постер ажиллаж байна.'},
+  {q:'3 метрийн шалгуурт гол зурвас ойлгогдохгүй бол юу хийх вэ?', opts:['Гарчгаа томсгож, текстээ цөөлнө','Илүү олон текст нэмнэ','Илүү олон өнгө нэмнэ'], ans:0,
+   why:'Дизайн бол гоо сайхан биш — ОЙЛГОМЖТОЙ БАЙДАЛ. Гарчгаа томсгож, текстээ цөөл.'}
+];
+
+/* ───────────── Дуу ───────────── */
+let AC = null, muted = false;
+function tone(f, dur, type='square', vol=.05, f2=0, delay=0){
+  if (muted) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.linearRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + dur + .02);
+  }catch(e){}
+}
+const SFX = {
+  stretch:()=>tone(220,.12,'triangle',.05,330),
+  launch:()=>tone(300,.25,'sine',.09,900),
+  splat:()=>{tone(160,.18,'sawtooth',.07,60);tone(900,.12,'triangle',.05,300,.02);},
+  crash:()=>[0,1,2].forEach(i=>tone(140+i*40,.1,'square',.05,80,i*.06)),
+  miss:()=>tone(240,.2,'triangle',.06,120),
+  right:()=>[659,784,988,1319].forEach((f,i)=>tone(f,.14,'triangle',.08,0,i*.08)),
+  wrong:()=>{tone(300,.18,'sawtooth',.04);tone(220,.35,'sawtooth',.04,0,.18);},
+  win:()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.08,0,i*.12))
+};
+
+/* ───────────── Канвас ───────────── */
+const W = 1280, H = 720, GROUND = 640;
+const canvas = $('c'), ctx = canvas.getContext('2d');
+let scale = 1, offX = 0, offY = 0, dpr = 1;
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = window.innerWidth, ch = window.innerHeight;
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  scale = Math.min(cw / W, ch / H); offX = (cw - W*scale) / 2; offY = (ch - H*scale) / 2;
+}
+window.addEventListener('resize', resize); resize();
+const toWorld = (cx, cy) => ({x:(cx - offX) / scale, y:(cy - offY) / scale});
+
+/* ───────────── Тогтмол ба төлөв ───────────── */
+const SLING = {x:230, y:500};
+const MAXPULL = 150, VMAX = 1180, G = 900, BALL_R = 17;
+const TOWER_X = [770, 960, 1150];
+const TCOL = ['#1e6fd9','#e8541c','#7c3aed'];
+const BALL_COL = ['#e0384a','#1e6fd9','#f5b700'];
+const STEP = 1/120;
+
+let seed = 14;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+
+let state = 'start', qi = 0, shots = 3, score = 0, tHit = 0, hitTower = -1, totalShots = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let towers = [], order = [0,1,2], ball = null, aim = {angle:40, power:.75}, dragging = null, parts = [], debris = [];
+let painted = new Array(QUESTIONS.length).fill(0); // 0 хоосон, 1 будсан, -1 алдсан
+let acc = 0;
+
+function buildLevel(){
+  const q = QUESTIONS[qi];
+  order = [0,1,2]; for (let i=2;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [order[i],order[j]] = [order[j],order[i]]; }
+  seed = 100 + qi * 7;
+  towers = TOWER_X.map((x, i) => {
+    const n = 2 + Math.floor(rnd() * 4);   // 2-5 давхар
+    const blocks = [];
+    let y = GROUND;
+    for (let k=0;k<n;k++){
+      const vertical = k % 2 === 0;
+      const w = vertical ? 74 : 92, h = vertical ? 46 : 22;
+      blocks.push({x:x - w/2, y:y - h, w, h, vx:0, vy:0, rot:0, vr:0, dyn:false, kind:vertical ? 'crate' : 'plank'});
+      y -= h;
+    }
+    const target = {x, y:y - 38, r:36, vx:0, vy:0, dyn:false, rot:0, vr:0};
+    return {i, x, blocks, target, letter:'ABC'[i], opt:order[i], hit:false};
+  });
+  shots = 3; ball = null; hitTower = -1;
+  updateHud(); showBanner();
+}
+function showBanner(){
+  const q = QUESTIONS[qi];
+  $('banner').innerHTML = `<div class="q"><div class="qt">🎯 ${esc(q.q)}</div><div class="lanes">${towers.map(t=>`<div class="ln" style="background:${TCOL[t.i]}"><b>${t.letter}</b>${esc(q.opts[t.opt])}</div>`).join('')}</div></div>`;
+  $('banner').classList.add('show');
+}
+function updateHud(){
+  $('hScore').textContent = score;
+  $('hQ').textContent = answers.filter(a=>a!==null).length + '/' + QUESTIONS.length;
+  $('hOk').textContent = '✓ ' + answers.filter(a=>a===true).length;
+  $('hShots').textContent = [0,1,2].map(i => i < shots ? '●' : '○').join(' ');
+}
+let toastT = null;
+function toast(msg, color='#fff'){
+  const el = $('toast'); el.textContent = msg; el.style.color = color; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('show'), 1000);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ───────────── Физик ───────────── */
+function launchVel(angle, power){
+  const a = angle * Math.PI / 180, v = VMAX * Math.max(.15, Math.min(1, power));
+  return {vx:Math.cos(a) * v, vy:-Math.sin(a) * v};
+}
+function ballStart(angle, power){
+  const a = angle * Math.PI / 180, pull = MAXPULL * Math.max(.15, Math.min(1, power));
+  return {x:SLING.x - Math.cos(a) * pull * .35, y:SLING.y + Math.sin(a) * pull * .35};
+}
+function hitTest(x, y, list){
+  for (const t of list){
+    if (t.hit) continue;
+    const tg = t.target;
+    if (Math.hypot(x - tg.x, y - tg.y) < tg.r + BALL_R) return t.i;
+    for (const b of t.blocks){
+      const cx = Math.max(b.x, Math.min(x, b.x + b.w)), cy = Math.max(b.y, Math.min(y, b.y + b.h));
+      if (Math.hypot(x - cx, y - cy) < BALL_R) return t.i;
+    }
+  }
+  return -1;
+}
+// нэг алхам: 'fly' | tower index | 'miss'
+function stepBall(b, list){
+  b.vy += G * STEP; b.x += b.vx * STEP; b.y += b.vy * STEP; b.t += STEP;
+  const h = hitTest(b.x, b.y, list);
+  if (h >= 0) return h;
+  if (b.y + BALL_R >= GROUND || b.x > W + 60 || b.x < -60 || b.t > 5) return 'miss';
+  return 'fly';
+}
+function simulate(angle, power){
+  const s = ballStart(angle, power), v = launchVel(angle, power);
+  const b = {x:s.x, y:s.y, vx:v.vx, vy:v.vy, t:0};
+  const path = [];
+  for (let i=0;i<1200;i++){
+    const r = stepBall(b, towers);
+    if (i % 6 === 0) path.push({x:b.x, y:b.y});
+    if (r !== 'fly') return {result:r, path};
+  }
+  return {result:'miss', path};
+}
+
+function fire(angle, power){
+  if (state !== 'aim' || shots <= 0) return false;
+  const s = ballStart(angle, power), v = launchVel(angle, power);
+  ball = {x:s.x, y:s.y, vx:v.vx, vy:v.vy, t:0, col:BALL_COL[(3 - shots) % 3], trail:[]};
+  shots--; totalShots++; state = 'fly'; SFX.launch(); updateHud();
+  return true;
+}
+function knockTower(t, vx, vy){
+  t.hit = true;
+  const all = t.blocks.concat([t.target]);
+  all.forEach((b, k) => {
+    b.dyn = true;
+    b.vx = vx * (.25 + rnd()*.25) + (rnd() - .3) * 120;
+    b.vy = -200 - rnd() * 260 - k * 30;
+    b.vr = (rnd() - .5) * 8;
+  });
+}
+function splash(x, y, col, n=26){
+  for (let i=0;i<n;i++){ const a = rnd()*Math.PI*2, s = 120 + rnd()*380;
+    parts.push({x, y, vx:Math.cos(a)*s, vy:Math.sin(a)*s - 120, r:4 + rnd()*7, col, life:1.2 + rnd()*.6}); }
+}
+function update(dt){
+  if (state === 'paused' || state === 'modal' || state === 'start' || state === 'done') return;
+  acc += dt;
+  while (acc >= STEP){
+    acc -= STEP;
+    if (state === 'fly' && ball){
+      ball.trail.push({x:ball.x, y:ball.y}); if (ball.trail.length > 40) ball.trail.shift();
+      const r = stepBall(ball, towers);
+      if (r === 'miss'){
+        splash(ball.x, Math.min(ball.y, GROUND - 4), ball.col, 12); SFX.miss();
+        ball = null;
+        if (shots > 0){ state = 'aim'; toast('Алдлаа! Дахин оролд', '#fff'); }
+        else { state = 'hit'; hitTower = -1; tHit = .7; }
+      } else if (typeof r === 'number'){
+        const t = towers[r];
+        knockTower(t, ball.vx, ball.vy); splash(ball.x, ball.y, ball.col, 34); SFX.splat(); SFX.crash();
+        ball = null; state = 'hit'; hitTower = r; tHit = 1.0;
+      }
+    }
+    // унах хэсгүүд
+    for (const t of towers) for (const b of t.blocks.concat([t.target])){
+      if (!b.dyn) continue;
+      b.vy += G * STEP; b.x += b.vx * STEP; b.y += b.vy * STEP; b.rot += b.vr * STEP;
+      const bottom = b.r ? b.y + b.r : b.y + b.h;
+      if (bottom > GROUND){ if (b.r) b.y = GROUND - b.r; else b.y = GROUND - b.h; b.vy *= -.3; b.vx *= .7; b.vr *= .6; }
+    }
+    for (const p of parts){ p.vy += G * .8 * STEP; p.x += p.vx * STEP; p.y += p.vy * STEP; p.life -= STEP; if (p.y > GROUND){ p.y = GROUND; p.vy = 0; p.vx *= .8; } }
+    if (state === 'hit'){ tHit -= STEP; if (tHit <= 0){ resolveLevel(); return; } }
+  }
+  parts = parts.filter(p => p.life > 0);
+}
+function resolveLevel(){
+  const q = QUESTIONS[qi];
+  const chosen = hitTower >= 0 ? towers[hitTower].opt : -1;
+  const ok = chosen === q.ans;
+  answers[qi] = ok; painted[qi] = ok ? 1 : -1;
+  const pts = ok ? (shots + 1) * 100 : 0; score += pts;
+  ok ? SFX.right() : SFX.wrong();
+  updateHud();
+  state = 'modal'; $('banner').classList.remove('show');
+  openModal(`<span class="tag">Асуулт ${qi+1} / ${QUESTIONS.length}</span>
+    <h2>${esc(q.q)}</h2>
+    <p class="verdict ${ok?'ok':'no'}">${ok ? '🎨 Зөв! +' + pts + ' оноо' : chosen < 0 ? '○ Бөмбөлөг дууслаа' : '✕ Буруу цамхаг'}</p>
+    ${ok || chosen < 0 ? '' : `<div class="ans bad">Чиний онож: ${esc(q.opts[chosen])}</div>`}
+    <div class="ans">✓ Зөв хариулт: ${esc(q.opts[q.ans])}</div>
+    <div class="why">💡 ${esc(q.why)}</div>
+    <p class="muted">${ok ? 'Постерын нэг хэсэг будагдлаа!' : 'Постерын энэ хэсэг саарал үлдлээ.'}</p>
+    <div class="row"><button class="btn go" type="button">${qi + 1 < QUESTIONS.length ? 'Дараагийн асуулт ▶' : 'Постерыг харах 🖼'}</button><span class="muted">Space / Enter</span></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => {
+    closeModal();
+    if (qi + 1 >= QUESTIONS.length){ finishGame(); return; }
+    qi++; parts = []; buildLevel(); state = 'aim'; last = performance.now();
+  };
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+}
+
+/* ───────────── Зураг ───────────── */
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawBg(){
+  const g = ctx.createLinearGradient(0,0,0,GROUND);
+  g.addColorStop(0,'#8fd3ff'); g.addColorStop(1,'#e6f6ff');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#fff3b0'; ctx.beginPath(); ctx.arc(1120,110,46,0,7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  [[420,120],[700,80],[980,170]].forEach(([x,y])=>{ ctx.beginPath(); ctx.arc(x,y,26,0,7); ctx.arc(x+30,y-12,32,0,7); ctx.arc(x+64,y,24,0,7); ctx.fill(); });
+  ctx.fillStyle = '#9fd77a'; ctx.beginPath(); ctx.ellipse(380, GROUND, 420, 120, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#8acb68'; ctx.beginPath(); ctx.ellipse(1000, GROUND, 480, 150, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#6fb84f'; ctx.fillRect(0, GROUND, W, H - GROUND);
+  ctx.fillStyle = '#5aa33d'; ctx.fillRect(0, GROUND, W, 10);
+}
+const POSTER = {x:40, y:150, w:200, h:280};
+function drawPoster(c = ctx, P = POSTER){
+  c.save(); c.translate(P.x, P.y);
+  const sx = P.w / 200, sy = P.h / 280; c.scale(sx, sy);
+  // самбар
+  c.fillStyle = '#7a4f2a'; c.fillRect(-8,-8,216,296);
+  c.fillStyle = '#ffffff'; c.fillRect(0,0,200,280);
+  const piece = (i, x, y, w, h, draw) => {
+    if (painted[i] === 1) draw();
+    else { c.fillStyle = painted[i] === -1 ? '#d9d9de' : 'rgba(0,0,0,.04)'; c.fillRect(x,y,w,h);
+      c.setLineDash([4,4]); c.strokeStyle = '#b8b8c2'; c.lineWidth = 1.5; c.strokeRect(x+.5,y+.5,w-1,h-1); c.setLineDash([]); }
+  };
+  const font = (s, w='900') => c.font = `${w} ${s}px -apple-system,"Segoe UI",Arial,sans-serif`;
+  piece(0, 0, 0, 200, 280, () => { c.fillStyle = '#fff6e0'; c.fillRect(0,0,200,280); });
+  piece(1, 12, 12, 176, 40, () => { c.fillStyle = '#141A2E'; font(34); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('УНШИХ', 14, 14); });
+  piece(2, 12, 54, 176, 26, () => { c.fillStyle = '#d9367a'; font(22); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('ДОЛОО ХОНОГ', 14, 56); });
+  piece(3, 12, 86, 176, 16, () => { c.fillStyle = '#5c6278'; font(12,'700'); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('Номын санд нэгдээрэй!', 14, 88); });
+  piece(4, 30, 110, 140, 90, () => {
+    c.fillStyle = '#1e6fd9'; c.fillRect(30,110,140,90);
+    c.fillStyle = '#fff'; c.beginPath(); c.moveTo(100,190); c.quadraticCurveTo(70,170,45,178); c.lineTo(45,128); c.quadraticCurveTo(70,120,100,140); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(100,190); c.quadraticCurveTo(130,170,155,178); c.lineTo(155,128); c.quadraticCurveTo(130,120,100,140); c.closePath(); c.fill();
+    c.strokeStyle = '#1e6fd9'; c.lineWidth = 2; c.beginPath(); c.moveTo(100,140); c.lineTo(100,190); c.stroke();
+  });
+  piece(5, 12, 208, 90, 14, () => { c.fillStyle = '#141A2E'; font(12,'800'); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('10/12 – 10/16', 14, 209); });
+  piece(6, 108, 208, 80, 14, () => { c.fillStyle = '#f5b700'; c.fillRect(108,208,80,14); });
+  piece(7, 12, 228, 176, 8, () => { c.fillStyle = '#9aa0b5'; c.fillRect(12,229,150,5); });
+  piece(8, 12, 240, 176, 8, () => { c.fillStyle = '#9aa0b5'; c.fillRect(12,241,120,5); });
+  piece(9, 160, 236, 28, 18, () => { c.fillStyle = '#d9367a'; font(18); c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText('★', 174, 234); });
+  piece(10, 12, 258, 176, 12, () => { c.fillStyle = '#9aa0b5'; font(8,'600'); c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('Зураг: өөрийн бүтээл · 5-р анги', 14, 260); });
+  piece(11, 0, 0, 200, 4, () => { c.fillStyle = '#d9367a'; c.fillRect(0,0,200,5); c.fillRect(0,275,200,5); });
+  c.restore();
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+}
+function drawSling(back){
+  const {x, y} = SLING;
+  if (back){
+    ctx.strokeStyle = '#6b3f1d'; ctx.lineWidth = 14; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x, y + 60); ctx.lineTo(x - 22, y + 6); ctx.stroke();
+  } else {
+    ctx.strokeStyle = '#7d4a22'; ctx.lineWidth = 14; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, y + 60); ctx.lineTo(x + 22, y + 2); ctx.stroke();
+  }
+}
+function pouchPos(){
+  if (state !== 'aim') return {x:SLING.x, y:SLING.y};
+  return ballStart(aim.angle, aim.power);
+}
+function drawBall(x, y, col, look=1){
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x, GROUND + 2, 14, 4, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, BALL_R, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.beginPath(); ctx.arc(x - 6, y - 7, 5, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x + 3*look, y - 2, 5, 0, 7); ctx.arc(x + 11*look, y - 2, 4.5, 0, 7); ctx.fill();
+  ctx.fillStyle = '#141A2E'; ctx.beginPath(); ctx.arc(x + 4.5*look, y - 2, 2.4, 0, 7); ctx.arc(x + 12*look, y - 2, 2.2, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#141A2E'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + 7*look, y + 5, 4, .2, Math.PI - .2); ctx.stroke();
+}
+function drawBlock(b, col){
+  ctx.save(); ctx.translate(b.x + b.w/2, b.y + b.h/2); ctx.rotate(b.rot);
+  if (b.kind === 'crate'){
+    ctx.fillStyle = '#c98a4b'; ctx.fillRect(-b.w/2, -b.h/2, b.w, b.h);
+    ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 4; ctx.strokeRect(-b.w/2 + 2, -b.h/2 + 2, b.w - 4, b.h - 4);
+    ctx.beginPath(); ctx.moveTo(-b.w/2 + 4, -b.h/2 + 4); ctx.lineTo(b.w/2 - 4, b.h/2 - 4); ctx.stroke();
+  } else {
+    ctx.fillStyle = col; ctx.fillRect(-b.w/2, -b.h/2, b.w, b.h);
+    ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(-b.w/2, -b.h/2, b.w, 5);
+  }
+  ctx.restore();
+}
+function drawTower(t){
+  t.blocks.forEach(b => drawBlock(b, TCOL[t.i]));
+  const tg = t.target;
+  ctx.save(); ctx.translate(tg.x, tg.y); ctx.rotate(tg.rot);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0,0,tg.r,0,7); ctx.fill();
+  ctx.fillStyle = TCOL[t.i]; ctx.beginPath(); ctx.arc(0,0,tg.r - 6,0,7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0,0,tg.r - 14,0,7); ctx.fill();
+  ctx.fillStyle = TCOL[t.i]; ctx.font = '900 30px -apple-system,"Segoe UI",Arial,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(t.letter, 0, 2);
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+}
+function render(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = '#1b2440'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*offX,dpr*offY);
+  ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,H); ctx.clip();
+  drawBg();
+  drawPoster();
+  ctx.fillStyle = '#141A2E'; ctx.font = '800 15px -apple-system,"Segoe UI",Arial,sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Миний постер: ' + painted.filter(p=>p===1).length + ' / ' + QUESTIONS.length, POSTER.x + POSTER.w/2, POSTER.y + POSTER.h + 30);
+  ctx.textAlign = 'left';
+  towers.forEach(drawTower);
+  // хүлээж буй бөмбөлгүүд
+  const waiting = state === 'aim' ? shots - 1 : shots;
+  for (let i=0;i<waiting;i++) drawBall(SLING.x - 60 - i*40, GROUND - BALL_R, BALL_COL[(3 - shots + i + (state === 'aim' ? 1 : 0)) % 3]);
+  drawSling(true);
+  const pp = pouchPos();
+  if (state === 'aim'){
+    // чиглэлийн цэгүүд
+    const sim = simulate(aim.angle, aim.power);
+    ctx.fillStyle = 'rgba(20,26,46,.55)';
+    sim.path.forEach((p, k) => { if (k % 2 === 0 && k < 40){ ctx.beginPath(); ctx.arc(p.x, p.y, 4 - k*.06, 0, 7); ctx.fill(); } });
+    ctx.strokeStyle = '#3a1f0e'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(SLING.x - 22, SLING.y + 6); ctx.lineTo(pp.x, pp.y); ctx.stroke();
+    drawBall(pp.x, pp.y, BALL_COL[(3 - shots) % 3]);
+    ctx.beginPath(); ctx.moveTo(pp.x, pp.y); ctx.lineTo(SLING.x + 22, SLING.y + 2); ctx.stroke();
+    // хүч ба өнцөг
+    ctx.fillStyle = 'rgba(20,26,46,.7)'; roundRect(SLING.x - 70, GROUND + 22, 140, 46, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '800 15px -apple-system,"Segoe UI",Arial,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(Math.round(aim.angle) + '° · хүч ' + Math.round(aim.power*100) + '%', SLING.x, GROUND + 50);
+    ctx.textAlign = 'left';
+  } else {
+    ctx.strokeStyle = '#3a1f0e'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(SLING.x - 22, SLING.y + 6); ctx.lineTo(SLING.x + 22, SLING.y + 2); ctx.stroke();
+  }
+  if (ball){
+    ctx.fillStyle = 'rgba(255,255,255,.6)';
+    ball.trail.forEach((p,k) => { if (k % 4 === 0){ ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, 7); ctx.fill(); } });
+    drawBall(ball.x, ball.y, ball.col);
+  }
+  drawSling(false);
+  for (const p of parts){ ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+let last = performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  keyAim(dt);
+  update(dt); render();
+}
+
+/* ───────────── Цонх ───────────── */
+const modal = $('modal'), card = $('card');
+let modalKey = null;
+function openModal(html){ card.innerHTML = html; modal.classList.add('show'); card.scrollTop = 0; dragging = null; }
+function closeModal(){ modal.classList.remove('show'); modalKey = null; }
+
+function resetAll(){
+  qi = 0; score = 0; totalShots = 0; parts = [];
+  answers = new Array(QUESTIONS.length).fill(null);
+  painted = new Array(QUESTIONS.length).fill(0);
+  aim = {angle:40, power:.75};
+  buildLevel();
+}
+function showStart(){
+  state = 'start'; $('banner').classList.remove('show');
+  openModal(`<span class="tag">5-р анги · Хичээл 14 · Бататгал тоглоом</span>
+    <h1>Будгийн чавх 🎨🎯</h1>
+    <p>Сургуулийн номын сангийн <b>«Унших долоо хоног»</b> постер цагаан хэвээр байна! Өнгөт <b>будгийн бөмбөлгүүдийг</b> чавхаар харваж постерыг будаж дуусга.</p>
+    <p>Асуулт бүрд 3 цамхаг байна: <b>A · B · C</b>. <b>Зөв хариулттай цамхгийг</b> онож унага! Асуулт бүрд <b>3 бөмбөлөг</b> бий. Зөв хариулт бүрт постерын нэг хэсэг будагдана.</p>
+    <div class="keys">
+      <b>Хулгана / трекпад</b><span>дэлгэц дээр дарж <b>хойш нь чирээд</b> тавь — цэгүүд нисэх замыг харуулна</span>
+      <b>← → · ↑ ↓</b><span>өнцөг · хүч, <b>Space</b> — харвах</span>
+      <b>P</b><span>түр зогсоох</span>
+    </div>
+    <p class="muted">12 асуулт · Эхний бөмбөлгөөр онох тусам оноо их!</p>
+    <div class="row"><button class="btn go" type="button">Харваж эхлэх ▶</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'aim'; last = performance.now(); tone(1,.01,'sine',.0001); };
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+}
+let pausedFrom = 'aim';
+function showPause(){
+  if (state !== 'aim' && state !== 'fly' && state !== 'hit') return;
+  pausedFrom = state; state = 'paused';
+  openModal(`<span class="tag">Түр зогслоо</span><h1>⏸ Амсхийе</h1>
+    <div class="row"><button class="btn go" type="button">Үргэлжлүүлэх ▶</button><button class="btn alt again" type="button">Эхнээс нь</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); state = pausedFrom; last = performance.now(); };
+  card.querySelector('.again').onclick = () => { closeModal(); resetAll(); state = 'aim'; last = performance.now(); };
+  modalKey = e => { if (['Enter',' ','p','P','Escape'].includes(e.key)){ e.preventDefault(); go.click(); } };
+}
+function posterDataURL(){
+  const c = document.createElement('canvas'); c.width = 400; c.height = 560;
+  const g = c.getContext('2d'); g.scale(2,2);
+  drawPoster(g, {x:0, y:0, w:200, h:280});
+  return c.toDataURL('image/png');
+}
+function finishGame(){
+  state = 'done'; SFX.win(); $('banner').classList.remove('show'); updateHud();
+  const ok = answers.filter(a=>a===true).length, n = QUESTIONS.length;
+  const stars = ok >= 11 ? 3 : ok >= 8 ? 2 : ok >= 1 ? 1 : 0;
+  const msg = stars === 3 ? 'Гайхалтай! Постер бүрэн будагдлаа — чи визуал шатлалын мастер!' :
+              stars === 2 ? 'Сайн байна! Саарал үлдсэн хэсгүүдийн асуултыг доороос уншаарай.' :
+              'Эхлэл сайн! Доорх тайлбаруудыг уншаад дахин тоглоод үзээрэй.';
+  let best = 0; try { best = +localStorage.getItem('g5h14best') || 0; if (score > best) localStorage.setItem('g5h14best', score); } catch(e){}
+  const miss = QUESTIONS.map((q,i)=>({q,i})).filter(o=>answers[o.i] !== true);
+  openModal(`<span class="tag">🖼 Постер бэлэн!</span><h1>Дүн</h1>
+    <div class="stars">${[0,1,2].map(i=>`<span class="${i<stars?'':'off'}">★</span>`).join('')}</div>
+    <h2>${ok} / ${n} асуулт зөв</h2>
+    <img class="poster" src="${posterDataURL()}" alt="Чиний будсан постер">
+    <div class="stats"><div>${score}<small>оноо</small></div><div>${totalShots}<small>харвасан</small></div><div>${ok}/${n}<small>будсан хэсэг</small></div><div>${totalShots ? Math.round(ok / totalShots * 100) : 0}%<small>оновчлол</small></div></div>
+    <p>${msg}${score > best && best ? ' 🏆 Шинэ дээд оноо!' : ''}</p>
+    ${miss.length ? `<p class="muted" style="margin-top:1em">Давтаж уншаарай:</p><div class="review">${miss.map(o=>`<div><b>${o.i+1}. ${esc(o.q.q)}</b><span class="a">✓ ${esc(o.q.opts[o.q.ans])}</span><br><span class="muted">${esc(o.q.why)}</span></div>`).join('')}</div>` : ''}
+    <div class="row"><button class="btn go" type="button">Дахин тоглох ↻</button></div>`);
+  const go = card.querySelector('.go'); go.focus();
+  go.onclick = () => { closeModal(); resetAll(); state = 'aim'; last = performance.now(); };
+  modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
+}
+
+/* ───────────── Оролт ───────────── */
+function setAimFromDrag(p){
+  const dx = dragging.x - p.x, dy = p.y - dragging.y;   // хойш, доош татахад урагш, дээш нисэнэ
+  const len = Math.hypot(dx, dy);
+  if (len < 8) return;
+  aim.angle = Math.max(-10, Math.min(85, Math.atan2(dy, dx) * 180 / Math.PI));
+  aim.power = Math.max(.15, Math.min(1, len / MAXPULL));
+}
+canvas.addEventListener('pointerdown', e => {
+  if (state !== 'aim') return;
+  const p = toWorld(e.clientX, e.clientY);
+  dragging = {x:p.x, y:p.y, moved:false}; canvas.setPointerCapture(e.pointerId); SFX.stretch();
+});
+canvas.addEventListener('pointermove', e => {
+  if (!dragging || state !== 'aim') return;
+  const p = toWorld(e.clientX, e.clientY);
+  if (Math.hypot(p.x - dragging.x, p.y - dragging.y) > 8) dragging.moved = true;
+  setAimFromDrag(p);
+});
+const endDrag = () => {
+  if (!dragging) return;
+  const moved = dragging.moved; dragging = null;
+  if (moved && state === 'aim') fire(aim.angle, aim.power);
+};
+canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', () => { dragging = null; });
+const held = {};
+function keyAim(dt){
+  if (state !== 'aim') return;
+  if (held.ArrowLeft) aim.angle = Math.min(85, aim.angle + 30*dt);
+  if (held.ArrowRight) aim.angle = Math.max(-10, aim.angle - 30*dt);
+  if (held.ArrowUp) aim.power = Math.min(1, aim.power + .35*dt);
+  if (held.ArrowDown) aim.power = Math.max(.15, aim.power - .35*dt);
+}
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('show')){ if (e.code === 'Space') e.preventDefault(); if (modalKey) modalKey(e); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape'){ showPause(); return; }
+  if (e.code === 'KeyM'){ toggleMute(); return; }
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)){ e.preventDefault(); held[e.code] = true; }
+  if (e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); if (!e.repeat) fire(aim.angle, aim.power); }
+});
+document.addEventListener('keyup', e => { held[e.code] = false; });
+window.addEventListener('blur', () => { for (const k in held) held[k] = false; });
+
+function toggleMute(){ muted = !muted; $('bMute').textContent = muted ? '🔇' : '🔊'; }
+$('bMute').onclick = e => { toggleMute(); e.currentTarget.blur(); };
+$('bPause').onclick = e => { e.currentTarget.blur(); showPause(); };
+$('bFull').onclick = e => {
+  e.currentTarget.blur();
+  try {
+    const d = document, el = d.documentElement;
+    if (!(d.fullscreenElement || d.webkitFullscreenElement)) (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    else (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+  } catch(err){}
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden) showPause(); });
+
+resetAll();
+showStart();
+requestAnimationFrame(loop);
+window.__game = {
+  update, render, fire, simulate,
+  get state(){ return state; }, set state(v){ state = v; },
+  get towers(){ return towers; }, get qi(){ return qi; }, get shots(){ return shots; },
+  answers:()=>answers, score:()=>score, QUESTIONS
+};
+})();
+</script>
+</body>
+</html>
