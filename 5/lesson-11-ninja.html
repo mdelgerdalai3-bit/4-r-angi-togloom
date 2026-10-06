@@ -29,6 +29,12 @@ html,body{margin:0;height:100%;background:#1b1433;color:#fff;overflow:hidden;
 #banner .qt{font-weight:800;font-size:clamp(17px,2.2vw,28px);line-height:1.25}
 #banner .fbk.ok{border-color:#0B7A55;background:#DFF1EC}
 #banner .fbk.no{border-color:#C0322B;background:#FBE7DC}
+#banner .ops{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px}
+#banner .op{display:inline-flex;align-items:center;gap:6px;border:2.5px solid var(--c);border-radius:10px;padding:3px 10px 3px 4px;
+  font-weight:800;font-size:clamp(13px,1.5vw,18px);background:#fff;color:var(--ink)}
+#banner .op b{display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--c);color:#fff;font-size:.85em}
+#banner .ready{pointer-events:auto;margin-top:8px;font-size:clamp(15px,1.6vw,20px)}
+#banner .ready small{font-weight:600;opacity:.75}
 #banner .hint{font-size:clamp(12px,1.25vw,15px);color:#5C6278;margin-top:4px;font-weight:600}
 #toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;z-index:4;
   font-weight:900;font-size:clamp(28px,5vw,64px);transition:opacity .2s,transform .2s;pointer-events:none;
@@ -190,28 +196,38 @@ function makeItem(kind, text, oi, num, i, n){
   const h = card ? Math.max(92, 34 + lines.length * 26) : 130;
   const slot = (W - 260) / Math.max(1, n - 1);
   const x = n === 1 ? W/2 : 130 + i * slot + (Math.random()-.5) * 40;
-  const peak = 250 + Math.random() * 110 + (card ? 0 : 60);
+  const peak = 300 + Math.random() * 90 + (card ? 0 : 50);
   const vy = -Math.sqrt(2 * G * (H + 80 - peak));
   const vx = (W/2 - x) * .05 + (Math.random()-.5) * 30;
   return {kind, text, oi, num, lines, w, h, x, y:H + 80, vx, vy, rot:(Math.random()-.5)*.2, vr:(Math.random()-.5)*.07,
           delay:i * .75, launched:false, alive:true, color:card ? OPT_COL[num-1] : '#222', font};
 }
-function startWave(read){
+function startWave(auto){
   const q = QUESTIONS[qi];
-  const readT = read != null ? read : Math.min(6.5, Math.max(3.5, 2.5 + q.q.length / 22));
   const order = q.opts.map((t,k)=>k).sort(()=>Math.random()-.5);
   const list = order.map((oi, k) => ({kind:'opt', text:q.opts[oi], oi, num:k+1}));
   const nb = qi < 2 ? 0 : (qi < 7 ? 1 : 2);
   for (let b=0;b<nb;b++) list.splice(1 + Math.floor(Math.random() * list.length), 0, {kind:'bomb', text:BOMBS[(qi + b*2) % BOMBS.length]});
   items = list.map((o, i) => makeItem(o.kind, o.text, o.oi, o.num, i, list.length));
-  wave = {decided:false, t:-readT};
+  wave = {decided:false, t:0, ready:!!auto};
   showQBanner();
 }
 function showQBanner(){
   const q = QUESTIONS[qi];
-  $('banner').innerHTML = `<div class="q"><div class="qt">⚔ ${esc(q.q)}</div><div class="hint" id="qhint"></div></div>`;
-  hintTxt = '';
+  const opts = items.filter(i => i.kind === 'opt').sort((a, b) => a.num - b.num);
+  $('banner').innerHTML = `<div class="q"><div class="qt">⚔ ${esc(q.q)}</div>
+    <div class="ops">${opts.map(o => `<span class="op" style="--c:${OPT_COL[o.num-1]}"><b>${o.num}</b>${esc(o.text)}</span>`).join('')}</div>
+    <div class="hint" id="qhint"></div>
+    <button class="btn ready" id="bReady" type="button">Бэлэн ⚔ <small>(Space)</small></button></div>`;
   $('banner').classList.add('show');
+  hintTxt = '';
+  $('bReady').onclick = e => { e.currentTarget.blur(); goReady(); };
+  syncReady();
+}
+function goReady(){ if (state === 'play' && wave && !wave.ready){ wave.ready = true; wave.t = 0; syncReady(); } }
+function syncReady(){
+  const b = $('bReady'); if (!b) return;
+  b.style.display = wave && !wave.ready ? '' : 'none';
 }
 let hintTxt = '';
 function setHint(t){ if (t === hintTxt) return; hintTxt = t; const h = $('qhint'); if (h) h.textContent = t; }
@@ -308,22 +324,25 @@ function update(dt){
   texts = texts.filter(t => t.life > 0);
   const now = performance.now(); trail = trail.filter(p => now - p.t < 160);
   if (state !== 'play' || !wave) return;
+  if (!wave.ready){ setHint('Асуулт ба хариултуудыг уншаад «Бэлэн» товч дар — хуудсууд дараа нь нисч гарна.'); return; }
   wave.t += dt;
   for (const it of items){
     if (!it.launched){ if (wave.t >= it.delay){ it.launched = true; SFX.toss(); } else continue; }
-    it.vy += G*dt; it.x += it.vx*dt; it.y += it.vy*dt; it.rot += it.vr*dt;
+    if (!it.hung && it.vy >= 0){ it.hung = true; it.hang = 2.2; it.hy = it.y; }
+    if (it.hang > 0){ it.hang -= dt; it.vy = 0; it.x += it.vx*.15*dt; it.y = it.hy + Math.sin((2.2 - it.hang) * 3) * 6; it.rot *= .97; }
+    else { it.vy += G*(it.hung ? .55 : 1)*dt; it.x += it.vx*dt; it.y += it.vy*dt; it.rot += it.vr*dt; }
     if (it.x < it.w/2) { it.x = it.w/2; it.vx = Math.abs(it.vx); }
     if (it.x > W - it.w/2){ it.x = W - it.w/2; it.vx = -Math.abs(it.vx); }
     if (it.fade) it.alpha = Math.max(0, (it.alpha ?? 1) - dt*2);
     if (it.vy > 0 && it.y > H + 90) it.alive = false, it.gone = true;
   }
   if (pendingCard > 0){ pendingCard -= dt; if (pendingCard <= 0) nextQuestion(); return; }
-  if (!wave.decided) setHint(wave.t < 0 ? `⏳ Асуултаа уншаарай… ${Math.ceil(-wave.t)} · Бэлэн бол Space` : 'Зөв хариулттай хуудсыг ЗҮС! 💣 бөмбөгнөөс зайлсхий.');
+  if (!wave.decided) setHint('Зөв хариулттай хуудсыг ЗҮС (эсвэл дугаарын товч)! 💣 бөмбөгнөөс зайлсхий.');
   // бүх хариулт унасан бол — амь хасагдаж, дахин шиднэ
   if (!wave.decided && items.filter(i=>i.kind==='opt').every(i => i.launched && !i.alive)){
     hearts--; combo = 1; SFX.miss(); toast('Унагаачихлаа! −1 ❤', '#ff8a80'); updateHud();
     if (hearts <= 0) return gameOver();
-    startWave(1.5);
+    startWave(true);
   }
 }
 
@@ -463,7 +482,7 @@ function showStart(){
       <b>Хулгана / trackpad</b><span>дарсан чигтээ чирж зүснэ</span>
       <b>Таблет</b><span>хуруугаараа зүснэ</span>
       <b>1 2 3 4</b><span>тэр дугаартай хуудсыг шууд зүснэ</span>
-      <b>Space</b><span>асуултаа уншиж дууссан бол хуудсуудыг шууд шидүүлэх · дараагийн асуулт руу шилжих</span>
+      <b>Space</b><span>«Бэлэн» — асуултаа уншиж дуусаад хуудсуудыг шидүүлэх · дараагийн асуулт руу шилжих</span>
       <b>P</b><span>түр зогсоох</span>
     </div>
     <p class="muted">12 асуулт · 3 амь · Дараалан зөв зүсвэл КОМБО өснө!</p>
@@ -548,7 +567,7 @@ document.addEventListener('keydown', e => {
   if (e.code === 'KeyM'){ toggleMute(); return; }
   if ((e.code === 'Space' || e.code === 'Enter') && state === 'play'){
     e.preventDefault();
-    if (pendingCard > 0) pendingCard = .001; else if (wave && wave.t < 0) wave.t = 0;
+    if (pendingCard > 0) pendingCard = .001; else goReady();
     return;
   }
   const n = parseInt(e.key, 10); if (n >= 1 && n <= 4){ e.preventDefault(); sliceByNumber(n); }
