@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ниндзя Засварч</title>
+<title>Нинжа Засварч</title>
 <style>
 :root{
   --ink:#141A2E; --paper:#FBFAF7; --panel:#F2EFE8; --rule:#DCD6C8;
@@ -27,6 +27,8 @@ html,body{margin:0;height:100%;background:#1b1433;color:#fff;overflow:hidden;
 #banner .q{background:rgba(255,255,255,.95);color:var(--ink);border:3px solid var(--ink);border-radius:14px;
   padding:10px 18px 12px;box-shadow:5px 5px 0 rgba(217,52,43,.6)}
 #banner .qt{font-weight:800;font-size:clamp(17px,2.2vw,28px);line-height:1.25}
+#banner .fbk.ok{border-color:#0B7A55;background:#DFF1EC}
+#banner .fbk.no{border-color:#C0322B;background:#FBE7DC}
 #banner .hint{font-size:clamp(12px,1.25vw,15px);color:#5C6278;margin-top:4px;font-weight:600}
 #toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;z-index:4;
   font-weight:900;font-size:clamp(28px,5vw,64px);transition:opacity .2s,transform .2s;pointer-events:none;
@@ -165,7 +167,7 @@ window.addEventListener('resize', resize); resize();
 const toLogic = (cx, cy) => [(cx - offX) / scale, (cy - offY) / scale];
 
 /* ───────────── Төлөв ───────────── */
-const G = 300;
+const G = 170;
 let state = 'start', qi = 0, items = [], pieces = [], parts = [], trail = [], texts = [];
 let score = 0, combo = 1, bestCombo = 1, hearts = 3, wrongSlices = 0, bombsHit = 0, tGame = 0;
 let answers = new Array(QUESTIONS.length).fill(null);
@@ -191,23 +193,39 @@ function makeItem(kind, text, oi, num, i, n){
   const peak = 250 + Math.random() * 110 + (card ? 0 : 60);
   const vy = -Math.sqrt(2 * G * (H + 80 - peak));
   const vx = (W/2 - x) * .05 + (Math.random()-.5) * 30;
-  return {kind, text, oi, num, lines, w, h, x, y:H + 80, vx, vy, rot:(Math.random()-.5)*.2, vr:(Math.random()-.5)*.18,
-          delay:i * .5, launched:false, alive:true, color:card ? OPT_COL[num-1] : '#222', font};
+  return {kind, text, oi, num, lines, w, h, x, y:H + 80, vx, vy, rot:(Math.random()-.5)*.2, vr:(Math.random()-.5)*.07,
+          delay:i * .75, launched:false, alive:true, color:card ? OPT_COL[num-1] : '#222', font};
 }
-function startWave(){
+function startWave(read){
   const q = QUESTIONS[qi];
+  const readT = read != null ? read : Math.min(6.5, Math.max(3.5, 2.5 + q.q.length / 22));
   const order = q.opts.map((t,k)=>k).sort(()=>Math.random()-.5);
   const list = order.map((oi, k) => ({kind:'opt', text:q.opts[oi], oi, num:k+1}));
   const nb = qi < 2 ? 0 : (qi < 7 ? 1 : 2);
   for (let b=0;b<nb;b++) list.splice(1 + Math.floor(Math.random() * list.length), 0, {kind:'bomb', text:BOMBS[(qi + b*2) % BOMBS.length]});
   items = list.map((o, i) => makeItem(o.kind, o.text, o.oi, o.num, i, list.length));
-  wave = {decided:false, t:0};
+  wave = {decided:false, t:-readT};
   showQBanner();
 }
 function showQBanner(){
   const q = QUESTIONS[qi];
-  $('banner').innerHTML = `<div class="q"><div class="qt">⚔ ${esc(q.q)}</div><div class="hint">Зөв хариулттай хуудсыг ЗҮС! 💣 бөмбөгнөөс зайлсхий.</div></div>`;
+  $('banner').innerHTML = `<div class="q"><div class="qt">⚔ ${esc(q.q)}</div><div class="hint" id="qhint"></div></div>`;
+  hintTxt = '';
   $('banner').classList.add('show');
+}
+let hintTxt = '';
+function setHint(t){ if (t === hintTxt) return; hintTxt = t; const h = $('qhint'); if (h) h.textContent = t; }
+function showFeedback(ok, chosen){
+  const q = QUESTIONS[qi];
+  $('banner').innerHTML = ok
+    ? `<div class="q fbk ok"><div class="qt">✓ Зөв! ${esc(q.opts[q.ans])}</div></div>`
+    : `<div class="q fbk no"><div class="qt">✕ Буруу. Зөв хариулт: <b>${esc(q.opts[q.ans])}</b></div><div class="hint">💡 ${esc(q.why)}</div><div class="hint">Space — дараагийн асуулт</div></div>`;
+  $('banner').classList.add('show');
+}
+function nextQuestion(){
+  qi++; items = [];
+  if (qi >= QUESTIONS.length) return finishGame();
+  startWave();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function updateHud(){
@@ -271,7 +289,8 @@ function cut(it, ang){
   ok ? SFX.right() : SFX.wrong();
   // бусад хуудас бүдгэрнэ
   items.forEach(o => { if (o.alive && o.kind === 'opt') o.fade = true; });
-  pendingInfo = {ok, chosen:it.oi}; pendingCard = .75;
+  pendingInfo = {ok, chosen:it.oi}; pendingCard = ok ? 1.6 : 4;
+  showFeedback(ok, it.oi);
   updateHud();
 }
 
@@ -298,12 +317,13 @@ function update(dt){
     if (it.fade) it.alpha = Math.max(0, (it.alpha ?? 1) - dt*2);
     if (it.vy > 0 && it.y > H + 90) it.alive = false, it.gone = true;
   }
-  if (pendingCard > 0){ pendingCard -= dt; if (pendingCard <= 0) showAnswerCard(); return; }
+  if (pendingCard > 0){ pendingCard -= dt; if (pendingCard <= 0) nextQuestion(); return; }
+  if (!wave.decided) setHint(wave.t < 0 ? `⏳ Асуултаа уншаарай… ${Math.ceil(-wave.t)} · Бэлэн бол Space` : 'Зөв хариулттай хуудсыг ЗҮС! 💣 бөмбөгнөөс зайлсхий.');
   // бүх хариулт унасан бол — амь хасагдаж, дахин шиднэ
   if (!wave.decided && items.filter(i=>i.kind==='opt').every(i => i.launched && !i.alive)){
     hearts--; combo = 1; SFX.miss(); toast('Унагаачихлаа! −1 ❤', '#ff8a80'); updateHud();
     if (hearts <= 0) return gameOver();
-    startWave();
+    startWave(1.5);
   }
 }
 
@@ -427,26 +447,6 @@ let modalKey = null;
 function openModal(html){ card.innerHTML = html; modal.classList.add('show'); card.scrollTop = 0; drawing = false; trail = []; }
 function closeModal(){ modal.classList.remove('show'); modalKey = null; }
 
-function showAnswerCard(){
-  state = 'modal';
-  $('banner').classList.remove('show');
-  const q = QUESTIONS[qi], {ok, chosen} = pendingInfo;
-  openModal(`<span class="tag">Асуулт ${qi+1} / ${QUESTIONS.length}</span>
-    <h2>${esc(q.q)}</h2>
-    <p class="verdict ${ok?'ok':'no'}">${ok ? '✓ Зөв зүслээ!' : '✕ Буруу хуудас'}</p>
-    ${ok ? '' : `<div class="ans bad">Чиний зүссэн: ${esc(q.opts[chosen])}</div>`}
-    <div class="ans">✓ Зөв хариулт: ${esc(q.opts[q.ans])}</div>
-    <div class="why">💡 ${esc(q.why)}</div>
-    <div class="row"><button class="btn go" type="button">${qi + 1 < QUESTIONS.length ? 'Дараагийн асуулт ⚔' : 'Дүнгээ харах 🏆'}</button><span class="muted">Space / Enter</span></div>`);
-  const go = card.querySelector('.go'); go.focus();
-  go.onclick = () => {
-    closeModal();
-    qi++; items = [];
-    if (qi >= QUESTIONS.length) return finishGame();
-    state = 'play'; last = performance.now(); startWave();
-  };
-  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
-}
 function resetAll(){
   qi = 0; items = []; pieces = []; parts = []; texts = []; trail = [];
   score = 0; combo = 1; bestCombo = 1; hearts = 3; wrongSlices = 0; bombsHit = 0; tGame = 0;
@@ -456,13 +456,14 @@ function resetAll(){
 function showStart(){
   state = 'start';
   openModal(`<span class="tag">5-р анги · Хичээл 11 · Бататгал тоглоом</span>
-    <h1>Ниндзя Засварч ⚔📄</h1>
-    <p>Ангийн хамтын тайлан замбараагүй болжээ! Агаарт <b>хариултын хуудсууд</b> нисэж байна. Чи бол <b>Ниндзя Засварч</b> — асуултыг уншаад <b>зөв хариулттай хуудсыг сэлмээрээ зүс!</b></p>
+    <h1>Нинжа Засварч ⚔📄</h1>
+    <p>Ангийн хамтын тайлан замбараагүй болжээ! Агаарт <b>хариултын хуудсууд</b> нисэж байна. Чи бол <b>Нинжа Засварч</b> — асуултыг уншаад <b>зөв хариулттай хуудсыг сэлмээрээ зүс!</b></p>
     <p>💣 <b>Бөмбөг</b> («Хулгайн зураг», «Эшлэлгүй зураг»…) зүсвэл амь хасагдана. Хариулт бүгд унавал мөн амь хасагдана.</p>
     <div class="keys">
       <b>Хулгана / trackpad</b><span>дарсан чигтээ чирж зүснэ</span>
       <b>Таблет</b><span>хуруугаараа зүснэ</span>
       <b>1 2 3 4</b><span>тэр дугаартай хуудсыг шууд зүснэ</span>
+      <b>Space</b><span>асуултаа уншиж дууссан бол хуудсуудыг шууд шидүүлэх · дараагийн асуулт руу шилжих</span>
       <b>P</b><span>түр зогсоох</span>
     </div>
     <p class="muted">12 асуулт · 3 амь · Дараалан зөв зүсвэл КОМБО өснө!</p>
@@ -499,7 +500,7 @@ function finishGame(){
   state = 'done'; SFX.win(); $('banner').classList.remove('show'); updateHud();
   const ok = answers.filter(a=>a===true).length, n = QUESTIONS.length;
   const stars = ok >= 11 ? 3 : ok >= 8 ? 2 : ok >= 1 ? 1 : 0;
-  const msg = stars === 3 ? 'Гайхалтай! Чи жинхэнэ Ниндзя Засварч боллоо!' :
+  const msg = stars === 3 ? 'Гайхалтай! Чи жинхэнэ Нинжа Засварч боллоо!' :
               stars === 2 ? 'Сайн байна! Алдсан асуултаа доороос уншаад дахин тогло.' :
               'Эхлэл сайн! Доорх тайлбаруудыг уншаад дахин оролдоорой.';
   let best = 0; try { best = +localStorage.getItem('g5h11best') || 0; if (score > best) localStorage.setItem('g5h11best', score); } catch(e){}
@@ -545,6 +546,11 @@ document.addEventListener('keydown', e => {
   if (modal.classList.contains('show')){ if (e.code === 'Space') e.preventDefault(); if (modalKey) modalKey(e); return; }
   if (e.code === 'KeyP' || e.code === 'Escape'){ showPause(); return; }
   if (e.code === 'KeyM'){ toggleMute(); return; }
+  if ((e.code === 'Space' || e.code === 'Enter') && state === 'play'){
+    e.preventDefault();
+    if (pendingCard > 0) pendingCard = .001; else if (wave && wave.t < 0) wave.t = 0;
+    return;
+  }
   const n = parseInt(e.key, 10); if (n >= 1 && n <= 4){ e.preventDefault(); sliceByNumber(n); }
 });
 function toggleMute(){ muted = !muted; $('bMute').textContent = muted ? '🔇' : '🔊'; }
