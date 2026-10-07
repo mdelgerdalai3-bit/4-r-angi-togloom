@@ -4,486 +4,725 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Блок-схем зурагч</title>
-<meta name="description" content="4-р анги · Хичээл 12 · Алгоритмаа блок-схем болгож зурах хэрэгсэл">
+<meta name="description" content="4-р анги · Хичээл 12 · Flowgorithm маягийн блок-схем зурах, ажиллуулах хэрэгсэл">
 <style>
 :root{
-  --paper:#FBFAF7; --panel:#F2EFE8; --rule:#DCD6C8; --ink:#141A2E; --ink-soft:#5C6278;
-  --deep:#1E4FD8; --ok:#0B7A55; --ok-soft:#DFF1EC; --warn:#A15C00; --warn-soft:#FFF1D6; --no:#C0322B; --no-soft:#FBE7DC;
-  --s-start:#FDE68A; --s-act:#DBEAFE; --s-dec:#FBCFE8; --hl:#F59E0B;
+  --paper:#F4F5F7; --panel:#FFFFFF; --rule:#D5D9E0; --ink:#1F2430; --ink-soft:#5C6278;
+  --deep:#2F6FD6; --ok:#0B7A55; --ok-soft:#DFF1EC; --warn-soft:#FFF1D6; --no:#C0322B; --no-soft:#FBE7DC;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
-  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.45}
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.4}
 button,input,select{font:inherit;color:inherit}
-.wrap{max-width:84rem;margin:0 auto;padding:1.3rem 16px 3rem}
-.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--deep);margin:0}
-h1{font-size:clamp(1.5rem,3.4vw,2.2rem);line-height:1.15;margin:.3rem 0 .3rem}
-.lede{color:var(--ink-soft);margin:0;max-width:70ch}
-.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0 0}
-.legend span{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;border:1.5px solid var(--rule);border-radius:2em;padding:.2rem .7rem;background:#fff}
-.legend i{display:inline-block;width:22px;height:14px;border:2px solid var(--ink)}
-.lg-start{background:var(--s-start);border-radius:999px}
-.lg-act{background:var(--s-act)}
-.lg-dec{background:var(--s-dec);transform:rotate(45deg) scale(.7)}
-.toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1.1rem 0 1rem;padding:.7rem;border:2px solid var(--ink);border-radius:12px;background:#fff}
-.toolbar .sp{flex:1}
-.btn{font-weight:800;border:2px solid var(--ink);background:var(--ink);color:#fff;border-radius:2em;padding:.42rem 1rem;cursor:pointer;white-space:nowrap}
-.btn.alt{background:#fff;color:var(--ink)}
-.btn:hover{opacity:.88}
-.btn:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
-.btn[disabled]{opacity:.4;cursor:default}
-select{border:2px solid var(--rule);border-radius:.5rem;padding:.38rem .5rem;background:#fff;font-weight:600}
-.meta{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.8rem}
-.meta label{display:flex;flex-direction:column;font-size:.75rem;font-weight:700;color:var(--ink-soft);gap:.2rem;flex:1 1 14rem}
-.meta input{border:2px solid var(--rule);border-radius:.5rem;padding:.45rem .6rem;font-size:1rem;font-weight:600;background:#fff;color:var(--ink)}
-.cols{display:grid;grid-template-columns:minmax(0,26rem) minmax(0,1fr);gap:1.2rem;align-items:start}
-@media (max-width:860px){.cols{grid-template-columns:1fr}}
-.panel{background:#fff;border:2px solid var(--rule);border-radius:12px;padding:.9rem}
-.panel h2{font-size:1rem;margin:0 0 .6rem;display:flex;align-items:center;gap:.5rem}
-.panel h2 small{font-weight:600;color:var(--ink-soft);font-size:.8rem}
-.fixed{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:.9rem;padding:.35rem .6rem;border-radius:999px;background:var(--s-start);border:2px solid var(--ink);width:max-content}
-.list{display:flex;flex-direction:column;gap:.45rem;margin:.45rem 0}
-.blk{border:2px solid var(--ink);border-radius:.6rem;padding:.45rem;background:var(--s-act)}
-.blk.dec{background:var(--s-dec)}
-.blk .hd{display:flex;align-items:center;gap:.35rem}
-.blk .ic{flex:none;font-weight:900;width:1.6rem;text-align:center}
-.blk input{flex:1;min-width:0;border:1.5px solid rgba(20,26,46,.25);border-radius:.4rem;padding:.35rem .5rem;background:#fff;font-weight:600}
-.blk input.bad{border-color:var(--no);background:var(--no-soft)}
-.mini{flex:none;border:1.5px solid rgba(20,26,46,.3);background:#fff;border-radius:.4rem;width:1.9rem;height:1.9rem;cursor:pointer;font-weight:800;line-height:1}
-.mini:hover{border-color:var(--ink)}
-.mini:focus-visible{outline:3px solid var(--deep)}
-.mini[disabled]{opacity:.3;cursor:default}
-.br{display:grid;grid-template-columns:1fr;gap:.4rem;margin-top:.45rem;padding-left:.6rem}
-.list,.blk,.br > div{min-width:0}
-.br > div{background:rgba(255,255,255,.65);border:1.5px dashed rgba(20,26,46,.35);border-radius:.5rem;padding:.35rem}
-.br .lab{font-size:.75rem;font-weight:900;letter-spacing:.04em}
-.br .yes .lab{color:var(--ok)} .br .no .lab{color:var(--no)}
-.adds{display:flex;gap:.35rem;flex-wrap:wrap}
-.add{border:1.5px dashed var(--ink-soft);background:transparent;border-radius:.45rem;padding:.25rem .55rem;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--ink-soft)}
-.add:hover{border-color:var(--ink);color:var(--ink)}
-.add:focus-visible{outline:3px solid var(--deep)}
-.view{position:relative}
-.canvas{overflow:auto;background:#fff;border:2px solid var(--rule);border-radius:12px;min-height:420px;padding:12px;display:flex;justify-content:center}
-.canvas svg{display:block;max-width:none}
-.zoom{display:flex;gap:.3rem;justify-content:flex-end;align-items:center;margin-top:.4rem;font-size:.8rem;color:var(--ink-soft);font-weight:700}
-.runbar{display:none;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem;padding:.6rem .8rem;border-radius:12px;background:var(--warn-soft);border:2px solid var(--hl);font-weight:700}
+.app{display:flex;flex-direction:column;min-height:100vh}
+header.top{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.55rem 14px;background:#2B3445;color:#fff}
+header.top h1{font-size:1.05rem;margin:0;font-weight:800;white-space:nowrap}
+header.top small{opacity:.7;font-weight:600}
+header.top .sp{flex:1}
+header.top input{border:0;border-radius:6px;padding:.32rem .55rem;font-weight:600;width:13rem;max-width:42vw;color:#1F2430}
+.tb{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;padding:.45rem 14px;background:#E7EAEF;border-bottom:1px solid var(--rule)}
+.tb .sep{width:1px;height:26px;background:#C3C8D2;margin:0 .25rem}
+.tb .sp{flex:1}
+.b{display:inline-flex;align-items:center;gap:.35rem;border:1px solid #B9C0CC;background:#fff;border-radius:6px;padding:.3rem .65rem;cursor:pointer;font-weight:600;white-space:nowrap}
+.b:hover{border-color:#6B7385;background:#F8F9FB}
+.b:focus-visible{outline:3px solid var(--deep);outline-offset:1px}
+.b.pri{background:#2F6FD6;border-color:#2F6FD6;color:#fff}
+.b.run{background:#1E9E5A;border-color:#1E9E5A;color:#fff}
+.b.stop{background:#C0322B;border-color:#C0322B;color:#fff}
+.b[disabled]{opacity:.4;cursor:default}
+select{border:1px solid #B9C0CC;border-radius:6px;padding:.3rem .4rem;background:#fff;font-weight:600}
+.main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 20rem;min-height:0}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.chartWrap{position:relative;overflow:auto;background:#fff;background-image:radial-gradient(#E3E6EC 1px,transparent 1px);background-size:16px 16px;min-height:60vh}
+#chart{display:block;margin:0 auto}
+.side{border-left:1px solid var(--rule);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+@media (max-width:900px){.side{border-left:0;border-top:1px solid var(--rule)}}
+.side h2{font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;margin:0;padding:.55rem .8rem;background:#F0F2F5;border-bottom:1px solid var(--rule);color:#3B4254}
+.console{flex:1;min-height:12rem;overflow:auto;padding:.7rem;display:flex;flex-direction:column;gap:.45rem;background:#FAFBFC}
+.bub{max-width:88%;padding:.4rem .7rem;border-radius:12px;font-weight:600;word-wrap:break-word}
+.bub.out{align-self:flex-start;background:#E4F6E0;border:1px solid #9FD49A}
+.bub.in{align-self:flex-end;background:#DCEBFF;border:1px solid #9CBEF0}
+.bub.sys{align-self:center;background:transparent;color:var(--ink-soft);font-size:.82rem;font-weight:600;text-align:center}
+.cin{display:none;gap:.4rem;padding:.5rem;border-top:1px solid var(--rule);background:#fff}
+.cin.show{display:flex}
+.cin input{flex:1;min-width:0;border:2px solid #2F6FD6;border-radius:6px;padding:.35rem .5rem}
+.vars{max-height:11rem;overflow:auto;border-top:1px solid var(--rule)}
+.vars table{width:100%;border-collapse:collapse;font-size:.88rem}
+.vars td,.vars th{padding:.3rem .7rem;border-bottom:1px solid #EEF0F3;text-align:left}
+.vars th{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em}
+.runbar{display:none;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.45rem 14px;background:#FFF4D9;border-bottom:1px solid #F0C36D;font-weight:700}
 .runbar.show{display:flex}
-.runbar .msg{flex:1 1 14rem}
-.yes-b{background:var(--ok);border-color:var(--ok)}
-.no-b{background:var(--no);border-color:var(--no)}
-.check{margin-top:1rem;display:none}
+.runbar .msg{flex:1 1 16rem}
+.selbar{position:sticky;top:8px;left:0;z-index:4;display:none;gap:.3rem;margin:8px;width:max-content;background:#fff;border:1px solid #B9C0CC;border-radius:8px;padding:.3rem;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.selbar.show{display:flex}
+.hintbar{padding:.4rem 14px;font-size:.85rem;color:var(--ink-soft);background:#fff;border-bottom:1px solid var(--rule)}
+.hintbar b{color:var(--ink)}
+/* шинэ блокийн цэс */
+.palette{position:fixed;z-index:20;display:none;background:#fff;border:1px solid #9AA2B1;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);padding:.55rem;width:19.5rem}
+.palette.show{display:block}
+.palette h3{margin:.1rem .2rem .45rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
+.palette .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}
+.palette button{display:flex;flex-direction:column;align-items:center;gap:.25rem;border:1px solid #D5D9E0;background:#fff;border-radius:8px;padding:.4rem .2rem;cursor:pointer;font-size:.78rem;font-weight:700}
+.palette button:hover{border-color:#2F6FD6;background:#F2F7FF}
+.palette button:focus-visible{outline:3px solid var(--deep)}
+.palette .grp{grid-column:1/-1;font-size:.7rem;color:var(--ink-soft);font-weight:700;margin-top:.2rem}
+/* засах цонх */
+.dlg{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(20,26,40,.45);padding:16px}
+.dlg.show{display:flex}
+.dlg .box{background:#fff;border-radius:12px;width:min(30rem,100%);box-shadow:0 18px 50px rgba(0,0,0,.3);overflow:hidden}
+.dlg .hd{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;font-weight:800;border-bottom:1px solid var(--rule)}
+.dlg .bd{padding:.9rem 1rem}
+.dlg label{display:block;font-size:.8rem;font-weight:700;color:var(--ink-soft);margin-bottom:.3rem}
+.dlg input{width:100%;border:2px solid #B9C0CC;border-radius:8px;padding:.5rem .6rem;font-size:1.05rem;font-weight:600}
+.dlg input:focus{border-color:#2F6FD6;outline:none}
+.dlg .help{font-size:.88rem;color:var(--ink-soft);margin:.6rem 0 0}
+.dlg .ex{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.dlg .ex button{border:1px dashed #9AA2B1;background:#F8F9FB;border-radius:6px;padding:.15rem .5rem;font-size:.82rem;cursor:pointer}
+.dlg .ft{display:flex;justify-content:flex-end;gap:.4rem;padding:.7rem 1rem;background:#F6F7F9;border-top:1px solid var(--rule)}
+.check{display:none;padding:.6rem .8rem;border-top:1px solid var(--rule);max-height:16rem;overflow:auto}
 .check.show{display:block}
-.check ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem}
-.check li{border-radius:.5rem;padding:.45rem .7rem;font-weight:600;font-size:.95rem}
+.check ul{list-style:none;margin:0;padding:0;display:grid;gap:.3rem}
+.check li{border-radius:6px;padding:.35rem .55rem;font-weight:600;font-size:.86rem}
 .check li.ok{background:var(--ok-soft);color:#08533b}
 .check li.warn{background:var(--warn-soft);color:#6b3d00}
 .check li.no{background:var(--no-soft);color:#7a1d17}
-.tips{margin-top:1rem;background:var(--panel);border-radius:12px;padding:.8rem 1rem;font-size:.92rem;color:var(--ink-soft)}
-.tips b{color:var(--ink)}
-.tips ul{margin:.3rem 0 0;padding-left:1.2rem}
-.sig{margin-top:1.6rem;padding-top:.8rem;border-top:1.5px solid var(--rule);font-size:.78rem;color:var(--ink-soft)}
+/* SVG */
+#chart .ins{cursor:pointer}
+#chart .ins .plus{opacity:.22;transition:opacity .12s}
+#chart .ins:hover .plus,#chart .ins:focus .plus{opacity:1}
+#chart .node{cursor:pointer}
 #printHead{display:none}
 @media print{
-  body{background:#fff}
-  .toolbar,.cols > .panel,.zoom,.runbar,.tips,.legend,.lede,.eyebrow,.meta,.sig,.check,h1{display:none !important}
-  #printHead{display:block;margin-bottom:8px}
-  .cols{display:block}
-  .canvas{border:0;padding:0;overflow:visible}
-  .canvas svg{max-width:100%;height:auto}
+  header.top,.tb,.runbar,.side,.hintbar,.selbar{display:none !important}
+  .main{display:block}
+  .chartWrap{background:none;overflow:visible}
+  #printHead{display:block;margin:0 0 8px;font-family:Arial}
+  #chart .plus{display:none}
+  #chart{max-width:100%;height:auto}
 }
 </style>
 </head>
 <body>
-<main class="wrap">
-  <p class="eyebrow">4-р анги · Хичээл 12 · Блок-схем</p>
-  <h1>Блок-схем зурагч ✏️</h1>
-  <p class="lede">Алгоритмынхаа алхмуудыг зүүн талд бич. Блок-схем баруун талд <b>өөрөө зурагдана</b>. Дараа нь <b>«Шалгах»</b> болон <b>«Гүйцэтгэх»</b> товчоор схемээ турш.</p>
-  <div class="legend" aria-label="Дүрсийн тайлбар">
-    <span><i class="lg-start"></i>⬭ Эхлэл / Төгсгөл</span>
-    <span><i class="lg-act"></i>▭ Үйлдэл</span>
-    <span><i class="lg-dec"></i>◇ Шийдвэр (тийм / үгүй)</span>
-    <span>➜ Сум — урсгалын чиглэл</span>
-  </div>
-
-  <div class="toolbar">
-    <label for="tpl" style="font-weight:700;font-size:.9rem">Загвар:</label>
-    <select id="tpl">
-      <option value="">— сонгох —</option>
-      <option value="out">🌧 Гадаа гарах уу?</option>
-      <option value="teeth">🪥 Шүдээ угаах</option>
-      <option value="book">📚 Хичээлийн дараа ном авах уу? (2 шийдвэр)</option>
-      <option value="sleep">🌙 Унтахаас өмнө шүдээ угаах уу?</option>
-      <option value="empty">⬜ Хоосон схем</option>
-    </select>
+<div class="app">
+  <header class="top">
+    <h1>Блок-схем зурагч <small>· 4-р анги · Хичээл 12</small></h1>
     <span class="sp"></span>
-    <button class="btn" id="bCheck" type="button">✓ Шалгах</button>
-    <button class="btn" id="bRun" type="button">▶ Гүйцэтгэх</button>
-    <button class="btn alt" id="bPng" type="button">⬇ Зураг (PNG)</button>
-    <button class="btn alt" id="bPrint" type="button">🖨 Хэвлэх</button>
+    <input id="title" maxlength="60" placeholder="Схемийн нэр" aria-label="Схемийн нэр">
+    <input id="author" maxlength="40" placeholder="Миний нэр" aria-label="Миний нэр" style="width:9rem">
+  </header>
+  <div class="tb" role="toolbar" aria-label="Хэрэгслүүд">
+    <select id="tpl" aria-label="Загвар">
+      <option value="">📂 Загвар нээх…</option>
+      <option value="out">🌧 Гадаа гарах уу?</option>
+      <option value="hello">👋 Сайн уу, нэр</option>
+      <option value="age">🎂 Насанд хүрсэн үү?</option>
+      <option value="book">📚 Ном авах уу? (2 нөхцөл)</option>
+      <option value="teeth">🪥 Шүдээ угаах</option>
+      <option value="count">🔢 1-ээс 5 хүртэл тоолох</option>
+      <option value="empty">⬜ Шинэ хоосон схем</option>
+    </select>
+    <button class="b" id="bUndo" type="button" title="Буцаах (⌘Z / Ctrl+Z)">↶ Буцаах</button>
+    <span class="sep"></span>
+    <button class="b run" id="bRun" type="button" title="Ажиллуулах">▶ Ажиллуулах</button>
+    <button class="b" id="bStep" type="button" title="Алхам алхмаар">⏯ Алхамаар</button>
+    <button class="b pri" id="bCheck" type="button">✓ Шалгах</button>
+    <span class="sp"></span>
+    <button class="b" id="zOut" type="button" aria-label="Жижигрүүлэх">−</button>
+    <span id="zLbl" style="font-weight:700;font-size:.85rem;min-width:3rem;text-align:center">100%</span>
+    <button class="b" id="zIn" type="button" aria-label="Томруулах">+</button>
+    <span class="sep"></span>
+    <button class="b" id="bPng" type="button">⬇ PNG</button>
+    <button class="b" id="bPrint" type="button">🖨 Хэвлэх</button>
   </div>
-
-  <div class="meta">
-    <label>Схемийн нэр<input id="title" maxlength="60" placeholder="Жишээ: Гадаа гарах уу?"></label>
-    <label>Миний нэр<input id="author" maxlength="40" placeholder="Нэрээ бич"></label>
+  <div class="runbar" id="runbar" role="status">
+    <span class="msg" id="runMsg"></span>
+    <span id="runBtns" style="display:flex;gap:.35rem;flex-wrap:wrap"></span>
+    <button class="b" id="runAuto" type="button">⏩ Автомат</button>
+    <button class="b stop" id="runStop" type="button">■ Зогсоох</button>
   </div>
-
-  <div class="cols">
-    <section class="panel" aria-label="Алхмууд">
-      <h2>Алхмууд <small>дээрээс доош дарааллаар</small></h2>
-      <div class="fixed">⬭ Эхэл</div>
-      <div id="editor"></div>
-      <div class="fixed">⬭ Төгсгө</div>
-    </section>
-    <section class="view" aria-label="Блок-схем">
-      <div class="runbar" id="runbar" role="status">
-        <span class="msg" id="runMsg"></span>
-        <span id="runBtns"></span>
-        <button class="btn alt" id="runStop" type="button">■ Зогсоох</button>
+  <div class="hintbar">💡 <b>Сум</b> дээр дарж шинэ блок нэм · Блок дээр <b>2 дарж</b> засна · Сонгоод <b>Delete</b> дарж устгана · <b>Худал</b> зүүн, <b>Үнэн</b> баруун тийш салаална.</div>
+  <div class="main">
+    <div class="chartWrap" id="wrap">
+      <div class="selbar" id="selbar">
+        <button class="b" id="sEdit" type="button">✎ Засах</button>
+        <button class="b" id="sUp" type="button" aria-label="Дээш зөөх">↑</button>
+        <button class="b" id="sDown" type="button" aria-label="Доош зөөх">↓</button>
+        <button class="b stop" id="sDel" type="button">🗑 Устгах</button>
       </div>
       <div id="printHead"></div>
-      <div class="canvas" id="canvas"></div>
-      <div class="zoom">
-        <span>Хэмжээ</span>
-        <button class="mini" id="zOut" type="button" aria-label="Жижигрүүлэх">−</button>
-        <button class="mini" id="zIn" type="button" aria-label="Томруулах">+</button>
-      </div>
+      <svg id="chart" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Блок-схем"></svg>
+    </div>
+    <aside class="side">
+      <h2>Консол</h2>
+      <div class="console" id="console" aria-live="polite"><div class="bub sys">«▶ Ажиллуулах» дарахад үр дүн энд гарна.</div></div>
+      <form class="cin" id="cin"><input id="cinVal" autocomplete="off" aria-label="Утга оруулах"><button class="b pri" type="submit">Оруулах</button></form>
+      <h2>Хувьсагчид</h2>
+      <div class="vars"><table><thead><tr><th>Нэр</th><th>Утга</th></tr></thead><tbody id="vars"><tr><td colspan="2" style="color:#8a90a0">—</td></tr></tbody></table></div>
       <div class="check" id="check" aria-live="polite"></div>
-    </section>
+    </aside>
   </div>
+</div>
 
-  <div class="tips">
-    <b>Санаж яваарай:</b>
-    <ul>
-      <li>▭ <b>Үйлдэл</b> — «хий» гэсэн алхам: «Цонхоор хар», «Шүхэр ав». Нэг сум орж, нэг сум гарна.</li>
-      <li>◇ <b>Шийдвэр</b> — «тийм / үгүй» гэж хариулах <b>асуулт</b>: «Бороо орж байна уу?». Ромбоос <b>ХОЁР</b> сум гарна.</li>
-      <li>Хоёр салаа дараа нь дахин нийлж, <b>бүх зам ⬭ Төгсгөлд</b> хүрэх ёстой.</li>
-      <li>Схемээ найздаа <b>«Гүйцэтгэх»</b>-ээр ажиллуулж үзүүл — гацвал алдааг ол!</li>
-    </ul>
-  </div>
-  <p class="sig">ОЮУНЛАГ INTERNATIONAL SCHOOL · Мэдээллийн технологи · 4-р анги · Хичээл 12</p>
-</main>
+<div class="palette" id="palette" role="menu" aria-label="Блок нэмэх"></div>
+<div class="dlg" id="dlg" role="dialog" aria-modal="true">
+  <form class="box" id="dlgForm">
+    <div class="hd" id="dlgHd"></div>
+    <div class="bd">
+      <label for="dlgIn" id="dlgLbl"></label>
+      <input id="dlgIn" maxlength="60" autocomplete="off">
+      <p class="help" id="dlgHelp"></p>
+      <div class="ex" id="dlgEx"></div>
+    </div>
+    <div class="ft"><button class="b" type="button" id="dlgCancel">Болих</button><button class="b pri" type="submit">OK</button></div>
+  </form>
+</div>
 
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
-let uid = 1;
-const A = t => ({id:uid++, type:'action', text:t});
-const D = (t, yes, no) => ({id:uid++, type:'decision', text:t, yes, no});
-const TEMPLATES = {
-  out:   {title:'Гадаа гарах уу?', flow:[A('Цонхоор хар'), D('Бороо орж байна уу?', [A('Шүхэр ав')], [A('Малгай ав')]), A('Гадаа гар')]},
-  teeth: {title:'Шүдээ угаах', flow:[A('Сойзоо ав'), A('Сойзон дээр оо түрх'), A('Шүдээ 2 минут сойздо'), A('Амаа зайл'), A('Сойзоо угааж тавь')]},
-  book:  {title:'Хичээлийн дараа ном авах уу?', flow:[A('Номын санд оч'), D('Унших цаг байна уу?', [D('Сонирхсон ном байна уу?', [A('Номоо бүртгүүлж ав')], [A('Багшаас зөвлөгөө ав')])], [A('Дараа өдөр ирнэ')]), A('Гэртээ харь')]},
-  sleep: {title:'Унтахаас өмнө шүдээ угаах уу?', flow:[A('Унтах цаг боллоо'), D('Шүдээ угаасан уу?', [], [A('Шүдээ угаа')]), A('Орондоо ор')]},
-  empty: {title:'', flow:[A('')]}
+const NS = 'http://www.w3.org/2000/svg';
+
+/* ───────────── Блокийн төрлүүд (Flowgorithm) ───────────── */
+const TYPES = {
+  declare:{name:'Зарлах',   kw:'Зарлах',  fill:'#FFF7B5', shape:'declare', grp:'Энгийн',
+           lbl:'Хувьсагчийн нэр', ph:'нас', help:'Хувьсагч гэдэг нь утга хадгалах «хайрцаг». Нэр өгч зарлана.', ex:['нас','нэр','оноо']},
+  assign: {name:'Үйлдэл',   kw:'',        fill:'#FFF7B5', shape:'rect', grp:'Энгийн',
+           lbl:'Хийх үйлдэл эсвэл утга олгох', ph:'Шүхэр ав', help:'Нэг үйлдэл бич. Тоогоор тооцоолох бол: оноо = оноо + 1', ex:['Цонхоор хар','Шүхэр ав','оноо = 0','оноо = оноо + 1']},
+  input:  {name:'Оролт',    kw:'Оролт',   fill:'#C2E2FF', shape:'para', grp:'Энгийн',
+           lbl:'Аль хувьсагчид утга авах вэ?', ph:'нас', help:'Ажиллуулахад хэрэглэгчээс утга асууж, энэ хувьсагчид хадгална.', ex:['нас','нэр','тоо']},
+  output: {name:'Гаралт',   kw:'Гаралт',  fill:'#C9F2C2', shape:'para', grp:'Энгийн',
+           lbl:'Дэлгэцэнд юу харуулах вэ?', ph:'"Сайн уу!"', help:'Текстийг хашилтад бич. Хувьсагч нэмэх бол & ашигла: "Сайн уу, " & нэр', ex:['"Сайн уу!"','"Сайн уу, " & нэр','оноо']},
+  if:     {name:'If',       kw:'',        fill:'#FFDDB0', shape:'diamond', grp:'Нөхцөл',
+           lbl:'Тийм / үгүй гэж хариулах нөхцөл', ph:'Бороо орж байна уу?', help:'Үнэн (тийм) бол БАРУУН, Худал (үгүй) бол ЗҮҮН салаагаар явна.', ex:['Бороо орж байна уу?','нас >= 18','оноо > 10']},
+  while:  {name:'While',    kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
+           lbl:'Нөхцөл үнэн байх хооронд давтана', ph:'тоо < 10', help:'Эхлээд нөхцөлийг шалгаж, үнэн бол доторх блокуудыг дахин дахин хийнэ.', ex:['тоо < 10','Өлсөж байна уу?']},
+  for:    {name:'For',      kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
+           lbl:'Тоолох: хувьсагч = эхлэх … дуусах', ph:'i = 1 … 10', help:'Жишээ: i = 1 … 5 гэвэл i нь 1, 2, 3, 4, 5 болж 5 удаа давтана.', ex:['i = 1 … 5','i = 1 … 10']},
+  do:     {name:'Do',       kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
+           lbl:'Эхлээд хийгээд, дараа нь нөхцөл шалгана', ph:'Дахин тоглох уу?', help:'Доторх блокууд дор хаяж нэг удаа ажиллана. Нөхцөл үнэн бол буцаж давтана.', ex:['Дахин тоглох уу?','тоо < 5']},
+  comment:{name:'Тайлбар',  kw:'',        fill:'#EEEEEE', shape:'comment', grp:'Бусад',
+           lbl:'Тайлбар (ажиллахад нөлөөгүй)', ph:'Энэ хэсэг юу хийдгийг бич', help:'Тайлбар нь хүнд зориулсан тэмдэглэл. Компьютер үүнийг алгасна.', ex:[]}
 };
-const clone = o => JSON.parse(JSON.stringify(o));
-function reid(list){ list.forEach(n => { n.id = uid++; if (n.type === 'decision'){ reid(n.yes); reid(n.no); } }); return list; }
+const ORDER = ['input','output','declare','assign','if','while','for','do','comment'];
 
-let state = {title:'', author:'', flow:[]};
+let uid = 1;
+const N = (type, text='', extra={}) => Object.assign({id:uid++, type, text}, type === 'if' ? {yes:[], no:[]} : (['while','for','do'].includes(type) ? {body:[]} : {}), extra);
+const TEMPLATES = {
+  out:  {title:'Гадаа гарах уу?', flow:() => [N('assign','Цонхоор хар'), N('if','Бороо орж байна уу?', {yes:[N('assign','Шүхэр ав')], no:[N('assign','Малгай ав')]}), N('assign','Гадаа гар')]},
+  hello:{title:'Сайн уу, нэр', flow:() => [N('declare','нэр'), N('output','"Чиний нэр хэн бэ?"'), N('input','нэр'), N('output','"Сайн уу, " & нэр & "!"')]},
+  age:  {title:'Насанд хүрсэн үү?', flow:() => [N('declare','нас'), N('output','"Хэдэн настай вэ?"'), N('input','нас'), N('if','нас >= 18', {yes:[N('output','"Насанд хүрсэн"')], no:[N('output','"Хүүхэд"')]})]},
+  book: {title:'Хичээлийн дараа ном авах уу?', flow:() => [N('assign','Номын санд оч'), N('if','Унших цаг байна уу?', {yes:[N('if','Сонирхсон ном байна уу?', {yes:[N('assign','Номоо бүртгүүлж ав')], no:[N('assign','Багшаас зөвлөгөө ав')]})], no:[N('assign','Дараа өдөр ирнэ')]}), N('assign','Гэртээ харь')]},
+  teeth:{title:'Шүдээ угаах', flow:() => [N('assign','Сойзоо ав'), N('assign','Сойзон дээр оо түрх'), N('assign','Шүдээ 2 минут сойздо'), N('assign','Амаа зайл'), N('assign','Сойзоо угааж тавь')]},
+  count:{title:'1-ээс 5 хүртэл тоолох', flow:() => [N('declare','i'), N('for','i = 1 … 5', {body:[N('output','i')]}), N('output','"Дууслаа!"')]},
+  empty:{title:'', flow:() => []}
+};
+
+/* ───────────── Төлөв, хадгалалт, буцаах ───────────── */
+let doc = {title:'', author:'', flow:[]};
+let sel = null, zoom = 1;
+const undoStack = [];
+function snapshot(){ undoStack.push(JSON.stringify(doc)); if (undoStack.length > 60) undoStack.shift(); $('bUndo').disabled = false; }
+function reid(list){ (list || []).forEach(n => { n.id = uid++; ['yes','no','body'].forEach(k => n[k] && reid(n[k])); }); return list; }
+function save(){ try { localStorage.setItem('h12fg', JSON.stringify(doc)); } catch(e){} }
 function load(){
-  try { const s = JSON.parse(localStorage.getItem('h12flow') || 'null'); if (s && Array.isArray(s.flow)) { state = s; reid(state.flow); return; } } catch(e){}
-  state = {title:TEMPLATES.out.title, author:'', flow:reid(clone(TEMPLATES.out.flow))};
+  try { const s = JSON.parse(localStorage.getItem('h12fg') || 'null'); if (s && Array.isArray(s.flow)){ doc = s; reid(doc.flow); return; } } catch(e){}
+  doc = {title:TEMPLATES.out.title, author:'', flow:TEMPLATES.out.flow()};
 }
-function save(){ try { localStorage.setItem('h12flow', JSON.stringify(state)); } catch(e){} }
-
-/* ───────────── Засварлагч ───────────── */
-const editor = $('editor');
-function findParent(list, id){
+function changed(){ save(); draw(); $('check').classList.remove('show'); }
+function find(id, list=doc.flow){
   for (let i=0;i<list.length;i++){
-    const n = list[i];
-    if (n.id === id) return {list, i};
-    if (n.type === 'decision'){ const r = findParent(n.yes, id) || findParent(n.no, id); if (r) return r; }
+    const n = list[i]; if (n.id === id) return {list, i, n};
+    for (const k of ['yes','no','body']) if (n[k]){ const r = find(id, n[k]); if (r) return r; }
   }
   return null;
 }
-function renderEditor(focusId){
-  editor.innerHTML = '';
-  editor.appendChild(renderList(state.flow, 0));
-  if (focusId){ const el = editor.querySelector(`input[data-id="${focusId}"]`); if (el) el.focus(); }
-}
-function renderList(list, depth){
-  const wrap = document.createElement('div'); wrap.className = 'list';
-  list.forEach((n, i) => wrap.appendChild(renderBlock(n, list, i, depth)));
-  const adds = document.createElement('div'); adds.className = 'adds';
-  const mk = (label, type) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'add'; b.textContent = label;
-    b.onclick = () => { const n = type === 'action' ? A('') : D('', [], []); list.push(n); changed(n.id); };
-    adds.appendChild(b);
-  };
-  mk('＋ ▭ Үйлдэл', 'action');
-  if (depth < 2) mk('＋ ◇ Шийдвэр', 'decision');
-  wrap.appendChild(adds);
-  return wrap;
-}
-function renderBlock(n, list, i, depth){
-  const b = document.createElement('div'); b.className = 'blk' + (n.type === 'decision' ? ' dec' : '');
-  const hd = document.createElement('div'); hd.className = 'hd';
-  const ic = document.createElement('span'); ic.className = 'ic'; ic.textContent = n.type === 'decision' ? '◇' : '▭'; ic.setAttribute('aria-hidden','true');
-  const inp = document.createElement('input'); inp.value = n.text; inp.dataset.id = n.id; inp.maxLength = 50;
-  inp.placeholder = n.type === 'decision' ? 'Асуулт: …уу? / …үү?' : 'Үйлдэл: юу хийх вэ?';
-  inp.setAttribute('aria-label', n.type === 'decision' ? 'Шийдвэрийн асуулт' : 'Үйлдэл');
-  inp.oninput = () => { n.text = inp.value; inp.classList.remove('bad'); drawSoon(); save(); };
-  const btn = (txt, label, fn, dis) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'mini'; x.textContent = txt; x.setAttribute('aria-label', label); x.disabled = !!dis; x.onclick = fn; return x; };
-  hd.append(ic, inp,
-    btn('↑', 'Дээш', () => { [list[i-1], list[i]] = [list[i], list[i-1]]; changed(n.id); }, i === 0),
-    btn('↓', 'Доош', () => { [list[i+1], list[i]] = [list[i], list[i+1]]; changed(n.id); }, i === list.length - 1),
-    btn('✕', 'Устгах', () => { list.splice(i, 1); changed(); }));
-  b.appendChild(hd);
-  if (n.type === 'decision'){
-    const br = document.createElement('div'); br.className = 'br';
-    [['yes','✓ ТИЙМ бол', n.yes], ['no','✕ ҮГҮЙ бол', n.no]].forEach(([cls, lab, l]) => {
-      const c = document.createElement('div'); c.className = cls;
-      const t = document.createElement('div'); t.className = 'lab'; t.textContent = lab;
-      c.append(t, renderList(l, depth + 1)); br.appendChild(c);
-    });
-    b.appendChild(br);
-  }
-  return b;
-}
-function changed(focusId){ stopRun(); renderEditor(focusId); draw(); save(); $('check').classList.remove('show'); }
 
-/* ───────────── Схем зурах (SVG) ───────────── */
-const NS = 'http://www.w3.org/2000/svg';
-const FONT = '600 14px -apple-system,"Segoe UI",Arial,sans-serif';
-const mctx = document.createElement('canvas').getContext('2d'); mctx.font = FONT;
-const G = 34, LH = 18;
+/* ───────────── Хэмжээ ───────────── */
+const G = 30, LH = 17, FS = 13.5;
+const FONT = `${FS}px Arial,Helvetica,sans-serif`, FONTB = `bold ${FS}px Arial,Helvetica,sans-serif`;
+const mctx = document.createElement('canvas').getContext('2d');
+function tw(t, bold){ mctx.font = bold ? FONTB : FONT; return mctx.measureText(t).width; }
 function wrap(text, maxW){
-  const words = (text || '').trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return ['…'];
+  const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return [''];
   const lines = []; let cur = '';
-  for (const w of words){
-    const t = cur ? cur + ' ' + w : w;
-    if (mctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t;
-  }
+  for (const w of words){ const t = cur ? cur + ' ' + w : w; if (tw(t, true) > maxW && cur){ lines.push(cur); cur = w; } else cur = t; }
   if (cur) lines.push(cur);
   return lines;
 }
-function measureNode(n){
-  if (n.type === 'action'){
-    const lines = wrap(n.text, 170);
-    const tw = Math.max(...lines.map(l => mctx.measureText(l).width));
-    n._lines = lines; n._w = Math.max(140, tw + 32); n._h = lines.length * LH + 22;
-    n._W = n._w; n._H = n._h; return;
-  }
-  const lines = wrap(n.text, 140);
-  const tw = Math.max(...lines.map(l => mctx.measureText(l).width));
-  n._lines = lines; n._w = Math.max(170, tw * 1.75 + 40); n._h = Math.max(88, lines.length * LH * 1.9 + 34);
-  const ly = measureList(n.yes), ln = measureList(n.no);
-  n._bw = Math.max(ly.w, ln.w, n._w - 40, 130);
-  n._W = n._bw * 2 + 40;
-  n._bh = Math.max(ly.h, ln.h);
-  n._H = n._h + G + n._bh + G;
-}
+function label(n){ const T = TYPES[n.type]; const t = n.text.trim() || '…'; return T.kw ? T.kw + ' ' + t : t; }
 function measureList(list){
-  let w = 0, h = 0;
-  list.forEach((n, i) => { measureNode(n); w = Math.max(w, n._W); h += n._H + (i ? G : 0); });
-  return {w, h};
+  let l = 12, r = 12, h = G;
+  list.forEach(n => { measureNode(n); l = Math.max(l, n._l); r = Math.max(r, n._r); h += n._h + G; });
+  return {l, r, h};
 }
-function el(tag, attrs, parent){
-  const e = document.createElementNS(NS, tag);
-  for (const k in attrs) e.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(e); return e;
+function measureNode(n){
+  const T = TYPES[n.type];
+  const lines = wrap(label(n), T.shape === 'diamond' ? 150 : 190);
+  const w0 = Math.max(...lines.map(x => tw(x, true)));
+  n._lines = lines;
+  if (T.shape === 'diamond'){
+    n._w = Math.max(130, w0 * 1.45 + 46); n._dh = Math.max(54, lines.length * LH * 1.35 + 28);
+    const L = measureList(n.no), R = measureList(n.yes);
+    n._lx = -Math.max(n._w/2 + 16, L.r + 16); n._rx = Math.max(n._w/2 + 16, R.l + 16);
+    n._L = L; n._R = R;
+    n._l = Math.max(n._w/2, -n._lx + L.l); n._r = Math.max(n._w/2, n._rx + R.r);
+    n._h = Math.max(n._dh + 12, n._dh/2 + Math.max(L.h, R.h) + 10);
+    return;
+  }
+  if (T.shape === 'hex'){
+    n._w = Math.max(120, w0 + 52); n._hh = Math.max(38, lines.length * LH + 18);
+    const B = measureList(n.body); n._B = B;
+    n._xl = -(Math.max(n._w/2, B.l) + 24); n._xr = Math.max(n._w/2, B.r) + 24;
+    n._l = -n._xl + 6; n._r = (n.type === 'do' ? Math.max(n._w/2, B.r) : n._xr) + 6;
+    n._h = n.type === 'do' ? B.h + n._hh : n._hh + B.h + 14;
+    return;
+  }
+  const pad = T.shape === 'para' ? 46 : 32;
+  n._w = Math.max(T.shape === 'comment' ? 110 : 120, w0 + pad);
+  n._hh = Math.max(36, lines.length * LH + 16);
+  n._l = n._r = n._w/2; n._h = n._hh;
 }
-function text(parent, lines, cx, cy, extra={}){
-  const t = el('text', Object.assign({x:cx, 'text-anchor':'middle', 'font-family':'-apple-system,Segoe UI,Arial,sans-serif', 'font-size':14, 'font-weight':600, fill:'#141A2E'}, extra), parent);
-  const y0 = cy - (lines.length - 1) * LH / 2 + 5;
-  lines.forEach((l, i) => { const s = el('tspan', {x:cx, y:y0 + i*LH}, t); s.textContent = l; });
-  return t;
+
+/* ───────────── Зурах ───────────── */
+let svg = $('chart'), insPts = [];
+function el(tag, a, p){ const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+const STROKE = '#3A3F4B';
+function seg(g, x, y1, y2, arrow){ el('line', {x1:x, y1, x2:x, y2:y2 - (arrow ? 1 : 0), stroke:STROKE, 'stroke-width':1.5, 'marker-end':arrow ? 'url(#ah)' : ''}, g); }
+function poly(g, pts, arrow){ el('polyline', {points:pts.map(p => p.join(',')).join(' '), fill:'none', stroke:STROKE, 'stroke-width':1.5, 'marker-end':arrow ? 'url(#ah)' : ''}, g); }
+function txt(g, lines, cx, cy, kw){
+  const t = el('text', {x:cx, 'text-anchor':'middle', 'font-family':'Arial,Helvetica,sans-serif', 'font-size':FS, fill:'#1F2430'}, g);
+  const y0 = cy - (lines.length - 1) * LH / 2 + FS * .36;
+  lines.forEach((ln, i) => {
+    const s = el('tspan', {x:cx, y:y0 + i*LH}, t);
+    if (i === 0 && kw && ln.startsWith(kw)){
+      const k = el('tspan', {'font-weight':'bold', fill:'#1546A0'}, s); k.textContent = kw;
+      const r = el('tspan', {'font-weight':'bold'}, s); r.textContent = ln.slice(kw.length);
+    } else { s.setAttribute('font-weight', 'bold'); s.textContent = ln; }
+  });
 }
-function arrow(g, x1, y1, x2, y2){ el('line', {x1, y1, x2, y2, stroke:'#141A2E', 'stroke-width':2, 'marker-end':'url(#ah)'}, g); }
-function line(g, pts){ el('polyline', {points:pts.map(p => p.join(',')).join(' '), fill:'none', stroke:'#141A2E', 'stroke-width':2}, g); }
-function drawOval(g, cx, y, label, id){
-  const w = 120, h = 42;
-  const grp = el('g', {'data-id':id}, g);
-  el('rect', {x:cx - w/2, y, width:w, height:h, rx:21, fill:'#FDE68A', stroke:'#141A2E', 'stroke-width':2.5, class:'shape'}, grp);
-  text(grp, [label], cx, y + h/2, {'font-weight':800, 'font-size':15});
-  return y + h;
+function insPoint(g, list, idx, x, y1, y2, arrow){
+  seg(g, x, y1, y2, arrow);
+  const k = insPts.length; insPts.push({list, idx});
+  const h = el('g', {class:'ins', 'data-k':k, tabindex:0, role:'button', 'aria-label':'Энд блок нэмэх'}, g);
+  el('rect', {x:x - 12, y:y1, width:24, height:y2 - y1, fill:'transparent'}, h);
+  const pl = el('g', {class:'plus'}, h);
+  el('circle', {cx:x, cy:(y1 + y2)/2, r:8, fill:'#2F6FD6'}, pl);
+  el('path', {d:`M${x-4},${(y1+y2)/2} h8 M${x},${(y1+y2)/2-4} v8`, stroke:'#fff', 'stroke-width':2}, pl);
 }
-function drawList(g, list, cx, y){
-  list.forEach((n, i) => { if (i){ arrow(g, cx, y, cx, y + G - 2); y += G; } y = drawNode(g, n, cx, y); });
+function drawList(g, list, cx, y, endArrow){
+  list.forEach((n, i) => { insPoint(g, list, i, cx, y, y + G, true); y += G; y = drawNode(g, n, cx, y); });
+  insPoint(g, list, list.length, cx, y, y + G, endArrow); y += G;
   return y;
 }
+function shapeAttrs(n){
+  const T = TYPES[n.type];
+  return {fill:T.fill, stroke:STROKE, 'stroke-width':1.5, class:'shape'};
+}
 function drawNode(g, n, cx, y){
-  const grp = el('g', {'data-id':n.id}, g);
-  if (n.type === 'action'){
-    el('rect', {x:cx - n._w/2, y, width:n._w, height:n._h, rx:6, fill:'#DBEAFE', stroke:'#141A2E', 'stroke-width':2.5, class:'shape'}, grp);
-    text(grp, n._lines, cx, y + n._h/2);
-    return y + n._h;
+  const T = TYPES[n.type];
+  const ng = el('g', {class:'node', 'data-id':n.id}, g);
+  if (T.shape === 'diamond'){
+    const hw = n._w/2, my = y + n._dh/2;
+    el('polygon', Object.assign({points:`${cx},${y} ${cx+hw},${my} ${cx},${y+n._dh} ${cx-hw},${my}`}, shapeAttrs(n)), ng);
+    txt(ng, n._lines, cx, my, '');
+    const mergeY = y + n._h;
+    [[n.no, cx + n._lx, cx - hw, 'Худал'], [n.yes, cx + n._rx, cx + hw, 'Үнэн']].forEach(([list, bx, vx, lab]) => {
+      poly(g, [[vx, my], [bx, my]]);
+      const t = el('text', {x:vx + (bx < vx ? -6 : 6), y:my - 6, 'text-anchor':bx < vx ? 'end' : 'start', 'font-family':'Arial,Helvetica,sans-serif', 'font-size':12, 'font-weight':'bold', fill:'#3A3F4B'}, g); t.textContent = lab;
+      const end = drawList(g, list, bx, my, false);
+      poly(g, [[bx, end], [bx, mergeY], [cx, mergeY]]);
+    });
+    el('circle', {cx, cy:mergeY, r:5, fill:'#fff', stroke:STROKE, 'stroke-width':1.5}, g);
+    return mergeY;
   }
-  const hw = n._w/2, hh = n._h/2, my = y + hh;
-  el('polygon', {points:`${cx},${y} ${cx+hw},${my} ${cx},${y+n._h} ${cx-hw},${my}`, fill:'#FBCFE8', stroke:'#141A2E', 'stroke-width':2.5, class:'shape'}, grp);
-  text(grp, n._lines, cx, my);
-  const lx = cx - n._bw/2 - 20, rx = cx + n._bw/2 + 20;
-  const by = y + n._h + G, mergeY = by + n._bh + G/2;
-  // салаа
-  [[n.yes, lx, cx - hw, 'Тийм', '#0B7A55', 'end'], [n.no, rx, cx + hw, 'Үгүй', '#C0322B', 'start']].forEach(([list, bx, vx, lab, col, anchor]) => {
-    line(g, [[vx, my], [bx, my]]);
-    const tl = el('text', {x:(vx + bx)/2, y:my - 7, 'text-anchor':'middle', 'font-family':'-apple-system,Segoe UI,Arial,sans-serif', 'font-size':13, 'font-weight':800, fill:col}, g); tl.textContent = lab;
-    if (list.length){
-      arrow(g, bx, my, bx, by - 2);
-      const end = drawList(g, list, bx, by);
-      line(g, [[bx, end], [bx, mergeY], [cx, mergeY]]);
-    } else line(g, [[bx, my], [bx, mergeY], [cx, mergeY]]);
-  });
-  el('circle', {cx, cy:mergeY, r:4, fill:'#141A2E'}, g);
-  line(g, [[cx, mergeY], [cx, y + n._H]]);
-  return y + n._H;
+  if (T.shape === 'hex'){
+    const hw = n._w/2, hh = n._hh, inset = 14;
+    const hex = (yy) => el('polygon', Object.assign({points:`${cx-hw},${yy+hh/2} ${cx-hw+inset},${yy} ${cx+hw-inset},${yy} ${cx+hw},${yy+hh/2} ${cx+hw-inset},${yy+hh} ${cx-hw+inset},${yy+hh}`}, shapeAttrs(n)), ng);
+    const lab = (x, yy, t, anchor) => { const e = el('text', {x, y:yy, 'text-anchor':anchor, 'font-family':'Arial,Helvetica,sans-serif', 'font-size':12, 'font-weight':'bold', fill:'#3A3F4B'}, g); e.textContent = t; };
+    if (n.type === 'do'){
+      el('circle', {cx, cy:y, r:4, fill:STROKE}, g);
+      const yb = drawList(g, n.body, cx, y, true);
+      hex(yb); txt(ng, n._lines, cx, yb + hh/2, '');
+      const xl = cx + n._xl, my = yb + hh/2;
+      poly(g, [[cx - hw, my], [xl, my], [xl, y], [cx - 5, y]], true);
+      lab((xl + cx - hw)/2, my - 6, 'Үнэн', 'middle');
+      lab(cx + 8, yb + hh + 14, 'Худал', 'start');
+      return yb + hh;
+    }
+    hex(y); txt(ng, n._lines, cx, y + hh/2, '');
+    const my = y + hh/2, xl = cx + n._xl, xr = cx + n._xr;
+    lab(cx + 8, y + hh + 14, n.type === 'for' ? 'Дараах' : 'Үнэн', 'start');
+    const yb = drawList(g, n.body, cx, y + hh, false);
+    poly(g, [[cx, yb], [xl, yb], [xl, my], [cx - hw - 1, my]], true);
+    poly(g, [[cx + hw, my], [xr, my], [xr, yb + 14], [cx, yb + 14]]);
+    lab(cx + hw + 6, my - 6, n.type === 'for' ? 'Дууссан' : 'Худал', 'start');
+    return yb + 14;
+  }
+  const w = n._w, h = n._hh, x0 = cx - w/2;
+  if (T.shape === 'para'){
+    const s = 12;
+    el('polygon', Object.assign({points:`${x0+s},${y} ${x0+w},${y} ${x0+w-s},${y+h} ${x0},${y+h}`}, shapeAttrs(n)), ng);
+  } else if (T.shape === 'declare'){
+    el('rect', Object.assign({x:x0, y, width:w, height:h, rx:2}, shapeAttrs(n)), ng);
+    el('line', {x1:x0 + 7, y1:y, x2:x0 + 7, y2:y + h, stroke:STROKE, 'stroke-width':1}, ng);
+    el('line', {x1:x0, y1:y + 6, x2:x0 + w, y2:y + 6, stroke:STROKE, 'stroke-width':1}, ng);
+  } else if (T.shape === 'comment'){
+    el('path', Object.assign({d:`M${x0},${y} H${x0+w-10} L${x0+w},${y+10} V${y+h} H${x0} Z`}, shapeAttrs(n), {'stroke-dasharray':'4 3'}), ng);
+    el('path', {d:`M${x0+w-10},${y} V${y+10} H${x0+w}`, fill:'none', stroke:STROKE, 'stroke-width':1}, ng);
+  } else {
+    el('rect', Object.assign({x:x0, y, width:w, height:h, rx:2}, shapeAttrs(n)), ng);
+  }
+  txt(ng, n._lines, cx + (T.shape === 'declare' ? 3 : 0), y + h/2 + (T.shape === 'declare' ? 2 : 0), T.kw);
+  return y + h;
 }
-let zoom = 1, drawT = null;
-function drawSoon(){ clearTimeout(drawT); drawT = setTimeout(draw, 120); }
+function terminal(g, cx, y, t, id){
+  const w = 110, h = 36;
+  const ng = el('g', {'data-id':id}, g);
+  el('rect', {x:cx - w/2, y, width:w, height:h, rx:h/2, fill:'#F3E3C3', stroke:STROKE, 'stroke-width':1.5, class:'shape'}, ng);
+  txt(ng, [t], cx, y + h/2, '');
+  return y + h;
+}
 function draw(){
-  const m = measureList(state.flow);
-  const W = Math.max(320, m.w + 60), top = 20, ovalH = 42;
-  const H = top + ovalH + G + (state.flow.length ? m.h + G : 0) + ovalH + 30;
-  const svg = el('svg', {xmlns:NS, viewBox:`0 0 ${W} ${H}`, width:W*zoom, height:H*zoom, role:'img'});
-  el('title', {}, svg).textContent = (state.title || 'Блок-схем');
+  insPts = [];
+  const m = measureList(doc.flow);
+  const pad = 40, half = Math.max(m.l, m.r, 70);
+  const W = half * 2 + pad * 2, H = 24 + 36 + m.h + 36 + 30;
+  const cx = W / 2;
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W * zoom); svg.setAttribute('height', H * zoom);
   const defs = el('defs', {}, svg);
-  const mk = el('marker', {id:'ah', viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:8, markerHeight:8, orient:'auto-start-reverse'}, defs);
-  el('path', {d:'M0,0 L10,5 L0,10 z', fill:'#141A2E'}, mk);
-  el('rect', {x:0, y:0, width:W, height:H, fill:'#ffffff'}, svg);
+  const mk = el('marker', {id:'ah', viewBox:'0 0 10 10', refX:10, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse', markerUnits:'userSpaceOnUse'}, defs);
+  mk.setAttribute('markerWidth', 9); mk.setAttribute('markerHeight', 9);
+  el('path', {d:'M0,0 L10,5 L0,10 z', fill:STROKE}, mk);
   const g = el('g', {}, svg);
-  const cx = W/2;
-  let y = drawOval(g, cx, top, 'Эхэл', 'start');
-  arrow(g, cx, y, cx, y + G - 2); y += G;
-  if (state.flow.length){ y = drawList(g, state.flow, cx, y); arrow(g, cx, y, cx, y + G - 2); y += G; }
-  drawOval(g, cx, y, 'Төгсгө', 'end');
-  const c = $('canvas'); c.innerHTML = ''; c.appendChild(svg);
-  highlight();
+  let y = terminal(g, cx, 24, 'Эхлэл', 'start');
+  y = drawList(g, doc.flow, cx, y, true);
+  terminal(g, cx, y, 'Төгсгөл', 'end');
+  $('zLbl').textContent = Math.round(zoom * 100) + '%';
+  paintSel(); paintRun();
 }
-$('zIn').onclick = () => { zoom = Math.min(2, zoom + .15); draw(); };
-$('zOut').onclick = () => { zoom = Math.max(.4, zoom - .15); draw(); };
+function paintSel(){
+  svg.querySelectorAll('.node').forEach(ng => {
+    const s = ng.querySelector('.shape'); const on = sel === +ng.dataset.id;
+    s.setAttribute('stroke', on ? '#2F6FD6' : STROKE); s.setAttribute('stroke-width', on ? 3.5 : 1.5);
+  });
+  $('selbar').classList.toggle('show', sel != null && !run);
+  if (sel != null){ const f = find(sel); if (f){ $('sUp').disabled = f.i === 0; $('sDown').disabled = f.i === f.list.length - 1; } }
+}
+
+/* ───────────── Засварлах ───────────── */
+const pal = $('palette');
+let palTarget = null;
+function icon(type){
+  const T = TYPES[type], f = T.fill, s = '#3A3F4B';
+  const shapes = {
+    rect:`<rect x="4" y="7" width="36" height="18" fill="${f}" stroke="${s}"/>`,
+    declare:`<rect x="4" y="7" width="36" height="18" fill="${f}" stroke="${s}"/><line x1="8" y1="7" x2="8" y2="25" stroke="${s}"/><line x1="4" y1="11" x2="40" y2="11" stroke="${s}"/>`,
+    para:`<polygon points="10,7 40,7 34,25 4,25" fill="${f}" stroke="${s}"/>`,
+    diamond:`<polygon points="22,4 40,16 22,28 4,16" fill="${f}" stroke="${s}"/>`,
+    hex:`<polygon points="4,16 10,7 34,7 40,16 34,25 10,25" fill="${f}" stroke="${s}"/>`,
+    comment:`<path d="M4,7 H32 L40,15 V25 H4 Z" fill="${f}" stroke="${s}" stroke-dasharray="3 2"/>`
+  };
+  return `<svg width="44" height="32" viewBox="0 0 44 32" aria-hidden="true">${shapes[T.shape]}</svg>`;
+}
+function buildPalette(){
+  let html = '<h3>Блок нэмэх</h3><div class="grid">', grp = '';
+  ORDER.forEach(t => {
+    const T = TYPES[t];
+    if (T.grp !== grp){ grp = T.grp; html += `<div class="grp">${grp}</div>`; }
+    html += `<button type="button" data-t="${t}" role="menuitem">${icon(t)}${T.name}</button>`;
+  });
+  pal.innerHTML = html + '</div>';
+  pal.querySelectorAll('button').forEach(b => b.onclick = () => {
+    const t = b.dataset.t; closePalette(false);
+    if (!palTarget) return;
+    snapshot();
+    const n = N(t, '');
+    palTarget.list.splice(palTarget.idx, 0, n);
+    sel = n.id; changed();
+    openEdit(n, true);
+  });
+}
+function openPalette(k, x, y){
+  stopRun();
+  palTarget = insPts[k];
+  pal.classList.add('show');
+  const r = pal.getBoundingClientRect();
+  pal.style.left = Math.max(8, Math.min(window.innerWidth - r.width - 8, x + 10)) + 'px';
+  pal.style.top = Math.max(8, Math.min(window.innerHeight - r.height - 8, y - 20)) + 'px';
+  pal.querySelector('button').focus();
+}
+function closePalette(){ pal.classList.remove('show'); }
+document.addEventListener('pointerdown', e => { if (pal.classList.contains('show') && !pal.contains(e.target) && !e.target.closest('.ins')) closePalette(); });
+
+const dlg = $('dlg'); let editNode = null, editIsNew = false;
+function openEdit(n, isNew){
+  editNode = n; editIsNew = !!isNew;
+  const T = TYPES[n.type];
+  $('dlgHd').innerHTML = icon(n.type) + ' ' + T.name + (n.type === 'if' || n.type === 'while' || n.type === 'for' || n.type === 'do' ? ` <small style="font-weight:600;color:#5C6278">(${{if:'Нөхцөл',while:'Давталт',for:'Тоолох давталт',do:'Давталт'}[n.type]})</small>` : '');
+  $('dlgLbl').textContent = T.lbl;
+  $('dlgIn').value = n.text; $('dlgIn').placeholder = T.ph;
+  $('dlgHelp').textContent = T.help;
+  $('dlgEx').innerHTML = T.ex.map(x => `<button type="button">${x.replace(/</g,'&lt;')}</button>`).join('');
+  $('dlgEx').querySelectorAll('button').forEach(b => b.onclick = () => { $('dlgIn').value = b.textContent; $('dlgIn').focus(); });
+  dlg.classList.add('show');
+  setTimeout(() => { $('dlgIn').focus(); $('dlgIn').select(); }, 30);
+}
+$('dlgForm').onsubmit = e => {
+  e.preventDefault();
+  if (!editNode) return;
+  const v = $('dlgIn').value.trim();
+  if (v !== editNode.text){ if (!editIsNew) snapshot(); editNode.text = v; }
+  dlg.classList.remove('show'); editNode = null; changed();
+};
+$('dlgCancel').onclick = () => { dlg.classList.remove('show'); editNode = null; draw(); };
+
+svg.addEventListener('click', e => {
+  const ins = e.target.closest('.ins');
+  if (ins){ openPalette(+ins.dataset.k, e.clientX, e.clientY); return; }
+  const nd = e.target.closest('.node');
+  sel = nd ? +nd.dataset.id : null; closePalette(); paintSel();
+});
+svg.addEventListener('dblclick', e => {
+  const nd = e.target.closest('.node'); if (!nd || run) return;
+  const f = find(+nd.dataset.id); if (f) openEdit(f.n);
+});
+svg.addEventListener('keydown', e => {
+  const ins = e.target.closest && e.target.closest('.ins');
+  if (ins && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); const r = ins.getBoundingClientRect(); openPalette(+ins.dataset.k, r.right, r.top + r.height/2); }
+});
+function delSel(){ const f = sel != null && find(sel); if (!f) return; snapshot(); f.list.splice(f.i, 1); sel = null; changed(); }
+function moveSel(d){ const f = sel != null && find(sel); if (!f) return; const j = f.i + d; if (j < 0 || j >= f.list.length) return; snapshot(); [f.list[f.i], f.list[j]] = [f.list[j], f.list[f.i]]; changed(); }
+$('sDel').onclick = delSel; $('sUp').onclick = () => moveSel(-1); $('sDown').onclick = () => moveSel(1);
+$('sEdit').onclick = () => { const f = sel != null && find(sel); if (f) openEdit(f.n); };
+function undo(){ const s = undoStack.pop(); if (!s) return; doc = JSON.parse(s); reid(doc.flow); sel = null; $('title').value = doc.title || ''; $('author').value = doc.author || ''; $('bUndo').disabled = !undoStack.length; changed(); }
+$('bUndo').onclick = undo; $('bUndo').disabled = true;
+document.addEventListener('keydown', e => {
+  if (dlg.classList.contains('show')){ if (e.key === 'Escape') $('dlgCancel').click(); return; }
+  if (e.key === 'Escape'){ closePalette(); sel = null; paintSel(); return; }
+  const typing = /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
+  if (typing) return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); return; }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && sel != null && !run){ e.preventDefault(); delSel(); }
+  if (e.key === 'Enter' && sel != null && !run){ const f = find(sel); if (f){ e.preventDefault(); openEdit(f.n); } }
+});
+
+/* ───────────── Илэрхийлэл тооцоолох ───────────── */
+let vars = {};
+const IDENT = '[A-Za-zА-Яа-яЁёӨөҮү_][A-Za-z0-9А-Яа-яЁёӨөҮү_]*';
+function evalExpr(src, cond){
+  const re = new RegExp(`\\s*("[^"]*"|\\d+(?:\\.\\d+)?|${IDENT}|>=|<=|==|!=|<>|&&|\\|\\||[-+*/%()<>=&!])`, 'y');
+  let out = '', pos = 0; src = String(src).trim();
+  if (!src) return undefined;
+  while (pos < src.length){
+    re.lastIndex = pos; const m = re.exec(src);
+    if (!m) return undefined;
+    pos = re.lastIndex; const t = m[1];
+    if (/^"/.test(t)) out += JSON.stringify(t.slice(1, -1));
+    else if (/^\d/.test(t)) out += t;
+    else if (new RegExp('^' + IDENT + '$').test(t)){
+      const low = t.toLowerCase();
+      if (low === 'and' || low === 'ба') out += '&&';
+      else if (low === 'or' || low === 'эсвэл') out += '||';
+      else if (low === 'not') out += '!';
+      else if (Object.prototype.hasOwnProperty.call(vars, t)) out += JSON.stringify(vars[t]);
+      else return undefined;
+    }
+    else if (t === '='){ if (!cond) return undefined; out += '=='; }
+    else if (t === '<>') out += '!=';
+    else if (t === '&') out += '+';
+    else out += t;
+    out += ' ';
+  }
+  try { const v = Function('"use strict";return (' + out + ')')(); return (typeof v === 'number' && !isFinite(v)) ? undefined : v; } catch(e){ return undefined; }
+}
+function outputText(src){
+  const s = src.trim();
+  if (/["&]/.test(s) || Object.prototype.hasOwnProperty.call(vars, s)){ const v = evalExpr(s, false); if (v !== undefined) return String(v); }
+  return s.replace(/^"(.*)"$/, '$1');
+}
+
+/* ───────────── Ажиллуулах ───────────── */
+let run = null, curId = null, autoT = null, steps = 0;
+function* exec(list){
+  for (const n of list){
+    const t = n.text.trim();
+    if (n.type === 'comment') continue;
+    if (n.type === 'declare'){
+      t.split(/\s*,\s*/).filter(Boolean).forEach(v => { if (!(v in vars)) vars[v] = 0; });
+      yield {n, msg:`Зарлав: ${t}`};
+    } else if (n.type === 'input'){
+      const name = (t.match(new RegExp(IDENT)) || ['утга'])[0];
+      const v = yield {n, input:name};
+      vars[name] = v !== '' && !isNaN(+v) ? +v : v;
+      say('in', String(v));
+    } else if (n.type === 'output'){
+      const v = outputText(t); say('out', v); yield {n, msg:`Гаралт: ${v}`};
+    } else if (n.type === 'assign'){
+      const m = t.match(new RegExp(`^(${IDENT})\\s*=\\s*(.+)$`));
+      let msg = t;
+      if (m){ const v = evalExpr(m[2], false); if (v !== undefined){ vars[m[1]] = v; msg = `${m[1]} = ${JSON.stringify(v)}`; } }
+      yield {n, msg};
+    } else if (n.type === 'if'){
+      const c = yield* cond(n);
+      yield* exec(c ? n.yes : n.no);
+    } else if (n.type === 'while'){
+      while (yield* cond(n)) yield* exec(n.body);
+    } else if (n.type === 'do'){
+      do { yield* exec(n.body); } while (yield* cond(n));
+    } else if (n.type === 'for'){
+      const m = t.match(new RegExp(`^(${IDENT})\\s*=\\s*(.+?)\\s*(?:…|\\.\\.\\.?|хүртэл|to|-|–)\\s*(.+?)$`));
+      const a = m && evalExpr(m[2], false), b = m && evalExpr(m[3], false);
+      if (m && typeof a === 'number' && typeof b === 'number'){
+        const st = a <= b ? 1 : -1;
+        for (let i = a; st > 0 ? i <= b : i >= b; i += st){ vars[m[1]] = i; yield {n, msg:`${m[1]} = ${i}`}; yield* exec(n.body); }
+        yield {n, msg:'Давталт дууслаа'};
+      } else {
+        while (yield* cond(n)) yield* exec(n.body);
+      }
+    }
+  }
+}
+function* cond(n){
+  const v = evalExpr(n.text, true);
+  if (typeof v === 'boolean'){ yield {n, msg:`${n.text.trim()} → ${v ? 'Үнэн' : 'Худал'}`}; return v; }
+  return yield {n, ask:true};
+}
+function* program(){ yield {id:'start', msg:'Програм эхэллээ'}; yield* exec(doc.flow); yield {id:'end', msg:'Програм дууслаа'}; }
+function say(kind, text){ const b = document.createElement('div'); b.className = 'bub ' + kind; b.textContent = text; $('console').appendChild(b); $('console').scrollTop = 1e9; }
+function paintVars(){
+  const keys = Object.keys(vars);
+  $('vars').innerHTML = keys.length ? keys.map(k => `<tr><td><b>${esc(k)}</b></td><td>${esc(JSON.stringify(vars[k]))}</td></tr>`).join('') : '<tr><td colspan="2" style="color:#8a90a0">—</td></tr>';
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function paintRun(){
+  svg.querySelectorAll('[data-id]').forEach(ng => {
+    const s = ng.querySelector('.shape'); if (!s) return;
+    if (String(ng.dataset.id) === String(curId)){ s.setAttribute('stroke', '#F08A00'); s.setAttribute('stroke-width', 4.5); }
+    else if (!(ng.classList.contains('node') && sel === +ng.dataset.id)){ s.setAttribute('stroke', STROKE); s.setAttribute('stroke-width', 1.5); }
+  });
+  if (curId != null){ const ng = svg.querySelector(`[data-id="${curId}"]`); if (ng && ng.scrollIntoView) ng.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'}); }
+}
+function startRun(auto){
+  stopRun(); closePalette(); sel = null; paintSel();
+  vars = {}; steps = 0; paintVars();
+  $('console').innerHTML = ''; say('sys', '▶ Програм ажиллаж байна…');
+  run = {it:program(), auto:!!auto};
+  $('runbar').classList.add('show'); $('runAuto').textContent = auto ? '⏸ Түр зогсоох' : '⏩ Автомат';
+  step();
+}
+function stopRun(){ clearTimeout(autoT); if (!run) return; run = null; curId = null; $('runbar').classList.remove('show'); $('cin').classList.remove('show'); paintRun(); paintSel(); }
+function step(val){
+  if (!run) return;
+  clearTimeout(autoT);
+  if (++steps > 400){ say('sys', '⚠ Хэт олон алхам! Давталт хэзээ ч дуусахгүй байж магадгүй.'); $('runMsg').textContent = '⚠ Давталт зогсохгүй байна — нөхцөлөө шалга.'; $('runBtns').innerHTML = ''; run.auto = false; return; }
+  const r = run.it.next(val);
+  if (r.done) return;
+  const v = r.value; curId = v.n ? v.n.id : v.id; paintRun(); paintVars();
+  const btns = $('runBtns'); btns.innerHTML = '';
+  const mk = (t, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'b ' + cls; b.textContent = t; b.onclick = fn; btns.appendChild(b); return b; };
+  $('cin').classList.remove('show');
+  if (v.id === 'end'){
+    $('runMsg').textContent = '🎉 Төгсгөлд хүрлээ — програм гацалгүй ажиллалаа!'; say('sys', '■ Програм дууслаа');
+    mk('↻ Дахин ажиллуулах', 'run', () => startRun(run && run.auto)).focus(); run.auto = false; $('runAuto').textContent = '⏩ Автомат';
+    return;
+  }
+  if (v.ask){
+    $('runMsg').textContent = `◇ ${v.n.text || '(хоосон нөхцөл)'} — үнэн үү?`;
+    mk('✓ Үнэн (Тийм)', 'run', () => step(true)).focus(); mk('✕ Худал (Үгүй)', 'stop', () => step(false));
+    return;
+  }
+  if (v.input){
+    $('runMsg').textContent = `⌨ «${v.input}»-ийн утгыг консолд бичээд «Оруулах» дар.`;
+    $('cin').classList.add('show'); $('cinVal').value = ''; $('cinVal').focus();
+    $('cin').onsubmit = e => { e.preventDefault(); step($('cinVal').value.trim()); };
+    return;
+  }
+  $('runMsg').textContent = v.n ? `${TYPES[v.n.type].name}: ${v.msg || v.n.text}` : v.msg;
+  mk('Дараах алхам ▶', 'pri', () => step());
+  if (run.auto) autoT = setTimeout(() => step(), 650); else btns.firstChild.focus();
+}
+$('bRun').onclick = () => startRun(true);
+$('bStep').onclick = () => startRun(false);
+$('runStop').onclick = stopRun;
+$('runAuto').onclick = () => { if (!run) return; run.auto = !run.auto; $('runAuto').textContent = run.auto ? '⏸ Түр зогсоох' : '⏩ Автомат'; if (run.auto && $('runBtns').querySelector('.pri')) step(); else clearTimeout(autoT); };
 
 /* ───────────── Шалгах ───────────── */
 function check(){
   stopRun();
-  const items = [], bad = [];
-  let actions = 0, decisions = 0, emptyBranch = 0, empties = 0, qAction = 0, noQ = 0;
+  const it = [];
+  let empties = 0, qAssign = 0, ifs = 0, loops = 0, weakIf = 0, emptyIf = 0, emptyLoop = 0, total = 0, outs = 0, ins = 0;
   (function walk(list){
     list.forEach(n => {
-      const t = n.text.trim();
-      if (!t){ empties++; bad.push(n.id); }
-      if (n.type === 'action'){ actions++; if (/[?？]$/.test(t)){ qAction++; bad.push(n.id); } }
-      else { decisions++; if (t && !/[?？]$/.test(t)){ noQ++; bad.push(n.id); } if (!n.yes.length && !n.no.length) emptyBranch++; walk(n.yes); walk(n.no); }
+      total++; const t = n.text.trim();
+      if (!t && n.type !== 'comment') empties++;
+      if (n.type === 'assign' && /[?？]$/.test(t)) qAssign++;
+      if (n.type === 'output') outs++; if (n.type === 'input') ins++;
+      if (n.type === 'if'){ ifs++; if (t && !/[?？]$/.test(t) && !/[<>=]/.test(t)) weakIf++; if (!n.yes.length && !n.no.length) emptyIf++; walk(n.yes); walk(n.no); }
+      if (n.body){ loops++; if (!n.body.length) emptyLoop++; walk(n.body); }
     });
-  })(state.flow);
-  items.push(['ok', '⬭ «Эхэл» ба «Төгсгө» байна — схем бүрд яг 2 бөөрөнхий.']);
-  if (!actions && !decisions) items.push(['no', 'Нэг ч алхам алга. «＋ ▭ Үйлдэл» товчоор алхам нэм.']);
-  else items.push(['ok', `Нийт ${actions} үйлдэл (▭), ${decisions} шийдвэр (◇) байна.`]);
-  if (empties) items.push(['no', `${empties} дүрс хоосон байна — алхам бүрд юу хийхийг бич.`]);
-  if (qAction) items.push(['no', `${qAction} тэгш өнцөгт асуулт шиг бичигдсэн байна. Асуулт бол ◇ ШИЙДВЭР ашигла!`]);
-  if (noQ) items.push(['warn', `${noQ} ромбын бичвэр асуулт биш байна. «…уу?», «…үү?» гэж асуулт хэлбэрээр бич.`]);
-  if (decisions){
-    items.push(['ok', `Ромб бүрээс ХОЁР сум гарсан — «Тийм» ба «Үгүй» гэж тэмдэглэгдсэн.`]);
-    if (emptyBranch) items.push(['warn', `${emptyBranch} ромбын хоёр салаа хоёулаа хоосон байна. Тийм эсвэл үгүй бол юу хийх вэ?`]);
-  }
-  items.push(['ok', 'Сум бүр хаа нэгтээ хүрч, бүх зам ⬭ «Төгсгө»-д нийлсэн.']);
-  if (decisions >= 2) items.push(['ok', '⭐ Төслийн шалгуур: 2 ба түүнээс олон шийдвэртэй!']);
-  else items.push(['warn', `Төслийн даалгавар («Ном авах уу?») — дор хаяж 2 шийдвэр хэрэгтэй. Одоо ${decisions} байна.`]);
-  const allOk = items.every(i => i[0] === 'ok');
-  $('check').innerHTML = `<div class="panel"><h2>${allOk ? '🎉 Схем бүрэн, зөв байна!' : '🔍 Шалгалтын дүн'}</h2><ul>${items.map(([c, t]) => `<li class="${c}">${c === 'ok' ? '✓' : c === 'warn' ? '⚠' : '✕'} ${t}</li>`).join('')}</ul></div>`;
-  $('check').classList.add('show');
-  editor.querySelectorAll('input').forEach(i => i.classList.toggle('bad', bad.includes(+i.dataset.id)));
-  $('check').scrollIntoView({behavior:'smooth', block:'nearest'});
+  })(doc.flow);
+  it.push(['ok', 'Эхлэл ба Төгсгөл байна — схем бүрд яг 2.']);
+  if (!total) it.push(['no', 'Блок алга. Сум дээр дарж блок нэм.']);
+  else it.push(['ok', `Нийт ${total} блок: ${ifs} нөхцөл (◇), ${loops} давталт (⬡), ${ins} оролт, ${outs} гаралт.`]);
+  if (empties) it.push(['no', `${empties} блок хоосон байна — 2 дарж бичвэр нэм.`]);
+  if (qAssign) it.push(['no', `${qAssign} шар тэгш өнцөгт асуулт шиг бичигдсэн. Тийм/үгүй асуулт бол ◇ If блок ашигла!`]);
+  if (weakIf) it.push(['warn', `${weakIf} If блокийн нөхцөл асуулт эсвэл харьцуулалт биш байна («…уу?» эсвэл нас >= 18).`]);
+  if (ifs) it.push(['ok', 'If бүрээс 2 зам гарсан: Үнэн (баруун), Худал (зүүн).']);
+  if (emptyIf) it.push(['warn', `${emptyIf} If блокийн хоёр салаа хоосон байна. Үнэн эсвэл худал бол юу хийх вэ?`]);
+  if (emptyLoop) it.push(['warn', `${emptyLoop} давталтын дотор блок алга — юуг давтах вэ?`]);
+  it.push(['ok', 'Бүх зам Төгсгөлд нийлсэн.']);
+  it.push(ifs >= 2 ? ['ok', '⭐ Төслийн шалгуур: 2 ба түүнээс олон нөхцөлтэй!'] : ['warn', `Төсөл («Ном авах уу?»): дор хаяж 2 нөхцөл хэрэгтэй. Одоо ${ifs}.`]);
+  const all = it.every(x => x[0] === 'ok');
+  $('check').innerHTML = `<b style="display:block;margin-bottom:.4rem">${all ? '🎉 Схем бүрэн, зөв!' : '🔍 Шалгалтын дүн'}</b><ul>${it.map(([c, t]) => `<li class="${c}">${c === 'ok' ? '✓' : c === 'warn' ? '⚠' : '✕'} ${t}</li>`).join('')}</ul>`;
+  $('check').classList.add('show'); $('check').scrollIntoView({block:'nearest', behavior:'smooth'});
 }
-
-/* ───────────── Гүйцэтгэх ───────────── */
-let run = null, curId = null;
-function* walker(list){
-  for (const n of list){
-    if (n.type === 'action') yield {node:n};
-    else { const ans = yield {node:n, ask:true}; yield* walker(ans ? n.yes : n.no); }
-  }
-}
-function* program(){ yield {id:'start'}; yield* walker(state.flow); yield {id:'end'}; }
-function highlight(){
-  document.querySelectorAll('#canvas g[data-id]').forEach(g => {
-    const on = String(g.dataset.id) === String(curId);
-    const s = g.querySelector('.shape');
-    if (s){ s.setAttribute('stroke', on ? '#F59E0B' : '#141A2E'); s.setAttribute('stroke-width', on ? 6 : 2.5); }
-  });
-  if (curId != null){ const g = document.querySelector(`#canvas g[data-id="${curId}"]`); if (g && g.scrollIntoView) g.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'}); }
-}
-function step(val){
-  const r = run.it.next(val);
-  if (r.done){ stopRun(); return; }
-  const v = r.value, n = v.node;
-  curId = n ? n.id : v.id; highlight();
-  const btns = $('runBtns'); btns.innerHTML = '';
-  const mk = (label, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + cls; b.textContent = label; b.onclick = fn; btns.appendChild(b); return b; };
-  if (v.id === 'start'){ $('runMsg').textContent = '⬭ Эхэл — алгоритм эхэллээ.'; mk('Дараагийн алхам ▶', '', () => step()).focus(); }
-  else if (v.id === 'end'){ $('runMsg').textContent = '🎉 ⬭ Төгсгөлд хүрлээ! Алгоритм гацалгүй ажиллалаа.'; mk('Дахин гүйцэтгэх ↻', '', startRun).focus(); }
-  else if (v.ask){ $('runMsg').textContent = `◇ ${n.text || '(хоосон асуулт)'} — хариул:`; mk('✓ Тийм', 'yes-b', () => step(true)).focus(); mk('✕ Үгүй', 'no-b', () => step(false)); }
-  else { $('runMsg').textContent = `▭ ${n.text || '(хоосон үйлдэл)'}`; mk('Дараагийн алхам ▶', '', () => step()).focus(); }
-}
-function startRun(){
-  $('check').classList.remove('show');
-  run = {it:program()}; $('runbar').classList.add('show'); step();
-}
-function stopRun(){ run = null; curId = null; $('runbar').classList.remove('show'); highlight(); }
-$('bRun').onclick = startRun;
-$('runStop').onclick = stopRun;
 $('bCheck').onclick = check;
 
-/* ───────────── Загвар, хадгалах, экспорт ───────────── */
+/* ───────────── Загвар, нэр, экспорт ───────────── */
 $('tpl').onchange = e => {
-  const t = TEMPLATES[e.target.value]; if (!t) return;
-  const hasWork = state.flow.some(n => n.text.trim());
-  if (hasWork && !confirmReplace()) { e.target.value = ''; return; }
-  state.flow = reid(clone(t.flow)); state.title = t.title; $('title').value = state.title;
-  e.target.value = ''; changed();
+  const t = TEMPLATES[e.target.value]; e.target.value = ''; if (!t) return;
+  stopRun(); snapshot();
+  doc.flow = t.flow(); doc.title = t.title; $('title').value = doc.title; sel = null; changed();
 };
-// window.confirm-ийн оронд хуудсан дээрх баталгаажуулалт
-let replaceArmed = 0;
-function confirmReplace(){
-  const now = Date.now();
-  if (now - replaceArmed < 4000){ replaceArmed = 0; return true; }
-  replaceArmed = now;
-  const sel = $('tpl'); sel.style.outline = '3px solid #F59E0B';
-  const note = document.createElement('span'); note.id = 'tplNote'; note.style.cssText = 'font-size:.85rem;font-weight:700;color:#A15C00';
-  note.textContent = 'Одоогийн схем солигдоно! Загвараа дахин сонговол солино.';
-  const old = $('tplNote'); if (old) old.remove();
-  sel.after(note);
-  setTimeout(() => { sel.style.outline = ''; note.remove(); }, 4000);
-  return false;
+$('title').oninput = e => { doc.title = e.target.value; save(); };
+$('author').oninput = e => { doc.author = e.target.value; save(); };
+$('zIn').onclick = () => { zoom = Math.min(2, +(zoom + .1).toFixed(2)); draw(); };
+$('zOut').onclick = () => { zoom = Math.max(.4, +(zoom - .1).toFixed(2)); draw(); };
+function exportSvg(){
+  const c = svg.cloneNode(true);
+  c.querySelectorAll('.plus').forEach(p => p.remove());
+  const vb = svg.viewBox.baseVal; c.setAttribute('width', vb.width); c.setAttribute('height', vb.height);
+  return {data:new XMLSerializer().serializeToString(c), w:vb.width, h:vb.height};
 }
-$('title').oninput = e => { state.title = e.target.value; save(); drawSoon(); };
-$('author').oninput = e => { state.author = e.target.value; save(); };
-function fileName(){ return ((state.title || 'blok-skhem').replace(/[\\/:*?"<>|]+/g, '').trim() || 'blok-skhem') + '.png'; }
 $('bPng').onclick = () => {
-  stopRun();
-  const svg = $('canvas').querySelector('svg'); if (!svg) return;
-  const vb = svg.viewBox.baseVal, scale = 2, head = 70;
-  const s2 = svg.cloneNode(true); s2.setAttribute('width', vb.width); s2.setAttribute('height', vb.height);
-  const data = new XMLSerializer().serializeToString(s2);
+  stopRun(); const s = exportSvg(), scale = 2, head = 64;
   const img = new Image();
   img.onload = () => {
-    const c = document.createElement('canvas'); c.width = vb.width * scale; c.height = (vb.height + head) * scale;
+    const c = document.createElement('canvas'); c.width = s.w * scale; c.height = (s.h + head) * scale;
     const g = c.getContext('2d'); g.scale(scale, scale);
-    g.fillStyle = '#fff'; g.fillRect(0, 0, vb.width, vb.height + head);
-    g.fillStyle = '#141A2E'; g.textAlign = 'center';
-    g.font = '800 20px -apple-system,"Segoe UI",Arial,sans-serif'; g.fillText(state.title || 'Блок-схем', vb.width/2, 32);
-    g.font = '600 13px -apple-system,"Segoe UI",Arial,sans-serif'; g.fillStyle = '#5C6278';
-    g.fillText((state.author ? state.author + ' · ' : '') + '4-р анги · Хичээл 12', vb.width/2, 54);
-    g.drawImage(img, 0, head, vb.width, vb.height);
-    c.toBlob(b => {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fileName();
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    }, 'image/png');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, s.w, s.h + head);
+    g.textAlign = 'center'; g.fillStyle = '#1F2430'; g.font = 'bold 19px Arial'; g.fillText(doc.title || 'Блок-схем', s.w/2, 30);
+    g.fillStyle = '#5C6278'; g.font = '13px Arial'; g.fillText((doc.author ? doc.author + ' · ' : '') + '4-р анги · Хичээл 12', s.w/2, 50);
+    g.drawImage(img, 0, head, s.w, s.h);
+    c.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = ((doc.title || 'blok-skhem').replace(/[\\/:*?"<>|]+/g,'').trim() || 'blok-skhem') + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }, 'image/png');
   };
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data);
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.data);
 };
 $('bPrint').onclick = () => {
-  stopRun();
-  $('printHead').innerHTML = `<h2 style="margin:0">${(state.title || 'Блок-схем').replace(/</g,'&lt;')}</h2><div style="color:#5C6278">${(state.author || '').replace(/</g,'&lt;')} · 4-р анги · Хичээл 12</div>`;
+  stopRun(); sel = null; paintSel();
+  $('printHead').innerHTML = `<h2 style="margin:0">${esc(doc.title || 'Блок-схем')}</h2><div style="color:#5C6278">${esc(doc.author || '')} · 4-р анги · Хичээл 12</div>`;
   window.print();
 };
 
+buildPalette();
 load();
-$('title').value = state.title || ''; $('author').value = state.author || '';
-renderEditor(); draw();
-window.__fc = {state, check, startRun, step, draw};
+$('title').value = doc.title || ''; $('author').value = doc.author || '';
+draw();
+window.__fc = {get doc(){ return doc; }, draw, check, startRun, step, openPalette, insPts:() => insPts, evalExpr, vars:() => vars};
 })();
 </script>
 </body>
