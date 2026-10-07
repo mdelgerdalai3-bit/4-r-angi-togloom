@@ -59,7 +59,7 @@ select{border:1px solid #B9C0CC;border-radius:6px;padding:.3rem .4rem;background
 .hintbar{padding:.4rem 14px;font-size:.85rem;color:var(--ink-soft);background:#fff;border-bottom:1px solid var(--rule)}
 .hintbar b{color:var(--ink)}
 /* шинэ блокийн цэс */
-.palette{position:fixed;z-index:20;display:none;background:#fff;border:1px solid #9AA2B1;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);padding:.55rem;width:19.5rem}
+.palette{position:fixed;z-index:20;display:none;background:#fff;border:1px solid #9AA2B1;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);padding:.55rem;width:21rem}
 .palette.show{display:block}
 .palette h3{margin:.1rem .2rem .45rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
 .palette .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}
@@ -114,12 +114,19 @@ select{border:1px solid #B9C0CC;border-radius:6px;padding:.3rem .4rem;background
   <div class="tb" role="toolbar" aria-label="Хэрэгслүүд">
     <select id="tpl" aria-label="Загвар">
       <option value="">📂 Загвар нээх…</option>
-      <option value="out">🌧 Гадаа гарах уу?</option>
-      <option value="hello">👋 Сайн уу, нэр</option>
-      <option value="age">🎂 Насанд хүрсэн үү?</option>
-      <option value="book">📚 Ном авах уу? (2 нөхцөл)</option>
-      <option value="teeth">🪥 Шүдээ угаах</option>
-      <option value="count">🔢 1-ээс 5 хүртэл тоолох</option>
+      <optgroup label="Хичээл 12 · Блок-схем">
+        <option value="out">🌧 Гадаа гарах уу?</option>
+        <option value="book">📚 Ном авах уу? (2 шийдвэр)</option>
+        <option value="teeth">🪥 Шүдээ угаах</option>
+      </optgroup>
+      <optgroup label="Хичээл 14–15 · Давталт">
+        <option value="square">🟦 Дөрвөлжин зурах (4 удаа давт)</option>
+        <option value="wall">🧱 Хана мөргөх хүртэл алх</option>
+        <option value="stars">⭐ 3 мөр × 4 од (үүрлэсэн)</option>
+      </optgroup>
+      <optgroup label="Хичээл 16 · Хувьсагч">
+        <option value="score">🎯 Оноо тоолох</option>
+      </optgroup>
       <option value="empty">⬜ Шинэ хоосон схем</option>
     </select>
     <button class="b" id="bUndo" type="button" title="Буцаах (⌘Z / Ctrl+Z)">↶ Буцаах</button>
@@ -141,7 +148,7 @@ select{border:1px solid #B9C0CC;border-radius:6px;padding:.3rem .4rem;background
     <button class="b" id="runAuto" type="button">⏩ Автомат</button>
     <button class="b stop" id="runStop" type="button">■ Зогсоох</button>
   </div>
-  <div class="hintbar">💡 <b>Сум</b> дээр дарж шинэ блок нэм · Блок дээр <b>2 дарж</b> засна · Сонгоод <b>Delete</b> дарж устгана · <b>Худал</b> зүүн, <b>Үнэн</b> баруун тийш салаална.</div>
+  <div class="hintbar">💡 <b>Сум</b> дээр дарж шинэ блок нэм · Блок дээр <b>2 дарж</b> засна · Сонгоод <b>Delete</b> дарж устгана · Шийдвэр: <b>Үгүй</b> зүүн, <b>Тийм</b> баруун.</div>
   <div class="main">
     <div class="chartWrap" id="wrap">
       <div class="selbar" id="selbar">
@@ -186,37 +193,31 @@ const NS = 'http://www.w3.org/2000/svg';
 
 /* ───────────── Блокийн төрлүүд (Flowgorithm) ───────────── */
 const TYPES = {
-  declare:{name:'Зарлах',   kw:'Зарлах',  fill:'#FFF7B5', shape:'declare', grp:'Энгийн',
-           lbl:'Хувьсагчийн нэр', ph:'нас', help:'Хувьсагч гэдэг нь утга хадгалах «хайрцаг». Нэр өгч зарлана.', ex:['нас','нэр','оноо']},
-  assign: {name:'Үйлдэл',   kw:'',        fill:'#FFF7B5', shape:'rect', grp:'Энгийн',
-           lbl:'Хийх үйлдэл эсвэл утга олгох', ph:'Шүхэр ав', help:'Нэг үйлдэл бич. Тоогоор тооцоолох бол: оноо = оноо + 1', ex:['Цонхоор хар','Шүхэр ав','оноо = 0','оноо = оноо + 1']},
-  input:  {name:'Оролт',    kw:'Оролт',   fill:'#C2E2FF', shape:'para', grp:'Энгийн',
-           lbl:'Аль хувьсагчид утга авах вэ?', ph:'нас', help:'Ажиллуулахад хэрэглэгчээс утга асууж, энэ хувьсагчид хадгална.', ex:['нас','нэр','тоо']},
-  output: {name:'Гаралт',   kw:'Гаралт',  fill:'#C9F2C2', shape:'para', grp:'Энгийн',
-           lbl:'Дэлгэцэнд юу харуулах вэ?', ph:'"Сайн уу!"', help:'Текстийг хашилтад бич. Хувьсагч нэмэх бол & ашигла: "Сайн уу, " & нэр', ex:['"Сайн уу!"','"Сайн уу, " & нэр','оноо']},
-  if:     {name:'If',       kw:'',        fill:'#FFDDB0', shape:'diamond', grp:'Нөхцөл',
-           lbl:'Тийм / үгүй гэж хариулах нөхцөл', ph:'Бороо орж байна уу?', help:'Үнэн (тийм) бол БАРУУН, Худал (үгүй) бол ЗҮҮН салаагаар явна.', ex:['Бороо орж байна уу?','нас >= 18','оноо > 10']},
-  while:  {name:'While',    kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
-           lbl:'Нөхцөл үнэн байх хооронд давтана', ph:'тоо < 10', help:'Эхлээд нөхцөлийг шалгаж, үнэн бол доторх блокуудыг дахин дахин хийнэ.', ex:['тоо < 10','Өлсөж байна уу?']},
-  for:    {name:'For',      kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
-           lbl:'Тоолох: хувьсагч = эхлэх … дуусах', ph:'i = 1 … 10', help:'Жишээ: i = 1 … 5 гэвэл i нь 1, 2, 3, 4, 5 болж 5 удаа давтана.', ex:['i = 1 … 5','i = 1 … 10']},
-  do:     {name:'Do',       kw:'',        fill:'#FFD3E1', shape:'hex', grp:'Давталт',
-           lbl:'Эхлээд хийгээд, дараа нь нөхцөл шалгана', ph:'Дахин тоглох уу?', help:'Доторх блокууд дор хаяж нэг удаа ажиллана. Нөхцөл үнэн бол буцаж давтана.', ex:['Дахин тоглох уу?','тоо < 5']},
-  comment:{name:'Тайлбар',  kw:'',        fill:'#EEEEEE', shape:'comment', grp:'Бусад',
-           lbl:'Тайлбар (ажиллахад нөлөөгүй)', ph:'Энэ хэсэг юу хийдгийг бич', help:'Тайлбар нь хүнд зориулсан тэмдэглэл. Компьютер үүнийг алгасна.', ex:[]}
+  assign: {name:'Үйлдэл', kw:'', fill:'#FFF7B5', shape:'rect', grp:'Хичээл 12 · 16',
+           lbl:'Юу хийх вэ? (нэг алхам)', ph:'Шүхэр ав', help:'Нэг үйлдэл бич. Хувьсагчийн утгыг өөрчлөх бол: оноо = 0, оноо = оноо + 1', ex:['Цонхоор хар','Шүхэр ав','100 алх','90° эргэ','оноо = 0','оноо = оноо + 1']},
+  if:     {name:'Шийдвэр', kw:'', fill:'#FFDDB0', shape:'diamond', grp:'Хичээл 12 · 16',
+           lbl:'Тийм / үгүй гэж хариулах асуулт', ph:'Бороо орж байна уу?', help:'Тийм бол БАРУУН, Үгүй бол ЗҮҮН салаагаар явна. Харьцуулж болно: оноо > 10', ex:['Бороо орж байна уу?','Унших цаг байна уу?','оноо > 10']},
+  output: {name:'Гаралт', kw:'Гаралт', fill:'#C9F2C2', shape:'para', grp:'Хичээл 16 · 18',
+           lbl:'Дэлгэцэнд юу хэлэх (гэх) вэ?', ph:'"Хожлоо!"', help:'Текстийг хашилтад бич. Хувьсагчийн утгыг харуулах бол нэрийг нь бич: оноо. Нийлүүлэх бол &: "Оноо: " & оноо', ex:['"Хожлоо!"','оноо','"Оноо: " & оноо']},
+  repeat: {name:'N удаа давт', kw:'', fill:'#FFD3E1', shape:'hex', grp:'Хичээл 14 · 15',
+           lbl:'Хэдэн удаа давтах вэ?', ph:'4 удаа', help:'Тоог өмнөөс мэдэж байвал. Жишээ: дөрвөлжин зурахад «4 удаа давт: 100 алх, 90° эргэ».', ex:['4 удаа','3 удаа','10 удаа']},
+  until:  {name:'Хүртэл давт', kw:'', fill:'#FFD3E1', shape:'hex', grp:'Хичээл 14 · 15',
+           lbl:'Юу болох хүртэл давтах вэ? (зогсох нөхцөл)', ph:'Хана мөргөв үү?', help:'Хэдэн удаа гэдгийг мэдэхгүй ч ЗОГСОХ нөхцөл тодорхой бол. Үгүй бол дахин давтана, Тийм бол гарна.', ex:['Хана мөргөв үү?','Сагс дүүрэв үү?','оноо >= 10']}
 };
-const ORDER = ['input','output','declare','assign','if','while','for','do','comment'];
+const ORDER = ['assign','if','output','repeat','until'];
+const LOOPLAB = {repeat:['Дахин','Дууссан'], until:['Үгүй','Тийм']};
 
 let uid = 1;
-const N = (type, text='', extra={}) => Object.assign({id:uid++, type, text}, type === 'if' ? {yes:[], no:[]} : (['while','for','do'].includes(type) ? {body:[]} : {}), extra);
+const N = (type, text='', extra={}) => Object.assign({id:uid++, type, text}, type === 'if' ? {yes:[], no:[]} : (['repeat','until'].includes(type) ? {body:[]} : {}), extra);
 const TEMPLATES = {
-  out:  {title:'Гадаа гарах уу?', flow:() => [N('assign','Цонхоор хар'), N('if','Бороо орж байна уу?', {yes:[N('assign','Шүхэр ав')], no:[N('assign','Малгай ав')]}), N('assign','Гадаа гар')]},
-  hello:{title:'Сайн уу, нэр', flow:() => [N('declare','нэр'), N('output','"Чиний нэр хэн бэ?"'), N('input','нэр'), N('output','"Сайн уу, " & нэр & "!"')]},
-  age:  {title:'Насанд хүрсэн үү?', flow:() => [N('declare','нас'), N('output','"Хэдэн настай вэ?"'), N('input','нас'), N('if','нас >= 18', {yes:[N('output','"Насанд хүрсэн"')], no:[N('output','"Хүүхэд"')]})]},
-  book: {title:'Хичээлийн дараа ном авах уу?', flow:() => [N('assign','Номын санд оч'), N('if','Унших цаг байна уу?', {yes:[N('if','Сонирхсон ном байна уу?', {yes:[N('assign','Номоо бүртгүүлж ав')], no:[N('assign','Багшаас зөвлөгөө ав')]})], no:[N('assign','Дараа өдөр ирнэ')]}), N('assign','Гэртээ харь')]},
-  teeth:{title:'Шүдээ угаах', flow:() => [N('assign','Сойзоо ав'), N('assign','Сойзон дээр оо түрх'), N('assign','Шүдээ 2 минут сойздо'), N('assign','Амаа зайл'), N('assign','Сойзоо угааж тавь')]},
-  count:{title:'1-ээс 5 хүртэл тоолох', flow:() => [N('declare','i'), N('for','i = 1 … 5', {body:[N('output','i')]}), N('output','"Дууслаа!"')]},
-  empty:{title:'', flow:() => []}
+  out:   {title:'Гадаа гарах уу?', flow:() => [N('assign','Цонхоор хар'), N('if','Бороо орж байна уу?', {yes:[N('assign','Шүхэр ав')], no:[N('assign','Малгай ав')]}), N('assign','Гадаа гар')]},
+  book:  {title:'Хичээлийн дараа ном авах уу?', flow:() => [N('assign','Номын санд оч'), N('if','Унших цаг байна уу?', {yes:[N('if','Сонирхсон ном байна уу?', {yes:[N('assign','Номоо бүртгүүлж ав')], no:[N('assign','Багшаас зөвлөгөө ав')]})], no:[N('assign','Дараа өдөр ирнэ')]}), N('assign','Гэртээ харь')]},
+  teeth: {title:'Шүдээ угаах', flow:() => [N('assign','Сойзоо ав'), N('assign','Сойзон дээр оо түрх'), N('assign','Шүдээ 2 минут сойздо'), N('assign','Амаа зайл'), N('assign','Сойзоо угааж тавь')]},
+  square:{title:'Дөрвөлжин зурах', flow:() => [N('assign','Бал буулга'), N('repeat','4 удаа', {body:[N('assign','100 алх'), N('assign','90° эргэ')]}), N('assign','Бал өргө')]},
+  wall:  {title:'Хана мөргөх хүртэл алх', flow:() => [N('until','Хана мөргөв үү?', {body:[N('assign','1 алх')]}), N('output','"Хана!"')]},
+  stars: {title:'3 мөр × 4 од', flow:() => [N('repeat','3 удаа', {body:[N('repeat','4 удаа', {body:[N('assign','Од зур'), N('assign','Баруун тийш зөө')]}), N('assign','Мөр сол')]})]},
+  score: {title:'Оноо тоолох', flow:() => [N('assign','оноо = 0'), N('repeat','3 удаа', {body:[N('assign','оноо = оноо + 1'), N('output','"Оноо: " & оноо')]}), N('if','оноо > 2', {yes:[N('output','"Хожлоо!"')], no:[N('output','"Дахин туршъя"')]})]},
+  empty: {title:'', flow:() => []}
 };
 
 /* ───────────── Төлөв, хадгалалт, буцаах ───────────── */
@@ -225,9 +226,9 @@ let sel = null, zoom = 1;
 const undoStack = [];
 function snapshot(){ undoStack.push(JSON.stringify(doc)); if (undoStack.length > 60) undoStack.shift(); $('bUndo').disabled = false; }
 function reid(list){ (list || []).forEach(n => { n.id = uid++; ['yes','no','body'].forEach(k => n[k] && reid(n[k])); }); return list; }
-function save(){ try { localStorage.setItem('h12fg', JSON.stringify(doc)); } catch(e){} }
+function save(){ try { localStorage.setItem('h4fc', JSON.stringify(doc)); } catch(e){} }
 function load(){
-  try { const s = JSON.parse(localStorage.getItem('h12fg') || 'null'); if (s && Array.isArray(s.flow)){ doc = s; reid(doc.flow); return; } } catch(e){}
+  try { const s = JSON.parse(localStorage.getItem('h4fc') || 'null'); if (s && Array.isArray(s.flow)){ doc = s; reid(doc.flow); return; } } catch(e){}
   doc = {title:TEMPLATES.out.title, author:'', flow:TEMPLATES.out.flow()};
 }
 function changed(){ save(); draw(); $('check').classList.remove('show'); }
@@ -276,8 +277,8 @@ function measureNode(n){
     n._w = Math.max(120, w0 + 52); n._hh = Math.max(38, lines.length * LH + 18);
     const B = measureList(n.body); n._B = B;
     n._xl = -(Math.max(n._w/2, B.l) + 24); n._xr = Math.max(n._w/2, B.r) + 24;
-    n._l = -n._xl + 6; n._r = (n.type === 'do' ? Math.max(n._w/2, B.r) : n._xr) + 6;
-    n._h = n.type === 'do' ? B.h + n._hh : n._hh + B.h + 14;
+    n._l = -n._xl + 6; n._r = n._xr + 6;
+    n._h = n._hh + B.h + 14;
     return;
   }
   const pad = T.shape === 'para' ? 46 : 32;
@@ -329,7 +330,7 @@ function drawNode(g, n, cx, y){
     el('polygon', Object.assign({points:`${cx},${y} ${cx+hw},${my} ${cx},${y+n._dh} ${cx-hw},${my}`}, shapeAttrs(n)), ng);
     txt(ng, n._lines, cx, my, '');
     const mergeY = y + n._h;
-    [[n.no, cx + n._lx, cx - hw, 'Худал'], [n.yes, cx + n._rx, cx + hw, 'Үнэн']].forEach(([list, bx, vx, lab]) => {
+    [[n.no, cx + n._lx, cx - hw, 'Үгүй'], [n.yes, cx + n._rx, cx + hw, 'Тийм']].forEach(([list, bx, vx, lab]) => {
       poly(g, [[vx, my], [bx, my]]);
       const t = el('text', {x:vx + (bx < vx ? -6 : 6), y:my - 6, 'text-anchor':bx < vx ? 'end' : 'start', 'font-family':'Arial,Helvetica,sans-serif', 'font-size':12, 'font-weight':'bold', fill:'#3A3F4B'}, g); t.textContent = lab;
       const end = drawList(g, list, bx, my, false);
@@ -342,23 +343,13 @@ function drawNode(g, n, cx, y){
     const hw = n._w/2, hh = n._hh, inset = 14;
     const hex = (yy) => el('polygon', Object.assign({points:`${cx-hw},${yy+hh/2} ${cx-hw+inset},${yy} ${cx+hw-inset},${yy} ${cx+hw},${yy+hh/2} ${cx+hw-inset},${yy+hh} ${cx-hw+inset},${yy+hh}`}, shapeAttrs(n)), ng);
     const lab = (x, yy, t, anchor) => { const e = el('text', {x, y:yy, 'text-anchor':anchor, 'font-family':'Arial,Helvetica,sans-serif', 'font-size':12, 'font-weight':'bold', fill:'#3A3F4B'}, g); e.textContent = t; };
-    if (n.type === 'do'){
-      el('circle', {cx, cy:y, r:4, fill:STROKE}, g);
-      const yb = drawList(g, n.body, cx, y, true);
-      hex(yb); txt(ng, n._lines, cx, yb + hh/2, '');
-      const xl = cx + n._xl, my = yb + hh/2;
-      poly(g, [[cx - hw, my], [xl, my], [xl, y], [cx - 5, y]], true);
-      lab((xl + cx - hw)/2, my - 6, 'Үнэн', 'middle');
-      lab(cx + 8, yb + hh + 14, 'Худал', 'start');
-      return yb + hh;
-    }
     hex(y); txt(ng, n._lines, cx, y + hh/2, '');
     const my = y + hh/2, xl = cx + n._xl, xr = cx + n._xr;
-    lab(cx + 8, y + hh + 14, n.type === 'for' ? 'Дараах' : 'Үнэн', 'start');
+    lab(cx + 8, y + hh + 14, LOOPLAB[n.type][0], 'start');
     const yb = drawList(g, n.body, cx, y + hh, false);
     poly(g, [[cx, yb], [xl, yb], [xl, my], [cx - hw - 1, my]], true);
     poly(g, [[cx + hw, my], [xr, my], [xr, yb + 14], [cx, yb + 14]]);
-    lab(cx + hw + 6, my - 6, n.type === 'for' ? 'Дууссан' : 'Худал', 'start');
+    lab(cx + hw + 6, my - 6, LOOPLAB[n.type][1], 'start');
     return yb + 14;
   }
   const w = n._w, h = n._hh, x0 = cx - w/2;
@@ -429,11 +420,10 @@ function icon(type){
   return `<svg width="44" height="32" viewBox="0 0 44 32" aria-hidden="true">${shapes[T.shape]}</svg>`;
 }
 function buildPalette(){
-  let html = '<h3>Блок нэмэх</h3><div class="grid">', grp = '';
+  let html = '<h3>Блок нэмэх</h3><div class="grid">';
   ORDER.forEach(t => {
     const T = TYPES[t];
-    if (T.grp !== grp){ grp = T.grp; html += `<div class="grp">${grp}</div>`; }
-    html += `<button type="button" data-t="${t}" role="menuitem">${icon(t)}${T.name}</button>`;
+    html += `<button type="button" data-t="${t}" role="menuitem">${icon(t)}${T.name}<small style="font-weight:600;color:#8a90a0;font-size:.66rem">${T.grp}</small></button>`;
   });
   pal.innerHTML = html + '</div>';
   pal.querySelectorAll('button').forEach(b => b.onclick = () => {
@@ -462,7 +452,7 @@ const dlg = $('dlg'); let editNode = null, editIsNew = false;
 function openEdit(n, isNew){
   editNode = n; editIsNew = !!isNew;
   const T = TYPES[n.type];
-  $('dlgHd').innerHTML = icon(n.type) + ' ' + T.name + (n.type === 'if' || n.type === 'while' || n.type === 'for' || n.type === 'do' ? ` <small style="font-weight:600;color:#5C6278">(${{if:'Нөхцөл',while:'Давталт',for:'Тоолох давталт',do:'Давталт'}[n.type]})</small>` : '');
+  $('dlgHd').innerHTML = icon(n.type) + ' ' + T.name + ` <small style="font-weight:600;color:#5C6278">· ${T.grp}</small>`;
   $('dlgLbl').textContent = T.lbl;
   $('dlgIn').value = n.text; $('dlgIn').placeholder = T.ph;
   $('dlgHelp').textContent = T.help;
@@ -550,16 +540,7 @@ let run = null, curId = null, autoT = null, steps = 0;
 function* exec(list){
   for (const n of list){
     const t = n.text.trim();
-    if (n.type === 'comment') continue;
-    if (n.type === 'declare'){
-      t.split(/\s*,\s*/).filter(Boolean).forEach(v => { if (!(v in vars)) vars[v] = 0; });
-      yield {n, msg:`Зарлав: ${t}`};
-    } else if (n.type === 'input'){
-      const name = (t.match(new RegExp(IDENT)) || ['утга'])[0];
-      const v = yield {n, input:name};
-      vars[name] = v !== '' && !isNaN(+v) ? +v : v;
-      say('in', String(v));
-    } else if (n.type === 'output'){
+    if (n.type === 'output'){
       const v = outputText(t); say('out', v); yield {n, msg:`Гаралт: ${v}`};
     } else if (n.type === 'assign'){
       const m = t.match(new RegExp(`^(${IDENT})\\s*=\\s*(.+)$`));
@@ -569,26 +550,20 @@ function* exec(list){
     } else if (n.type === 'if'){
       const c = yield* cond(n);
       yield* exec(c ? n.yes : n.no);
-    } else if (n.type === 'while'){
-      while (yield* cond(n)) yield* exec(n.body);
-    } else if (n.type === 'do'){
-      do { yield* exec(n.body); } while (yield* cond(n));
-    } else if (n.type === 'for'){
-      const m = t.match(new RegExp(`^(${IDENT})\\s*=\\s*(.+?)\\s*(?:…|\\.\\.\\.?|хүртэл|to|-|–)\\s*(.+?)$`));
-      const a = m && evalExpr(m[2], false), b = m && evalExpr(m[3], false);
-      if (m && typeof a === 'number' && typeof b === 'number'){
-        const st = a <= b ? 1 : -1;
-        for (let i = a; st > 0 ? i <= b : i >= b; i += st){ vars[m[1]] = i; yield {n, msg:`${m[1]} = ${i}`}; yield* exec(n.body); }
-        yield {n, msg:'Давталт дууслаа'};
-      } else {
-        while (yield* cond(n)) yield* exec(n.body);
-      }
+    } else if (n.type === 'repeat'){
+      const m = t.match(new RegExp(`^(\\d+|${IDENT})`));
+      let k = m ? (/^\d/.test(m[1]) ? +m[1] : evalExpr(m[1], false)) : undefined;
+      if (typeof k !== 'number'){ yield {n, msg:'⚠ Хэдэн удаа давтахыг тоогоор бич (жишээ: 4 удаа)'}; k = 0; }
+      for (let i = 1; i <= k; i++){ yield {n, msg:`Давталт ${i} / ${k}`}; yield* exec(n.body); }
+      yield {n, msg:`${k} удаа давтаж дууслаа`};
+    } else if (n.type === 'until'){
+      while (!(yield* cond(n))) yield* exec(n.body);
     }
   }
 }
 function* cond(n){
   const v = evalExpr(n.text, true);
-  if (typeof v === 'boolean'){ yield {n, msg:`${n.text.trim()} → ${v ? 'Үнэн' : 'Худал'}`}; return v; }
+  if (typeof v === 'boolean'){ yield {n, msg:`${n.text.trim()} → ${v ? 'Тийм' : 'Үгүй'}`}; return v; }
   return yield {n, ask:true};
 }
 function* program(){ yield {id:'start', msg:'Програм эхэллээ'}; yield* exec(doc.flow); yield {id:'end', msg:'Програм дууслаа'}; }
@@ -631,8 +606,8 @@ function step(val){
     return;
   }
   if (v.ask){
-    $('runMsg').textContent = `◇ ${v.n.text || '(хоосон нөхцөл)'} — үнэн үү?`;
-    mk('✓ Үнэн (Тийм)', 'run', () => step(true)).focus(); mk('✕ Худал (Үгүй)', 'stop', () => step(false));
+    $('runMsg').textContent = `${v.n.type === 'until' ? '🔁' : '◇'} ${v.n.text || '(хоосон асуулт)'}`;
+    mk('✓ Тийм', 'run', () => step(true)).focus(); mk('✕ Үгүй', 'stop', () => step(false));
     return;
   }
   if (v.input){
@@ -654,28 +629,28 @@ $('runAuto').onclick = () => { if (!run) return; run.auto = !run.auto; $('runAut
 function check(){
   stopRun();
   const it = [];
-  let empties = 0, qAssign = 0, ifs = 0, loops = 0, weakIf = 0, emptyIf = 0, emptyLoop = 0, total = 0, outs = 0, ins = 0;
-  (function walk(list){
+  let empties = 0, qAssign = 0, ifs = 0, loops = 0, weakIf = 0, emptyIf = 0, emptyLoop = 0, total = 0, badRep = 0, nested = 0;
+  (function walk(list, depth){
     list.forEach(n => {
       total++; const t = n.text.trim();
-      if (!t && n.type !== 'comment') empties++;
+      if (!t) empties++;
       if (n.type === 'assign' && /[?？]$/.test(t)) qAssign++;
-      if (n.type === 'output') outs++; if (n.type === 'input') ins++;
-      if (n.type === 'if'){ ifs++; if (t && !/[?？]$/.test(t) && !/[<>=]/.test(t)) weakIf++; if (!n.yes.length && !n.no.length) emptyIf++; walk(n.yes); walk(n.no); }
-      if (n.body){ loops++; if (!n.body.length) emptyLoop++; walk(n.body); }
+      if (n.type === 'if'){ ifs++; if (t && !/[?？]$/.test(t) && !/[<>=]/.test(t)) weakIf++; if (!n.yes.length && !n.no.length) emptyIf++; walk(n.yes, depth); walk(n.no, depth); }
+      if (n.body){ loops++; if (depth > 0) nested++; if (!n.body.length) emptyLoop++; if (n.type === 'repeat' && t && !/^\s*(\d+|[A-Za-zА-Яа-яЁёӨөҮү_])/.test(t)) badRep++; walk(n.body, depth + 1); }
     });
-  })(doc.flow);
+  })(doc.flow, 0);
   it.push(['ok', 'Эхлэл ба Төгсгөл байна — схем бүрд яг 2.']);
   if (!total) it.push(['no', 'Блок алга. Сум дээр дарж блок нэм.']);
-  else it.push(['ok', `Нийт ${total} блок: ${ifs} нөхцөл (◇), ${loops} давталт (⬡), ${ins} оролт, ${outs} гаралт.`]);
+  else it.push(['ok', `Нийт ${total} блок: ${ifs} шийдвэр (◇), ${loops} давталт (⬡).`]);
   if (empties) it.push(['no', `${empties} блок хоосон байна — 2 дарж бичвэр нэм.`]);
-  if (qAssign) it.push(['no', `${qAssign} шар тэгш өнцөгт асуулт шиг бичигдсэн. Тийм/үгүй асуулт бол ◇ If блок ашигла!`]);
-  if (weakIf) it.push(['warn', `${weakIf} If блокийн нөхцөл асуулт эсвэл харьцуулалт биш байна («…уу?» эсвэл нас >= 18).`]);
-  if (ifs) it.push(['ok', 'If бүрээс 2 зам гарсан: Үнэн (баруун), Худал (зүүн).']);
-  if (emptyIf) it.push(['warn', `${emptyIf} If блокийн хоёр салаа хоосон байна. Үнэн эсвэл худал бол юу хийх вэ?`]);
+  if (qAssign) it.push(['no', `${qAssign} шар тэгш өнцөгт асуулт шиг бичигдсэн. Тийм/үгүй асуулт бол ◇ ШИЙДВЭР ашигла!`]);
+  if (weakIf) it.push(['warn', `${weakIf} шийдвэрийн бичвэр асуулт биш байна («…уу?» эсвэл оноо > 10).`]);
+  if (ifs) it.push(['ok', 'Шийдвэр бүрээс 2 зам гарсан: Тийм (баруун), Үгүй (зүүн).']);
+  if (emptyIf) it.push(['warn', `${emptyIf} шийдвэрийн хоёр салаа хоосон байна. Тийм эсвэл үгүй бол юу хийх вэ?`]);
   if (emptyLoop) it.push(['warn', `${emptyLoop} давталтын дотор блок алга — юуг давтах вэ?`]);
+  if (badRep) it.push(['warn', '«N удаа давт»-д хэдэн удаа гэдгийг тоогоор эхлүүлж бич (жишээ: 4 удаа).']);
+  if (nested) it.push(['ok', `⭐ Үүрлэсэн давталт байна (${nested} давталт өөр давталтын дотор).`]);
   it.push(['ok', 'Бүх зам Төгсгөлд нийлсэн.']);
-  it.push(ifs >= 2 ? ['ok', '⭐ Төслийн шалгуур: 2 ба түүнээс олон нөхцөлтэй!'] : ['warn', `Төсөл («Ном авах уу?»): дор хаяж 2 нөхцөл хэрэгтэй. Одоо ${ifs}.`]);
   const all = it.every(x => x[0] === 'ok');
   $('check').innerHTML = `<b style="display:block;margin-bottom:.4rem">${all ? '🎉 Схем бүрэн, зөв!' : '🔍 Шалгалтын дүн'}</b><ul>${it.map(([c, t]) => `<li class="${c}">${c === 'ok' ? '✓' : c === 'warn' ? '⚠' : '✕'} ${t}</li>`).join('')}</ul>`;
   $('check').classList.add('show'); $('check').scrollIntoView({block:'nearest', behavior:'smooth'});
