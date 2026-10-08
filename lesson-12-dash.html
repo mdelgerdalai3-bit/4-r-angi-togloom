@@ -81,7 +81,7 @@ html,body{margin:0;height:100%;background:#05061a;color:#fff;overflow:hidden;
 </div>
 <div id="banner"></div>
 <div id="toast"></div>
-<div id="help">Space / ↑ / хулгана / товших — үсрэх · пуужин: дарж байвал дээшилнэ · P — түр зогсоох</div>
+<div id="help">Space / ↑ / товших — үсрэх · пуужин: ↑ ↓ эсвэл 1 2 3 — хариулт сонгох · P — түр зогсоох</div>
 <div id="modal" role="dialog" aria-modal="true"><div class="card" id="card" tabindex="-1"></div></div>
 
 <script>
@@ -244,20 +244,37 @@ function setBanner(key, html){
 }
 function questionBanner(g){
   const q = QUESTIONS[g.qi];
-  const pos = g.order.length === 3 ? ['⬆ Дээд','➡ Дунд','⬇ Доод'] : ['⬆ Дээд','⬇ Доод'];
+  const pos = g.order.length === 3 ? ['1 ⬆ Дээд','2 ➡ Дунд','3 ⬇ Доод'] : ['1 ⬆ Дээд','2 ⬇ Доод'];
   if (q.t === 'x'){
     return `<div class="bq"><div class="sc">${esc(q.sc)}</div>
       <div class="mini"><span class="sh ov">Эхэл</span>➜<span class="sh dm">${esc(q.flow.q)}</span>➜
         <span class="br"><span><b class="y">Тийм:</b> <span class="sh rc">${esc(q.flow.yes)}</span></span><span><b class="n">Үгүй:</b> <span class="sh rc">${esc(q.flow.no)}</span></span></span></div>
-      <div class="hint">Блок-схемийг гүйцэтгэ: ЗӨВ салааны нүхээр нис! (${g.order.map((o, k) => pos[k] + ' — ' + esc(optText(q, o))).join(' · ')})</div></div>`;
+      <div class="hint">Блок-схемийг гүйцэтгэ: ЗӨВ салааг сонго! ↑ ↓ сум, 1 · 2 товч эсвэл дээш/доош дар.</div></div>`;
   }
   return `<div class="bq"><div class="qt">❓ ${esc(q.q)}</div>
     <div class="ops">${g.order.map((o, k) => `<span class="op" style="background:${OPT_COL[k]}">${pos[k]}: ${esc(q.opts[o])}</span>`).join('')}</div>
-    <div class="hint">Пуужинг дарж барьвал дээшилнэ, тавибал доошилно. Зөв хариулттай нүхээр нис!</div></div>`;
+    <div class="hint">Зөв хариултаа сонго: ↑ ↓ сум, 1 · 2 · 3 товч эсвэл пуужингийн дээд/доод талд дар. Хаалганд хүртэл сольж болно!</div></div>`;
 }
 
 /* ───────────── Физик ───────────── */
 const G = 3600, JUMP = 1020, PAD = 1420;
+function nearestLane(g){
+  const cy = pl.y + 15; let best = 0, bd = 1e9;
+  g.spans.forEach(([a, b], k) => { const d = Math.abs((a + b) / 2 - cy); if (d < bd){ bd = d; best = k; } });
+  return best;
+}
+function laneMove(d){
+  if (state !== 'play' || pl.mode !== 'ship' || pl.dead) return;
+  const g = gates.find(x => !x.done); if (!g) return;
+  if (pl.lane == null) pl.lane = nearestLane(g);
+  const n = g.spans.length, k = Math.max(0, Math.min(n - 1, pl.lane + d));
+  if (k !== pl.lane){ pl.lane = k; tone(660 - k * 90, .07, 'triangle', .07); }
+}
+function laneSet(k){
+  if (state !== 'play' || pl.mode !== 'ship' || pl.dead) return;
+  const g = gates.find(x => !x.done); if (!g || k < 0 || k >= g.spans.length) return;
+  pl.lane = k; tone(660 - k * 90, .07, 'triangle', .07);
+}
 const rectHit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 function die(){
   if (pl.dead) return;
@@ -295,19 +312,16 @@ function update(dt){
       if (rectHit(hb, {x:s.x + 15, y:s.y - 30, w:U - 30, h:28})) return die();
     }
   } else {
-    pl.vy += (pl.hold ? -1 : 1) * 1500 * dt;
-    pl.vy = Math.max(-330, Math.min(330, pl.vy));
-    pl.y += pl.vy * dt;
-    if (pl.y < TOP){ pl.y = TOP; pl.vy = 0; }
-    if (pl.y + 30 > GY){ pl.y = GY - 30; pl.vy = 0; }
-    pl.rot = pl.vy / 900;
-    const me = {x:pl.x + 4, y:pl.y + 4, w:S - 8, h:22};
-    for (const g of gates){
-      if (g.done || g.x > pl.x + 80 || g.x + 40 < pl.x - 10) continue;
-      const solids = []; let yy = TOP;
-      g.spans.forEach(([a, b]) => { solids.push([yy, a]); yy = b; }); solids.push([yy, GY]);
-      for (const [a, b] of solids) if (rectHit(me, {x:g.x, y:a, w:40, h:b - a})) return die();
+    // Эгнээ сонгох горим: пуужин сонгосон эгнээний голд өөрөө очно (хана мөргөхгүй)
+    const gt = gates.find(x => !x.done);
+    let ty = GY - 220;
+    if (gt){
+      if (pl.lane == null || pl.lane >= gt.spans.length) pl.lane = nearestLane(gt);
+      const [a, b] = gt.spans[pl.lane]; ty = (a + b) / 2 - 15;
     }
+    pl.vy = Math.max(-520, Math.min(520, (ty - pl.y) * 9));
+    pl.y += pl.vy * dt;
+    pl.rot = pl.vy / 1100;
   }
   trail.push({x:pl.x + S/2, y:pl.y + (pl.mode === 'cube' ? S/2 : 15), t:tGame}); trail = trail.filter(p => tGame - p.t < .35);
 
@@ -317,7 +331,7 @@ function update(dt){
   for (const p of portals){
     if (prevX + S/2 < p.x && pl.x + S/2 >= p.x){
       SFX.portal();
-      if (p.type === 'ship'){ pl.mode = 'ship'; pl.speed = SLOW; pl.vy = 0; cp = Math.max(cp, p.qi + 1); }
+      if (p.type === 'ship'){ pl.mode = 'ship'; pl.speed = SLOW; pl.vy = 0; cp = Math.max(cp, p.qi + 1); pl.lane = null; }
       else { pl.mode = 'cube'; pl.speed = SPEED; pl.vy = 0; }
     }
   }
@@ -325,7 +339,8 @@ function update(dt){
   const g = gates.find(x => !x.done);
   if (g && pl.x + S/2 >= g.x + 40){
     g.done = true;
-    const cy = pl.y + 15; let k = g.spans.findIndex(([a, b]) => cy >= a - 6 && cy <= b + 6);
+    let k = pl.lane != null && pl.lane < g.spans.length ? pl.lane : -1;
+    if (k < 0){ const cy = pl.y + 15; k = g.spans.findIndex(([a, b]) => cy >= a - 6 && cy <= b + 6); }
     if (k < 0) k = 0;
     answerGate(g, g.order[k]);
   } else if (g && feedbackT <= 0 && pl.x >= g.banner) setBanner('q' + g.qi, questionBanner(g));
@@ -413,12 +428,22 @@ function render(){
     const segs = []; g.spans.forEach(([a, b]) => { segs.push([yy, a]); yy = b; }); segs.push([yy, GY]);
     ctx.fillStyle = g.done ? 'rgba(255,255,255,.15)' : '#0a0b22';
     for (const [a, b] of segs){ ctx.fillRect(g.x, a, 40, b - a); if (!g.done){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.strokeRect(g.x + 1, a + 1, 38, b - a - 2); } }
+    const cur = !g.done && pl.mode === 'ship' && gates.find(x => !x.done) === g;
     if (!g.done) g.spans.forEach(([a, b], k) => {
       const col = q.t === 'x' ? (g.order[k] === 'yes' ? '#0B9A6A' : '#D23F36') : OPT_COL[k];
-      ctx.fillStyle = col; ctx.globalAlpha = .9;
+      const picked = cur && pl.lane === k;
+      ctx.fillStyle = col; ctx.globalAlpha = cur && !picked ? .5 : .95;
       const bx = g.x - 330, bw = 310, bh = Math.min(80, b - a - 16), by = (a + b)/2 - bh/2;
-      ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 12); else ctx.rect(bx, by, bw, bh); ctx.fill();
-      ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 12); else ctx.rect(bx, by, bw, bh);
+      if (picked){ ctx.shadowColor = '#fff'; ctx.shadowBlur = 24; }
+      ctx.fill(); ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = picked ? 6 : 2; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = '900 14px -apple-system,Arial'; ctx.textAlign = 'left';
+      ctx.fillText(String(k + 1), bx + 10, by + 18);
+      if (picked){ ctx.textAlign = 'right'; ctx.fillText('◀ СОНГОСОН', bx + bw - 10, by + 18); }
+      // эгнээний зам
+      if (cur){ ctx.strokeStyle = picked ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.12)'; ctx.lineWidth = picked ? 3 : 2; ctx.setLineDash([10, 12]);
+        ctx.beginPath(); ctx.moveTo(pl.x + S, (a + b)/2); ctx.lineTo(bx - 6, (a + b)/2); ctx.stroke(); ctx.setLineDash([]); }
       ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '800 25px -apple-system,"Segoe UI",Arial';
       const tx = optText(q, g.order[k]);
       let fs = 25; while (ctx.measureText(tx).width > bw - 24 && fs > 13){ fs -= 1; ctx.font = `800 ${fs}px -apple-system,"Segoe UI",Arial`; }
@@ -484,7 +509,7 @@ function showStart(){
     <p>Зарим хаалган дээр <b>блок-схем ба нөхцөл</b> гарна (жишээ: «🌧 Бороо орж байна!»). Схемийг уншаад <b>зөв салаагаар</b> (Тийм / Үгүй) нисээрэй!</p>
     <div class="keys">
       <b>Space / ↑ / товших</b><span>шоо: үсрэх (дарж байвал дараалан үснэ)</span>
-      <b>Дарж барих</b><span>пуужин: дээшилнэ · тавих: доошилно</span>
+      <b>↑ ↓ · 1 2 3</b><span>пуужин: хариултын эгнээ сонгох (хулганаар пуужингийн дээд / доод талд дар). Хана мөргөхгүй!</span>
       <b>P</b><span>түр зогсоох</span>
     </div>
     <p class="muted">11 хаалга · 4 нууц дүрс (⬭ ▭ ◇ ➜) · Үхвэл сүүлийн порталын өмнөөс дахин эхэлнэ.</p>
@@ -527,10 +552,28 @@ document.addEventListener('keydown', e => {
   if (modal.classList.contains('show')){ if (e.code === 'Space') e.preventDefault(); if (modalKey) modalKey(e); return; }
   if (e.code === 'KeyP' || e.code === 'Escape'){ showPause(); return; }
   if (e.code === 'KeyM'){ toggleMute(); return; }
+  if (pl.mode === 'ship' && state === 'play'){
+    if (e.code === 'ArrowUp' || e.code === 'KeyW'){ e.preventDefault(); if (!e.repeat) laneMove(-1); return; }
+    if (e.code === 'ArrowDown' || e.code === 'KeyS'){ e.preventDefault(); if (!e.repeat) laneMove(1); return; }
+    if (e.code === 'Space'){
+      e.preventDefault();
+      if (!e.repeat){ const g = gates.find(x => !x.done); if (g){ const n = g.spans.length; laneSet(((pl.lane == null ? nearestLane(g) : pl.lane) + 1) % n); } }
+      return;
+    }
+    const n = parseInt(e.key, 10); if (n >= 1 && n <= 3){ e.preventDefault(); laneSet(n - 1); return; }
+  }
   if (HOLD_KEYS.includes(e.code)){ e.preventDefault(); pl.hold = true; }
 });
 document.addEventListener('keyup', e => { if (HOLD_KEYS.includes(e.code)) pl.hold = false; });
-cv.addEventListener('pointerdown', e => { e.preventDefault(); pl.hold = true; try { cv.setPointerCapture(e.pointerId); } catch(err){} });
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (pl.mode === 'ship' && state === 'play'){
+    const ly = (e.clientY - offY) / scale;
+    laneMove(ly < pl.y + 15 ? -1 : 1);
+    return;
+  }
+  pl.hold = true; try { cv.setPointerCapture(e.pointerId); } catch(err){}
+});
 const up = () => { pl.hold = false; };
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 window.addEventListener('blur', () => { pl.hold = false; });
@@ -548,7 +591,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) showP
 resetAll();
 showStart();
 requestAnimationFrame(loop);
-window.__game = {pl, update, render, get gates(){ return gates; }, get spikes(){ return spikes; }, get blocks(){ return blocks; }, get pads(){ return pads; },
+window.__game = {pl, update, render, laneSet, laneMove, get gates(){ return gates; }, get spikes(){ return spikes; }, get blocks(){ return blocks; }, get pads(){ return pads; },
   get coins(){ return coinsL; }, get state(){ return state; }, set state(v){ state = v; }, answers:() => answers, QUESTIONS, attempts:() => attempts, get ENDX(){ return ENDX; }, U, GY, S};
 })();
 </script>
