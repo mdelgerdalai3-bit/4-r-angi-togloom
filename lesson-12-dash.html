@@ -185,19 +185,20 @@ function buildLevel(){
   QUESTIONS.forEach((q, i) => {
     const p = i % 4;
     if (p === 0){ spike(u+6); spike(u+13); spike(u+19); spike(u+20); block(u+25, 1); }
-    else if (p === 1){ block(u+5, 1); block(u+8, 1); block(u+9, 2); spike(u+14); spike(u+21); }
+    else if (p === 1){ block(u+5, 1); spike(u+12); block(u+18, 1); spike(u+23); }
     else if (p === 2){ pads.push({x:(u+6)*U}); spike(u+8); spike(u+9); spike(u+10); spike(u+17); spike(u+22); }
     else { block(u+5, 1, 5); spike(u+11); spike(u+12); spike(u+19); }
     if ([1,4,6,9].includes(i)) coin(u + (p === 0 ? 13 : p === 1 ? 14 : p === 2 ? 17 : 19), GY - 150);
     const pu = u + 29;
     portals.push({x:pu*U, type:'ship', qi:i});
-    checkpoints.push({x:(pu - 4)*U, mode:'cube', speed:SPEED});
+    checkpoints.push({x:(pu - 2)*U, mode:'cube', speed:SPEED});      // порталын өмнө (саадгүй)
     const gu = pu + 34;
     const n = q.t === 'x' ? 2 : 3;
     const order = q.t === 'x' ? (Math.random() < .5 ? ['yes','no'] : ['no','yes']) : [0,1,2].sort(() => Math.random() - .5);
     const spans = n === 3 ? [[155,265],[300,410],[445,555]] : [[170,310],[390,530]];
     gates.push({x:gu*U, qi:i, order, spans, done:false, banner:pu*U - 30});
     portals.push({x:(gu + 5)*U, type:'cube'});
+    checkpoints.push({x:(gu + 9)*U, mode:'cube', speed:SPEED});      // хариулсан хаалганы дараа
     u = gu + 12;
   });
   ENDX = (u + 6) * U;
@@ -219,7 +220,11 @@ function resetAll(){
 }
 function respawn(first){
   const c = checkpoints[cp];
-  Object.assign(pl, {x:c.x, y:GY - S, vy:0, mode:c.mode, speed:c.speed, ground:true, rot:0, dead:0, freeze:first ? 0 : 2});
+  // хамгаалалт: саадтай давхцвал саадгүй газар хүртэл урагш шилжүүлнэ
+  let x = c.x;
+  const busy = xx => blocks.some(b => xx + S + 2*U > b.x && xx - U < b.x + b.w) || spikes.some(s => xx + S + 2*U > s.x && xx - U < s.x + U);
+  for (let k = 0; k < 40 && busy(x); k++) x += U;
+  Object.assign(pl, {x, y:GY - S, vy:0, mode:c.mode, speed:c.speed, ground:true, rot:0, dead:0, freeze:first ? 0 : 2});
   if (!first){ attempts++; }
   cam = pl.x - W * .3; parts = []; trail = [];
   // асуултын хаалгыг дахин нээх (хариулаагүй бол)
@@ -335,11 +340,13 @@ function update(dt){
 
   // зоос
   for (const c of coinsL) if (!c.got && Math.hypot(c.x - (pl.x + S/2), c.y - (pl.y + S/2)) < 40){ c.got = true; SFX.coin(); toast('✨ Нууц дүрс!', '#B6FF3C'); updateHud(); }
+  // хяналтын цэг
+  while (cp + 1 < checkpoints.length && pl.x >= checkpoints[cp + 1].x) cp++;
   // портал
   for (const p of portals){
     if (prevX + S/2 < p.x && pl.x + S/2 >= p.x){
       SFX.portal();
-      if (p.type === 'ship'){ pl.mode = 'ship'; pl.speed = SLOW; pl.vy = 0; cp = Math.max(cp, p.qi + 1); pl.lane = null; }
+      if (p.type === 'ship'){ pl.mode = 'ship'; pl.speed = SLOW; pl.vy = 0; pl.lane = null; }
       else { pl.mode = 'cube'; pl.speed = SPEED; pl.vy = 0; }
     }
   }
