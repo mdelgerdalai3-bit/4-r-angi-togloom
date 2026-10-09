@@ -219,7 +219,7 @@ function resetAll(){
 }
 function respawn(first){
   const c = checkpoints[cp];
-  Object.assign(pl, {x:c.x, y:GY - S, vy:0, mode:c.mode, speed:c.speed, ground:true, rot:0, dead:0});
+  Object.assign(pl, {x:c.x, y:GY - S, vy:0, mode:c.mode, speed:c.speed, ground:true, rot:0, dead:0, freeze:first ? 0 : 2});
   if (!first){ attempts++; }
   cam = pl.x - W * .3; parts = []; trail = [];
   // асуултын хаалгыг дахин нээх (хариулаагүй бол)
@@ -278,7 +278,7 @@ function laneSet(k){
 const rectHit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 function die(){
   if (pl.dead) return;
-  pl.dead = .85; SFX.die(); flash = .25;
+  pl.dead = .9; SFX.die(); flash = .2;
   for (let i=0;i<34;i++){ const a = Math.random()*6.28, s = 150 + Math.random()*500; parts.push({x:pl.x + S/2, y:pl.y + S/2, vx:Math.cos(a)*s, vy:Math.sin(a)*s, life:.7 + Math.random()*.4, c:i % 2 ? '#3CF2FF' : '#B6FF3C', r:4 + Math.random()*5}); }
 }
 function update(dt){
@@ -290,6 +290,14 @@ function update(dt){
   if (flash > 0) flash -= dt;
   if (feedbackT > 0){ feedbackT -= dt; if (feedbackT <= 0) bannerKey = ''; }
   if (pl.dead){ pl.dead -= dt; if (pl.dead <= 0) respawn(false); return; }
+  // дахин эхлэхийн өмнө 2 секунд зогсоно
+  if (pl.freeze > 0){
+    const before = Math.ceil(pl.freeze);
+    pl.freeze -= dt;
+    if (pl.freeze <= 0){ pl.freeze = 0; tone(880, .12, 'triangle', .08); }
+    else if (Math.ceil(pl.freeze) !== before) tone(520, .08, 'triangle', .07);
+    return;
+  }
 
   const prevY = pl.y, prevX = pl.x;
   pl.x += pl.speed * dt;
@@ -489,7 +497,18 @@ function render(){
   for (const p of parts){ ctx.globalAlpha = Math.min(1, p.life * 2); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.r/2, p.y - p.r/2, p.r, p.r); }
   ctx.globalAlpha = 1;
   ctx.restore();
-  if (flash > 0){ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = `rgba(255,255,255,${flash * 1.6})`; ctx.fillRect(0, 0, cv.width, cv.height); }
+  if (flash > 0){ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = `rgba(255,90,90,${flash * .6})`; ctx.fillRect(0, 0, cv.width, cv.height); }
+  // дахин эхлэх тоолуур
+  if (pl.freeze > 0 && state !== 'start'){
+    ctx.setTransform(dpr*scale, 0, 0, dpr*scale, dpr*offX, dpr*offY);
+    ctx.fillStyle = 'rgba(5,6,26,.55)';
+    if (ctx.roundRect){ ctx.beginPath(); ctx.roundRect(W/2 - 190, 210, 380, 170, 22); ctx.fill(); } else ctx.fillRect(W/2 - 190, 210, 380, 170);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.font = '800 30px -apple-system,"Segoe UI",Arial'; ctx.fillText('Оролдлого ' + attempts, W/2, 258);
+    const n = Math.ceil(pl.freeze);
+    ctx.font = '900 84px -apple-system,"Segoe UI",Arial'; ctx.fillStyle = '#B6FF3C';
+    ctx.shadowColor = '#B6FF3C'; ctx.shadowBlur = 20; ctx.fillText(String(n), W/2, 350); ctx.shadowBlur = 0;
+  }
 }
 
 let last = performance.now();
