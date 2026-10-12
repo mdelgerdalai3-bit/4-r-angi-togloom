@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Хичээл 13 · Алгоритмын лаборатори</title>
+<style>
+:root{--ink:#172536;--muted:#596878;--paper:#f5f4ef;--line:#dce1de;--a:#6246c7;--b:#007b69;--navy:#172536}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}button,input,select,textarea{font:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:10px 16px;font-weight:650}button:hover{filter:brightness(.96)}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #e5a921;outline-offset:3px}.primary{background:var(--b);color:white;border-color:var(--b)}.dark{background:var(--navy);color:white}.quiet{background:transparent}.small{font-size:14px;padding:5px 10px}header{background:var(--navy);color:#fff;padding:23px max(24px,calc((100vw - 1300px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-size:14px;color:#b0c9c5;letter-spacing:.1em}.brand strong{color:#fff}h1{font-size:clamp(25px,3vw,36px);margin:4px 0;line-height:1.18;letter-spacing:-.03em}header p{margin:5px 0 0;color:#ccd5da;font-size:15px}.number{font-size:54px;line-height:1;font-weight:750;color:#75d3b6}main{max-width:1348px;margin:auto;padding:22px 24px 40px}nav{display:flex;gap:8px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;flex-wrap:wrap}nav button{background:transparent;border-color:transparent}nav button[aria-selected=true]{background:var(--navy);color:white}section[hidden]{display:none!important}.intro{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:18px}h2{font-size:25px;line-height:1.25;margin:0 0 7px;letter-spacing:-.025em}p{margin:8px 0}label{display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap}select,input[type=number]{background:white;border:1px solid #b9c3c8;border-radius:7px;padding:7px;color:var(--ink)}input[type=number]{width:85px}select{max-width:100%}.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:white;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:15px 0}.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.compare-grid{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:16px;align-items:start}.panel{border:1px solid var(--line);border-radius:13px;background:white;overflow:hidden}.panel-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-weight:700}.a-head{background:#f0eafb;color:var(--a)}.b-head{background:#e3f3ee;color:var(--b)}.panel-body{padding:16px}.tag{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:650;text-transform:uppercase}.code{display:flex;flex-direction:column;gap:6px;min-height:175px;max-height:342px;overflow:auto;padding:5px 0}.block{padding:8px 12px;border-radius:7px;color:#fff;background:var(--a);font-weight:650;font-size:16px;border-left:4px solid #492c9e}.b-code .block{background:var(--b);border-color:#005949}.block.active{outline:3px solid #ffc74e;outline-offset:0;filter:brightness(1.14)}.loop{border:3px solid var(--b);border-radius:9px;background:#edf8f3;padding:0 9px 11px}.loop-title{margin:0 -9px 10px;background:var(--b);color:white;padding:9px 12px;font-weight:700}.loop .block{margin-top:6px}.loop.active{box-shadow:0 0 0 3px #ffc74e}.metric-line{display:flex;align-items:baseline;gap:9px;border-top:1px solid var(--line);padding-top:13px;margin-top:13px}.metric-line strong{font-size:33px;line-height:1;color:var(--a)}.b-code .metric-line strong{color:var(--b)}.muted{color:var(--muted);font-size:15px}.stage{background:#f6f9f6;padding:12px}.stage-label{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:0 5px 8px;font-weight:650}.stage svg{display:block;width:100%;height:auto;background:white;border:1px solid var(--line);border-radius:9px}.stage-result{padding:9px 5px 0;color:var(--muted);font-size:14px;min-height:36px}.tip{border-left:4px solid #d69b26;background:#fff4d7;padding:12px 16px;margin:17px 0;border-radius:0 8px 8px 0;font-size:15px}.result{background:#e3f3ee;border:1px solid #a6cfc1;border-radius:10px;padding:14px 18px;margin-top:16px}.result.bad{background:#fff0e9;border-color:#e3b69e}.result strong{display:block;font-size:19px}.table-wrap{overflow:auto;margin-top:20px}table{width:100%;border-collapse:collapse;background:white;font-size:16px}th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}th{font-size:14px;color:var(--muted);font-weight:650;background:#ebece6}td:first-child{font-weight:650}td:nth-child(2){color:var(--a)}td:nth-child(3){color:var(--b)}.question{margin:16px 0;padding:20px;background:white;border:1px solid var(--line);border-radius:12px}.question h3{margin:0 0 14px;font-size:19px}.choices{display:grid;gap:8px}.choice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:12px;cursor:pointer}.choice:has(input:checked){border-color:var(--b);background:#edf8f3}.feedback{font-size:15px;padding-top:10px}.feedback.correct{color:#00674e}.feedback.wrong{color:#a43914}textarea{width:100%;min-height:110px;border:1px solid #b9c3c8;border-radius:9px;padding:13px;resize:vertical}.reflection{margin-top:20px}.lesson-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}.flow{padding:18px;background:white;border:1px solid var(--line);border-radius:10px}.flow strong{display:block;color:var(--b);margin-bottom:8px}.teacher{max-width:920px}.teacher li{margin-bottom:10px}.status{font-size:14px;min-height:22px;color:var(--muted)}footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:28px;padding-top:13px;display:flex;justify-content:space-between;gap:18px}.answer-key{background:white;padding:20px;border:1px solid var(--line);border-radius:10px}.print-only{display:none}@media(max-width:1000px){.compare-grid{grid-template-columns:1fr 1fr}.compare-grid .visual-panel{grid-column:1/-1;grid-row:2}.stage-pair{display:grid;grid-template-columns:1fr 1fr}.lesson-flow{grid-template-columns:1fr 1fr}.intro{align-items:flex-start}.code{max-height:250px}}@media(max-width:620px){body{font-size:16px}header{padding:20px}.number{display:none}main{padding:16px 14px}nav{gap:3px}nav button{padding:9px 10px;font-size:14px}.intro{display:block}.intro .controls{margin-top:15px}.panel-body{padding:12px}.panel-head{padding:12px;font-size:15px}.compare-grid{gap:9px}.block{font-size:14px;padding:8px}.stage-pair{display:block}.toolbar{padding:12px}.lesson-flow{grid-template-columns:1fr}th,td{padding:10px;font-size:14px}footer{display:block}}
+
+/* ───────── code.org маягийн туршилтын лаборатори ───────── */
+.cdo{--teal:#00adbc;--orange:#ffa400;--motion:#4C97FF;--motion-d:#3373CC;--ctrl:#FFAB19;--ctrl-d:#CF8B17;--event:#FFBF00;--event-d:#CC9900;--ws:#ffffff}
+.cdo-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.levels{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.levels .lbl{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.lvl{width:42px;height:42px;padding:0;border-radius:50%;border:3px solid #c9d1d6;background:#fff;font-weight:800;font-size:16px;display:grid;place-items:center;color:#5b6770}
+.lvl.cur{border-color:var(--orange);background:#fff6e0;color:#8a5a00;box-shadow:0 0 0 3px rgba(255,164,0,.25)}
+.lvl.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.lvl.free{border-radius:12px;width:auto;padding:0 12px}
+.bubble{flex:1 1 380px;display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--teal);border-radius:14px;padding:10px 14px;position:relative}
+.bubble .who{flex:none;width:46px;height:46px;border-radius:50%;background:#e2f6f8;display:grid;place-items:center;font-size:28px}
+.bubble b{display:block;font-size:17px}
+.bubble span{font-size:15px;color:var(--muted)}
+.cdo-run{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.runbtn{background:var(--orange);border-color:var(--orange);color:#fff;font-size:18px;font-weight:800;padding:10px 26px;border-radius:10px;box-shadow:0 3px 0 #c77f00}
+.runbtn:active{transform:translateY(2px);box-shadow:0 1px 0 #c77f00}
+.runbtn.stop{background:#e0533d;border-color:#e0533d;box-shadow:0 3px 0 #a33a28}
+.speed{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);font-weight:650}
+.speed input{width:110px;accent-color:var(--teal)}
+.cdo-body{display:grid;grid-template-columns:330px 1fr;gap:12px;align-items:start}
+.stages{display:grid;grid-template-columns:1fr;gap:12px}
+.st{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.st-h{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-weight:750;font-size:15px}
+.st-h.a{background:#f0eafb;color:var(--a)} .st-h.b{background:#e3f3ee;color:var(--b)}
+.st canvas{display:block;width:100%;aspect-ratio:1/1;background:#f7f9fb}
+.st-f{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);min-height:36px}
+.st-f b{color:var(--ink)}
+.cdo-main{display:grid;grid-template-columns:190px 1fr 1fr;gap:0;border:1px solid #c9d1d6;border-radius:12px;overflow:hidden;background:#fff;min-height:330px;position:sticky;top:8px}
+.tbx{background:#f3f4f8;border-right:1px solid #d7dbe3;padding:10px;display:flex;flex-direction:column;gap:10px;position:relative}
+.tbx h3{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#575E75}
+.tbx .cat{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#575E75}
+.tbx .cat i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.tbx .hint{font-size:12.5px;color:var(--muted);line-height:1.35}
+.tbx.trash::after{content:'🗑 Энд тавьж устга';position:absolute;inset:6px;border:3px dashed #e0533d;border-radius:10px;background:rgba(255,235,230,.92);display:grid;place-items:center;font-weight:800;color:#b3321f;font-size:15px}
+.ws{position:relative;padding:12px 12px 40px;background-color:var(--ws);background-image:radial-gradient(#dfe3ea 1px,transparent 1px);background-size:18px 18px;min-height:780px;border-right:1px solid #e3e6ec;overflow:auto}
+.ws:last-child{border-right:0}
+.ws.active{box-shadow:inset 0 0 0 3px var(--orange)}
+.ws-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:750;font-size:14px}
+.ws-h .a{color:var(--a)} .ws-h .b{color:var(--b)}
+.cnt{font-size:13px;font-weight:800;padding:2px 10px;border-radius:20px;background:#eef0f4;color:#575E75}
+.cnt.over{background:#ffe1dc;color:#b3321f}
+.cnt.ok{background:#dff5f7;color:#00707a}
+/* блокууд */
+.blk{position:relative;display:flex;align-items:center;gap:7px;min-height:42px;padding:7px 12px 7px 11px;border-radius:7px;color:#fff;font-weight:700;font-size:15px;background:var(--motion);border:1px solid var(--motion-d);user-select:none;-webkit-user-select:none;cursor:grab;width:max-content;max-width:100%;touch-action:none;line-height:1.2}
+.blk::before{content:'';position:absolute;top:-1px;left:16px;width:24px;height:7px;background:var(--ws);border:1px solid var(--motion-d);border-top:0;border-radius:0 0 6px 6px}
+.blk::after{content:'';position:absolute;bottom:-8px;left:16px;width:24px;height:8px;background:inherit;border:1px solid var(--motion-d);border-top:0;border-radius:0 0 6px 6px;z-index:2}
+.tbx .blk::before{background:#f3f4f8}
+.blk.turn .ic{font-size:17px}
+.blk .ic{font-size:16px}
+.fld{display:inline-block;min-width:38px;text-align:center;background:#fff;color:#575E75;border-radius:14px;padding:2px 8px;font-weight:800;border:0}
+input.fld{width:52px;padding:2px 4px}
+.blk.rep{display:block;padding:0;background:var(--ctrl);border-color:var(--ctrl-d)}
+.blk.rep::before{border-color:var(--ctrl-d)} .blk.rep::after{border-color:var(--ctrl-d)}
+.rep-h{display:flex;align-items:center;gap:7px;padding:9px 12px 9px 11px}
+.rep-body{margin-left:18px;min-height:30px;padding:8px 0 10px;background:var(--ws);border-radius:0 0 0 4px;border-top:1px solid var(--ctrl-d);border-bottom:1px solid var(--ctrl-d);display:flex;flex-direction:column;align-items:flex-start;padding-left:0}
+.rep-body.empty::after{content:'энд блок оруул';font-size:12px;color:#b78a3a;padding:4px 10px}
+.rep-f{height:20px;border-radius:0 0 7px 7px}
+.rep-cnt{margin-left:6px;font-size:12px;background:rgba(255,255,255,.85);color:#8a5a00;border-radius:10px;padding:1px 8px;font-weight:800;display:none}
+.blk.rep.looping .rep-cnt{display:inline-block}
+.hat{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:12px 16px 8px;border-radius:22px 22px 7px 7px;background:var(--event);border:1px solid var(--event-d);color:#fff;font-weight:800;position:relative;margin-bottom:0}
+.hat::after{content:'';position:absolute;bottom:-8px;left:16px;width:24px;height:8px;background:inherit;border:1px solid var(--event-d);border-top:0;border-radius:0 0 6px 6px;z-index:2}
+.stack{display:flex;flex-direction:column;align-items:flex-start;min-height:20px}
+.ws .stack.root{min-height:200px}
+.blk.run{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--orange);filter:brightness(1.1)}
+.blk.rep.run>.rep-h{filter:brightness(1.12)}
+.ghost{position:fixed;z-index:60;pointer-events:none;opacity:.92;transform:rotate(2deg);filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.ins-mark{position:fixed;z-index:59;height:6px;border-radius:3px;background:var(--orange);pointer-events:none;box-shadow:0 0 8px var(--orange);display:none}
+.lab-result{margin-top:12px;border-radius:12px;padding:14px 18px;background:#fff;border:1px solid var(--line)}
+.lab-result.ok{background:#e3f6f7;border-color:#7fd3da}
+.lab-result.bad{background:#fff0e9;border-color:#e3b69e}
+.lab-result strong{display:block;font-size:18px;margin-bottom:4px}
+.lab-result table{margin-top:10px;font-size:15px}
+.lab-result th,.lab-result td{padding:8px 12px}
+.win{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(23,37,54,.45);padding:16px}
+.win.show{display:flex}
+.win .card{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:22px 24px;text-align:center;border:4px solid var(--teal);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.win .big{font-size:52px;line-height:1}
+.win h3{margin:8px 0 4px;font-size:24px}
+.win .nums{display:flex;justify-content:center;gap:12px;margin:14px 0}
+.win .nums div{background:#f3f4f8;border-radius:12px;padding:8px 14px;font-weight:800;font-size:22px}
+.win .nums small{display:block;font-size:12px;color:var(--muted);font-weight:650}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;background:#172536;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;display:none}
+.toast.show{display:block}
+@media(max-width:1150px){.cdo-body{grid-template-columns:1fr}.stages{grid-template-columns:1fr 1fr}.ws{min-height:360px}.cdo-main{position:static}}
+@media(max-width:900px){.cdo-main{grid-template-columns:1fr 1fr}.tbx{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid #d7dbe3}.tbx h3,.tbx .hint{width:100%}}
+@media(max-width:620px){.stages{grid-template-columns:1fr}.cdo-main{grid-template-columns:1fr}.ws{border-right:0;border-bottom:1px solid #e3e6ec}}
+@media print{header{background:white;color:#172536;padding:12px}header p,.brand{color:#172536}nav,.toolbar,button,footer,.cdo-run,.tbx{display:none!important}body,main{background:white;font-size:12px}main{padding:0}h1{font-size:24px}.number{display:none}.compare-grid{grid-template-columns:1fr 1fr}.visual-panel{grid-column:1/-1}.stage-pair{display:grid;grid-template-columns:1fr 1fr}.panel{break-inside:avoid}.block,.loop-title{color:#172536!important;background:#eee!important;border-color:#aaa!important}.code{max-height:none}.table-wrap{overflow:visible}.print-only{display:block}textarea{border:0}.question{break-inside:avoid}.tip{background:white}.intro{display:block}.cdo-main{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div><div class="brand"><strong>4-Р АНГИ</strong> / АЛГОРИТМЫН СЭТГЭЛГЭЭ</div><h1>Алгоритмын лаборатори</h1><p>Хоёр шийдэл ажиллана. Аль нь илүү оновчтой вэ?</p></div><div class="number" aria-hidden="true">13</div></header>
+<main>
+<nav aria-label="Хэрэглэгдэхүүний хэсэг" role="tablist"><button role="tab" aria-selected="true" aria-controls="compare" id="tab-compare" data-tab="compare">01 · Харьцуулъя</button><button role="tab" aria-selected="false" aria-controls="build" id="tab-build" data-tab="build">02 · Туршилт</button><button role="tab" aria-selected="false" aria-controls="quiz" id="tab-quiz" data-tab="quiz">03 · Өөрийгөө шалгая</button><button role="tab" aria-selected="false" aria-controls="teacher" id="tab-teacher" data-tab="teacher">Багшид</button></nav>
+<section id="compare" role="tabpanel" aria-labelledby="tab-compare">
+<div class="intro"><div><h2>Батаа ба Сараагийн шийдэл</h2><p class="muted">Эхлээд үр дүнг таамагла. Дараа нь зэрэг ажиллуулж, тоогоор харьцуул.</p></div><label>Даалгавар <select id="scenario"><option value="walk">Баатрыг алхуулах</option><option value="square">Дөрвөлжин хээ</option><option value="hexagon">Зургаан өнцөгт хээ</option><option value="octagon">Найман өнцөгт хээ</option></select></label></div>
+<div class="toolbar"><div class="controls"><label id="target-label">Нийт алхам <select id="target"><option value="4">40 алхам</option><option value="6">60 алхам</option><option value="8">80 алхам</option></select></label><label>Сараа <input id="repeat" type="number" min="1" max="12" value="4"> удаа давт</label></div><div class="controls"><button class="primary" id="run">▶ Зэрэг ажиллуулах</button><button id="step">Нэг үйлдэл</button><button id="reset" class="quiet">↺ Эхлэх байрлал</button></div></div>
+<div class="compare-grid"><article class="panel"><div class="panel-head a-head"><span>А · Батаа</span><span class="tag">Дараалсан блок</span></div><div class="panel-body"><div id="code-a" class="code"></div><div class="metric-line"><strong id="blocks-a">4</strong><span>бичсэн блок</span></div><p class="muted" id="executed-a"></p></div></article>
+<article class="panel visual-panel"><div class="panel-head"><span>Ижил үр дүнд хүрэх үү?</span><span class="tag" id="progress">Бэлэн</span></div><div class="stage-pair"><div class="stage"><div class="stage-label"><span style="color:var(--a)">БАТААНЫ ҮР ДҮН</span><span id="distance-a">0</span></div><svg id="stage-a" viewBox="0 0 460 210" role="img" aria-label="Батааны хөдөлгөөний зураг"></svg><div id="state-a" class="stage-result">Эхлэх байрлал</div></div><div class="stage"><div class="stage-label"><span style="color:var(--b)">САРААГИЙН ҮР ДҮН</span><span id="distance-b">0</span></div><svg id="stage-b" viewBox="0 0 460 210" role="img" aria-label="Сараагийн хөдөлгөөний зураг"></svg><div id="state-b" class="stage-result">Эхлэх байрлал</div></div></div></article>
+<article class="panel b-code"><div class="panel-head b-head"><span>Б · Сараа</span><span class="tag">Давталттай блок</span></div><div class="panel-body"><div id="code-b" class="code"></div><div class="metric-line"><strong id="blocks-b">2</strong><span>бичсэн блок</span></div><p class="muted" id="executed-b"></p></div></article></div>
+<div id="compare-result" class="result" aria-live="polite"></div>
+<div class="tip"><strong>Хоёр өөр тоо:</strong> «Бичсэн блок» нь программд харагдах блокууд. «Гүйцэтгэх үйлдэл» нь давталтыг дэлгэсний дараах хөдөлгөөн, эргэлт. Давталт кодыг товчилно; ижил хөдөлгөөнийг илүү хурдан болгох албагүй.</div>
+<div class="table-wrap"><table><caption style="text-align:left;font-weight:700;padding:0 0 10px">Харьцуулах 3 шалгуур</caption><thead><tr><th>Шалгуур</th><th>А · Батаа</th><th>Б · Сараа</th></tr></thead><tbody id="compare-table"></tbody></table></div>
+<div class="reflection"><label for="compare-note"><strong>Сонголтоо зөвтгөе</strong></label><p class="muted">«Би … шийдлийг сонголоо. Учир нь … блокийн оронд … блок хэрэглэж, …»</p><textarea id="compare-note" placeholder="Өөрийн дүгнэлтийг энд бичээрэй."></textarea><div class="controls" style="margin-top:10px"><button id="save-report">Дүгнэлтээ татах</button><button id="print">Хэвлэх</button><span class="status" id="save-status" aria-live="polite"></span></div></div>
+</section>
+
+<section id="build" hidden role="tabpanel" aria-labelledby="tab-build" class="cdo">
+  <div class="cdo-top">
+    <div class="levels" id="levels" aria-label="Түвшин"></div>
+    <div class="bubble" aria-live="polite"><div class="who" aria-hidden="true">🐢</div><div><b id="goal-title"></b><span id="goal-text"></span></div></div>
+  </div>
+  <div class="cdo-run">
+    <button class="runbtn" id="lab-run" type="button">▶ Хоёуланг ажиллуулах</button>
+    <button id="lab-step" type="button">⏯ Алхамаар</button>
+    <button id="lab-reset" type="button" class="quiet">↺ Эхлэх байрлал</button>
+    <label class="speed">🐢 <input id="lab-speed" type="range" min="1" max="5" value="3" aria-label="Хурд"> 🐇</label>
+    <span style="flex:1"></span>
+    <button id="lab-hint" type="button" class="small">💡 Сануулга</button>
+    <button id="lab-clear" type="button" class="small">🗑 Цэвэрлэх</button>
+  </div>
+  <div class="cdo-body">
+  <div class="stages">
+    <div class="st"><div class="st-h a"><span>А · Давталтгүй (дараалсан)</span><span id="st-a-n">0 үйлдэл</span></div><canvas id="cv-a" width="760" height="760" aria-label="А программын зураг"></canvas><div class="st-f" id="st-a-f">Блокоо оруулаад ▶ дарна уу</div></div>
+    <div class="st"><div class="st-h b"><span>Б · Давталттай</span><span id="st-b-n">0 үйлдэл</span></div><canvas id="cv-b" width="760" height="760" aria-label="Б программын зураг"></canvas><div class="st-f" id="st-b-f">Блокоо оруулаад ▶ дарна уу</div></div>
+  </div>
+  <div class="cdo-main">
+    <aside class="tbx" id="tbx" aria-label="Блокийн хайрцаг">
+      <h3>Блокууд</h3>
+      <div id="tbx-blocks" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start"></div>
+      <p class="hint">Блокоо <b>чирж</b> А эсвэл Б-д оруул. Эсвэл <b>дарахад</b> шар хүрээтэй талбарт нэмэгдэнэ (Б-д давталт байвал түүний дотор). Хасах бол буцааж энд чир.</p>
+    </aside>
+    <div class="ws active" id="ws-a" data-side="A" tabindex="0" aria-label="А ажлын талбар">
+      <div class="ws-h"><span class="a">А · Давталтгүй</span><span class="cnt" id="cnt-a">Блок: 0</span></div>
+      <div class="hat">▶ Ажиллуулахад</div>
+      <div class="stack root" id="stack-a"></div>
+    </div>
+    <div class="ws" id="ws-b" data-side="B" tabindex="0" aria-label="Б ажлын талбар">
+      <div class="ws-h"><span class="b">Б · Давталттай</span><span class="cnt" id="cnt-b">Блок: 0</span></div>
+      <div class="hat">▶ Ажиллуулахад</div>
+      <div class="stack root" id="stack-b"></div>
+    </div>
+  </div>
+  </div>
+  <div class="lab-result" id="lab-result" aria-live="polite">Блокоо оруулаад «▶ Хоёуланг ажиллуулах» дар. Хоёр яст мэлхий зэрэг зурна.</div>
+  <div class="tip">Зөвхөн төгсгөлийн байрлал ижил байхад хангалтгүй. Зам бүхэлдээ <b>загвартай</b> (цайвар тасархай шугам) давхцах ёстой. Тэгээд хоёр шийдлийг <b>бичсэн блок</b>, <b>засахад хялбар</b>, <b>уншигдах байдал</b>-аар харьцуул.</div>
+  <label for="build-note"><strong>Миний тайлбар</strong></label><textarea id="build-note" placeholder="Давтагдсан хэсэг юу вэ? Хэдэн удаа давтсан бэ? Хэдэн блок хэмнэсэн бэ?"></textarea><button id="save-build" style="margin-top:12px">Миний бүтээлийг татах</button>
+  <div class="ins-mark" id="ins-mark"></div>
+  <div class="win" id="win" role="dialog" aria-modal="true"><div class="card"><div class="big">🎉</div><h3 id="win-title">Баяр хүргэе!</h3><p id="win-text" class="muted"></p><div class="nums" id="win-nums"></div><div class="controls" style="justify-content:center"><button id="win-again" type="button">Дахин үзэх</button><button id="win-next" class="primary" type="button">Дараагийн түвшин ▶</button></div></div></div>
+  <div class="toast" id="toast" role="status"></div>
+</section>
+
+<section id="quiz" hidden role="tabpanel" aria-labelledby="tab-quiz"><h2>Таамагла · тоол · зөвтгө</h2><p class="muted">5 асуултад хариулаад тайлбарыг нь уншаарай.</p><form id="quiz-form"><div id="questions"></div><button type="submit" class="primary">Хариултаа шалгах</button> <button type="button" id="quiz-reset">Дахин оролдох</button></form><div id="quiz-result" class="result" aria-live="polite" hidden></div></section>
+<section id="teacher" hidden class="teacher" role="tabpanel" aria-labelledby="tab-teacher"><h2>13-р хичээлд ашиглах дараалал</h2><p>«Үр ашигтай алгоритм — оновчтой шийдэл» PPT-ийн 40 алхмын жишээ, 3 шалгуур, хураангуйлах дадлага, дүгнэлттэй уялдуулсан хэрэглэгдэхүүн.</p><div class="lesson-flow"><div class="flow"><strong>Таамаглах · 4 мин</strong>40 ба 60 алхмын үед хоёр шийдэл юу хийхийг асуу.</div><div class="flow"><strong>Турших · 5 мин</strong>Хоёр шийдлийг зэрэг эсвэл үйлдэл тус бүрээр ажиллуул.</div><div class="flow"><strong>Судлах · 6 мин</strong>Бичсэн блок, гүйцэтгэх үйлдэл болон 3 шалгуурыг харьцуул.</div><div class="flow"><strong>Өөрчлөх · 7 мин</strong>Давталтыг 3 болго. Ялгааг илрүүлээд 4 болгон зас.</div><div class="flow"><strong>Бүтээх · 8 мин</strong>«02 · Туршилт»-д 1–4-р түвшинг хосоороо гүйцээж, дүгнэлтээ тат.</div></div><div class="answer-key"><h3 style="margin-top:0">Багшийн асуултууд</h3><ul><li>Хоёулаа 40 алхсан бол урт шийдэл буруу юу? <strong>Үгүй. Зөв ажиллаж болно.</strong></li><li>4 «10 алх» блок ба «4 удаа давт: 10 алх» нь хэдэн блок вэ? <strong>4 ба 2. Давталтын хүрээ өөрөө нэг блок.</strong></li><li>Баатар тус бүр хэдэн удаа «10 алх» үйлдлийг гүйцэтгэх вэ? <strong>4 удаа. Нийт 40 алхам.</strong></li><li>40-ийг 60 болгоход? <strong>А-д 2 блок нэмнэ. Б-д давталтын 4-ийг 6 болгоно.</strong></li><li>Дөрвөлжин зурахад? <strong>А: 8 блок. Б: 3 блок. Хоёулаа 8 үйлдэл гүйцэтгэнэ.</strong></li></ul></div>
+<div class="answer-key" style="margin-top:14px"><h3 style="margin-top:0">«02 · Туршилт»-ын түвшин ба хариу</h3><ul><li><b>1 · 40 алхам:</b> А — 4 × «10 алх» (4 блок). Б — «4 удаа давт: 10 алх» (2 блок).</li><li><b>2 · Дөрвөлжин:</b> А — 8 блок. Б — «4 удаа давт: 60 алх, 90° баруун эргэ» (3 блок).</li><li><b>3 · Зургаан өнцөгт:</b> 360 ÷ 6 = 60°. А — 12 блок. Б — «6 удаа давт: 50 алх, 60° баруун эргэ» (3 блок).</li><li><b>4 · Шат:</b> А — 16 блок. Б — «4 удаа давт: 30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ» (5 блок).</li><li><b>5 · Чөлөөт:</b> тоо засаж болдог блокоор өөрийн хээг хоёр аргаар бүтээж, ижил зураг гарсныг шалгана.</li></ul></div>
+<div class="tip"><strong>Нэр томьёоны ялгаа:</strong> PPT-д «алхмын тоо» нь заримдаа бичсэн блокийг заадаг. Энд сурагчдад ойлгомжтой байлгахын тулд бичсэн блок, гүйцэтгэх үйлдэл, туулсан алхмыг тусад нь тоолсон. Давталтын хяналтын дотоод үйлдлийг хөдөлгөөнд тооцоогүй.</div><p>«3 ба түүнээс олон давталтыг хураангуйлах» нь энэ хичээлийн дасгалын баримжаа. Давталтыг 1 эсвэл 2 удаа ч хэрэглэж болно; үргэлж блок хэмнэнэ гэсэн үг биш.</p><p>Хээний жишээнүүд нь энэ хэрэглэгдэхүүний тооцоотой жишээ. PPT-ийн 48 ба 9 блоктой хээний тоог энд хуулбарлаагүй.</p><p><strong>Төгсгөлийн даалгавар:</strong> Блокын тоо, засахад хялбар байдал, уншигдах байдлаар нэг шийдлээ сонгож, тоогоор зөвтгө.</p><p class="muted">Хуудас интернэтгүй ажиллана. Туршилтын түвшингийн явц энэ төхөөрөмжид хадгалагдана. Дүгнэлт, бүтээлийг файл болгон татаж авна.</p></section>
+<footer><span>4-р анги · Хичээл 13 · Үр ашигтай алгоритм</span><span>Тоол → Давтагдахыг ол → Хураангуйл → Дахин харьцуул</span></footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+const names={move:'алх',turn:'° баруун эргэ'};
+const scenarios={walk:{n:4,body:[{type:'move',value:10}],title:'Баатрыг алхуулах'},square:{n:4,body:[{type:'move',value:60},{type:'turn',value:90}],title:'Дөрвөлжин хээ'},hexagon:{n:6,body:[{type:'move',value:60},{type:'turn',value:60}],title:'Зургаан өнцөгт хээ'},octagon:{n:8,body:[{type:'move',value:45},{type:'turn',value:45}],title:'Найман өнцөгт хээ'}};
+let scenario='walk',countA=4,countB=4,cursor=0,timer=null;
+const expand=(body,n)=>Array.from({length:n},()=>body.map(c=>({...c}))).flat();
+const blockText=c=>`${c.value} ${names[c.type]}`;
+function trace(commands){let x=0,y=0,angle=0,distance=0;const points=[[0,0]],states=[{x,y,angle,distance}];commands.forEach(c=>{if(c.type==='move'){x+=Math.cos(angle*Math.PI/180)*c.value;y+=Math.sin(angle*Math.PI/180)*c.value;distance+=c.value;points.push([x,y]);}else angle=(angle+c.value)%360;states.push({x,y,angle,distance});});return {points,states,x,y,angle,distance};}
+function node(tag,attrs={},text){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));if(text!==undefined)el.textContent=text;return el;}
+function draw(id,commands,step,colour,boundsCommands,height=210,walking=false){const svg=$(id),full=Array.isArray(boundsCommands)?trace(boundsCommands):boundsCommands,partial=trace(commands.slice(0,step)),width=460,all=full.points;let minX=Math.min(...all.map(p=>p[0])),maxX=Math.max(...all.map(p=>p[0])),minY=Math.min(...all.map(p=>p[1])),maxY=Math.max(...all.map(p=>p[1]));if(walking){minX=0;maxX=Math.max(80,maxX);}const scale=Math.min((width-80)/Math.max(20,maxX-minX),(height-65)/Math.max(20,maxY-minY));const tx=x=>40+(width-80-(maxX-minX)*scale)/2+(x-minX)*scale,ty=y=>32+(height-65-(maxY-minY)*scale)/2+(y-minY)*scale;svg.replaceChildren();for(let x=20;x<width;x+=20)for(let y=20;y<height;y+=20)svg.append(node('circle',{cx:x,cy:y,r:1,fill:'#d9e3df'}));svg.append(node('polyline',{points:all.map(p=>`${tx(p[0])},${ty(p[1])}`).join(' '),fill:'none',stroke:'#d0dad6','stroke-width':3,'stroke-dasharray':'5 5'}));svg.append(node('polyline',{points:partial.points.map(p=>`${tx(p[0])},${ty(p[1])}`).join(' '),fill:'none',stroke:colour,'stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round'}));svg.append(node('circle',{cx:tx(0),cy:ty(0),r:5,fill:'white',stroke:colour,'stroke-width':2}));const g=node('g',{transform:`translate(${tx(partial.x)},${ty(partial.y)}) rotate(${partial.angle})`});g.append(node('circle',{r:12,fill:colour,stroke:'white','stroke-width':3}),node('path',{d:'M 3 -5 L 9 0 L 3 5',fill:'none',stroke:'white','stroke-width':2.5}));svg.append(g);if(walking){svg.append(node('text',{x:tx(0),y:height-11,'font-size':13,fill:'#596878','text-anchor':'middle'},'0'),node('text',{x:tx(maxX),y:height-11,'font-size':13,fill:'#596878','text-anchor':'middle'},`${maxX} алхам`));}return partial;}
+function stop(){if(timer!==null)clearInterval(timer);timer=null;$('run').textContent='▶ Зэрэг ажиллуулах';}
+function setScenario(){stop();scenario=$('scenario').value;countA=scenario==='walk'?Number($('target').value):scenarios[scenario].n;countB=countA;$('repeat').value=countB;$('target-label').hidden=scenario!=='walk';renderCompare();}
+function renderCompare(){stop();cursor=0;const s=scenarios[scenario],a=expand(s.body,countA);$('code-a').innerHTML=a.map((c,i)=>`<div class="block" data-index="${i}">${blockText(c)}</div>`).join('');$('code-b').innerHTML=`<div class="loop"><div class="loop-title">${countB} удаа давт</div>${s.body.map((c,i)=>`<div class="block" data-index="${i}">${blockText(c)}</div>`).join('')}</div>`;$('blocks-a').textContent=a.length;$('blocks-b').textContent=1+s.body.length;$('executed-a').textContent=`Гүйцэтгэх үйлдэл: ${a.length}`;$('executed-b').textContent=`Гүйцэтгэх үйлдэл: ${s.body.length*countB}`;
+const same=countA===countB,save=a.length-s.body.length-1;const totalA=trace(a).distance,totalB=trace(expand(s.body,countB)).distance;$('compare-result').classList.toggle('bad',!same);$('compare-result').innerHTML=same?`<strong>Ижил үйлдэл, ижил үр дүн · ${totalA} алхам</strong>${save>0?`Сараа ${save} блокоор цөөн бичжээ.`:save===0?'Бичсэн блокын тоо тэнцүү.':'Энэ тохиолдолд давталттай шийдэл илүү олон бичсэн блоктой.'} Гүйцэтгэх үйлдэл хоёуланд нь ${a.length}.`:`<strong>Үр дүн ижил биш байна</strong>Батаа ${countA}, Сараа ${countB} удаа давтагдах хэсгээ гүйцэтгэнэ. Батаа ${totalA}, Сараа ${totalB} алхам туулна. Ижил үр дүнтэй болгохын тулд Сараагийн давталтыг ${countA} болго.`;
+const target=countA+2,addition=s.body.length*2;const editA=scenario==='walk'?`${countA*10} → ${target*10} алхам: ${addition} «10 алх» блок нэмнэ.`:`${countA} → ${target} удаа: ${addition} блок нэмнэ.`,editB=`Давталтын ${countB}-ийг ${target} болгоно: 1 тоо засна.`;$('compare-table').innerHTML=`<tr><td>1 · Бичсэн блок</td><td>${a.length} блок</td><td>${1+s.body.length} блок</td></tr><tr><td>2 · Засахад хялбар</td><td>${editA}</td><td>${editB}</td></tr><tr><td>3 · Уншигдах байдал</td><td>Үйлдэл бүрийг бичсэн. Давтагдах хэсгийг өөрөө олно.</td><td>«${countB} удаа давт» нь давтагдах хэсэг ба тоог шууд харуулна.</td></tr>`;updateStages();}
+function updateStages(){const s=scenarios[scenario],a=expand(s.body,countA),b=expand(s.body,countB),bounds=a.length>=b.length?a:b;const pA=draw('stage-a',a,Math.min(cursor,a.length),'#6246c7',bounds,210,scenario==='walk'),pB=draw('stage-b',b,Math.min(cursor,b.length),'#007b69',bounds,210,scenario==='walk');$('distance-a').textContent=`${Math.round(pA.distance)} алхам`;$('distance-b').textContent=`${Math.round(pB.distance)} алхам`;$('state-a').textContent=`${Math.min(cursor,a.length)} / ${a.length} үйлдэл · ${cursor>=a.length?'Дууссан':cursor?'Ажиллаж байна':'Эхлэх байрлал'}`;$('state-b').textContent=`${Math.min(cursor,b.length)} / ${b.length} үйлдэл · ${cursor>=b.length?'Дууссан':cursor?'Ажиллаж байна':'Эхлэх байрлал'}`;$('progress').textContent=cursor?`${cursor} / ${Math.max(a.length,b.length)}`:'Бэлэн';$('code-a').querySelectorAll('.block').forEach((el,i)=>el.classList.toggle('active',i===cursor-1));$('code-b').querySelectorAll('.block').forEach((el,i)=>el.classList.toggle('active',cursor>0&&cursor<=b.length&&i===(cursor-1)%s.body.length));const active=$('code-a').querySelector('.active');if(active){const pane=$('code-a');pane.scrollTop+=active.getBoundingClientRect().bottom>pane.getBoundingClientRect().bottom?active.getBoundingClientRect().bottom-pane.getBoundingClientRect().bottom:0;}}
+function next(){const max=Math.max(countA,countB)*scenarios[scenario].body.length;if(cursor>=max){stop();return;}cursor++;updateStages();if(cursor>=max)stop();}
+$('scenario').addEventListener('change',setScenario);$('target').addEventListener('change',setScenario);$('repeat').addEventListener('change',()=>{const n=Number($('repeat').value);if(!Number.isInteger(n)||n<1||n>12){$('repeat').value=countB;return;}countB=n;renderCompare();});$('run').onclick=()=>{if(timer!==null){stop();return;}if(cursor>=Math.max(countA,countB)*scenarios[scenario].body.length)cursor=0;next();if(cursor<Math.max(countA,countB)*scenarios[scenario].body.length){$('run').textContent='Ⅱ Түр зогсоох';timer=setInterval(next,650);}};$('step').onclick=()=>{stop();next();};$('reset').onclick=()=>{stop();cursor=0;updateStages();};
+document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>{stop();labStop();document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b===button)));['compare','build','quiz','teacher'].forEach(id=>$(id).hidden=id!==button.dataset.tab);if(button.dataset.tab==='build')labDraw();});
+
+/* ═════════════ 02 · ТУРШИЛТ — code.org маягийн блок лаборатори ═════════════ */
+const LEVELS=[
+ {t:'40 алхам',goal:'Яст мэлхийг 40 алхуул. А-д «10 алх» блокуудыг дараалуул. Б-д давталт ашиглаад 2 блокоор бүтээ.',hint:'10 алх × ? удаа = 40. А-д хэдэн блок хэрэгтэй вэ? Б-д «давт» блокийн дотор нэг «10 алх» хийнэ.',tool:[{type:'move',value:10}],body:[{type:'move',value:10}],times:4,limit:2,scale:7,start:[60,200],ang:0},
+ {t:'Дөрвөлжин',goal:'Дөрвөлжин зур: нэг тал = 60 алхам, эргэлт = 90°. Б-г 3 блокоор бүтээ.',hint:'Дөрвөлжин 4 талтай. «60 алх, 90° эргэ» гэсэн хос хэдэн удаа давтагдаж байна вэ?',tool:[{type:'move',value:60},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:60},{type:'turn',value:90,dir:'right'}],times:4,limit:3,scale:4,start:[80,80],ang:0},
+ {t:'Зургаан өнцөгт',goal:'Зургаан өнцөгт зур: нэг тал = 50 алхам. Эргэлт хэдэн градус вэ? Б-г 3 блокоор бүтээ.',hint:'360 ÷ 6 = 60°. «50 алх, 60° баруун эргэ» — 6 удаа.',tool:[{type:'move',value:50},{type:'turn',value:60,dir:'right'},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:50},{type:'turn',value:60,dir:'right'}],times:6,limit:3,scale:3.4,start:[115,53],ang:0},
+ {t:'Шат',goal:'4 гишгүүртэй шат зур. Нэг гишгүүр = «30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ». Б-г 5 блокоор бүтээ.',hint:'Нэг гишгүүр 4 блок. Тэр 4 блокийг «4 удаа давт»-ын дотор хий: 1 + 4 = 5 блок.',tool:[{type:'move',value:30},{type:'turn',value:90,dir:'left'},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:30},{type:'turn',value:90,dir:'left'},{type:'move',value:30},{type:'turn',value:90,dir:'right'}],times:4,limit:5,scale:2.9,start:[26,374],ang:0},
+ {t:'Чөлөөт',free:true,goal:'Чөлөөт туршилт: тоог нь өөрчилж болдог блокоор өөрийн хээг хоёр аргаар бүтээ. Хоёр зураг ижил гарч, Б цөөн блоктой байвал амжилттай!',hint:'Санаа: 5 удаа давт: 80 алх, 144° баруун эргэ → од! 360 ÷ n томьёогоор дүрс зурж болно.',tool:[{type:'move',value:50,edit:true},{type:'turn',value:90,dir:'right',edit:true},{type:'turn',value:90,dir:'left',edit:true}],scale:2.4,start:[120,250],ang:0}
+];
+const REP_TOOL={type:'repeat',value:4,edit:true};
+let lvl=0,uid=1,active='A',labT=null,labRunning=false;
+let progs={};          // түвшин бүрийн програм
+let solved=[];
+try{const s=JSON.parse(localStorage.getItem('h13lab')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
+function labSave(){try{localStorage.setItem('h13lab',JSON.stringify({solved,progs}));}catch(e){}}
+function reid(list){list.forEach(b=>{b.id=uid++;if(b.body)reid(b.body);});return list;}
+Object.values(progs).forEach(p=>{reid(p.A||[]);reid(p.B||[]);});
+function prog(){if(!progs[lvl])progs[lvl]={A:[],B:[]};return progs[lvl];}
+const L=()=>LEVELS[lvl];
+function countBlocks(list){return list.reduce((n,b)=>n+1+(b.body?countBlocks(b.body):0),0);}
+function hasRepeat(list){return list.some(b=>b.type==='repeat');}
+function targetCmds(){const l=L();return l.free?null:expand(l.body,l.times).map(c=>({type:c.type,value:c.type==='turn'?(c.dir==='left'?-c.value:c.value):c.value}));}
+function compile(list){const out=[];for(const b of list){if(b.type==='repeat'){const n=Math.max(0,Math.min(20,b.value|0));for(let i=0;i<n;i++){out.push({kind:'loop',id:b.id,i:i+1,n});out.push(...compile(b.body));}}else out.push({kind:'cmd',id:b.id,type:b.type,value:b.type==='turn'?(b.dir==='left'?-b.value:b.value):b.value});}return out;}
+function segsOf(cmds){const l=L();let x=l.start[0],y=l.start[1],a=l.ang;const segs=[];for(const c of cmds){if(c.type==='move'){const nx=x+Math.cos(a*Math.PI/180)*c.value*l.scale,ny=y+Math.sin(a*Math.PI/180)*c.value*l.scale;segs.push([x,y,nx,ny]);x=nx;y=ny;}else if(c.type==='turn')a=(a+c.value+360)%360;}return segs;}
+function segKey(s){const r=v=>Math.round(v);const p=[r(s[0]),r(s[1])],q=[r(s[2]),r(s[3])];return (p[0]<q[0]||(p[0]===q[0]&&p[1]<=q[1]))?p.join(',')+'-'+q.join(','):q.join(',')+'-'+p.join(',');}
+function sameDrawing(s1,s2){const k1=new Set(s1.map(segKey)),k2=new Set(s2.map(segKey));if(k1.size!==k2.size)return false;for(const k of k1)if(!k2.has(k))return false;return true;}
+
+/* ── блокийн DOM ── */
+function blockEl(b,inTbx){
+  const el=document.createElement('div');
+  el.className='blk'+(b.type==='turn'?' turn':'')+(b.type==='repeat'?' rep':'');
+  if(!inTbx)el.dataset.id=b.id;
+  const fld=(val,kind)=>b.edit||(!inTbx&&b.edit)?`<input class="fld" type="number" inputmode="numeric" min="1" max="${kind==='rep'?12:kind==='turn'?360:200}" value="${val}" aria-label="тоо">`:`<span class="fld">${val}</span>`;
+  if(b.type==='move')el.innerHTML=`<span class="ic">➜</span>${fld(b.value,'move')}<span>алх</span>`;
+  else if(b.type==='turn')el.innerHTML=`<span class="ic">${b.dir==='left'?'↺':'↻'}</span>${fld(b.value,'turn')}<span>° ${b.dir==='left'?'зүүн':'баруун'} эргэ</span>`;
+  else{
+    el.innerHTML=`<div class="rep-h"><span class="ic">🔁</span>${fld(b.value,'rep')}<span>удаа давт</span><span class="rep-cnt"></span></div><div class="rep-body stack"></div><div class="rep-f"></div>`;
+    const body=el.querySelector('.rep-body');
+    if(!inTbx){body._list=b.body;body.classList.toggle('empty',!b.body.length);b.body.forEach(c=>body.appendChild(blockEl(c,false)));}
+    else body.classList.add('empty');
+  }
+  const inp=el.querySelector(':scope > input.fld, :scope > .rep-h > input.fld');
+  if(inp&&!inTbx){inp.addEventListener('pointerdown',e=>e.stopPropagation());inp.addEventListener('change',()=>{const max=+inp.max,n=Math.round(+inp.value);if(!(n>=1&&n<=max)){inp.value=b.value;return;}b.value=n;labChanged();});}
+  if(inTbx&&inp){inp.addEventListener('pointerdown',e=>e.stopPropagation());inp.addEventListener('change',()=>{const n=Math.round(+inp.value);if(n>=1&&n<=+inp.max)b.value=n;else inp.value=b.value;});}
+  el._block=b;el._tbx=!!inTbx;
+  el.addEventListener('pointerdown',startDrag);
+  return el;
+}
+function renderToolbox(){
+  const box=$('tbx-blocks');box.replaceChildren();
+  const l=L();
+  const cat=(c,t)=>{const d=document.createElement('div');d.className='cat';d.innerHTML=`<i style="background:${c}"></i>${t}`;box.appendChild(d);};
+  cat('#4C97FF','Хөдөлгөөн');
+  (l._tool||(l._tool=l.tool.map(t=>({...t})))).forEach(t=>box.appendChild(blockEl(t,true)));
+  cat('#FFAB19','Давталт');
+  if(!l._rep)l._rep={...REP_TOOL,edit:true};
+  box.appendChild(blockEl(l._rep,true));
+}
+function renderWs(){
+  const p=prog();
+  [['A','stack-a'],['B','stack-b']].forEach(([s,id])=>{const st=$(id);st.replaceChildren();st._list=p[s];st._side=s;p[s].forEach(b=>st.appendChild(blockEl(b,false)));});
+  const ca=countBlocks(p.A),cb=countBlocks(p.B),lim=L().limit;
+  $('cnt-a').textContent=`Блок: ${ca}`;
+  $('cnt-b').textContent=lim?`Блок: ${cb} / ${lim}`:`Блок: ${cb}`;
+  $('cnt-b').className='cnt'+(lim&&cb>lim?' over':lim&&cb&&cb<=lim?' ok':'');
+}
+function renderLevels(){
+  const box=$('levels');box.innerHTML='<span class="lbl">Түвшин</span>';
+  LEVELS.forEach((l,i)=>{const b=document.createElement('button');b.type='button';b.className='lvl'+(l.free?' free':'')+(i===lvl?' cur':'')+(solved[i]?' done':'');b.textContent=l.free?'★ Чөлөөт':solved[i]?'✓':String(i+1);b.title=l.t;b.setAttribute('aria-label',`${i+1}-р түвшин: ${l.t}`);b.onclick=()=>{labStop();lvl=i;loadLevel();};box.appendChild(b);});
+}
+function loadLevel(){
+  const l=L();
+  $('goal-title').textContent=`${lvl+1}-р түвшин · ${l.t}`;
+  $('goal-text').textContent=l.goal;
+  renderLevels();renderToolbox();renderWs();labResetRun();
+  $('lab-result').className='lab-result';$('lab-result').textContent='Блокоо оруулаад «▶ Хоёуланг ажиллуулах» дар. Хоёр яст мэлхий зэрэг зурна.';
+}
+function labChanged(){labStop();labResetRun();renderWs();labSave();$('lab-result').className='lab-result';$('lab-result').textContent='Программ өөрчлөгдлөө. ▶ дарж дахин турш.';}
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2200);}
+
+/* ── чирэх ── */
+let drag=null;
+const mark=$('ins-mark');
+function setActive(s){active=s;$('ws-a').classList.toggle('active',s==='A');$('ws-b').classList.toggle('active',s==='B');}
+$('ws-a').addEventListener('pointerdown',()=>setActive('A'));$('ws-b').addEventListener('pointerdown',()=>setActive('B'));
+function findParentList(id,list){for(let i=0;i<list.length;i++){const b=list[i];if(b.id===id)return {list,i};if(b.body){const r=findParentList(id,b.body);if(r)return r;}}return null;}
+function startDrag(e){
+  if(labRunning)return;
+  if(e.button!==undefined&&e.button!==0)return;
+  e.stopPropagation();e.preventDefault();
+  const el=e.currentTarget,b=el._block;
+  drag={el,b,fromTbx:el._tbx,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,side:null,pid:e.pointerId};
+  const r=el.getBoundingClientRect();drag.dx=e.clientX-r.left;drag.dy=e.clientY-r.top;
+  window.addEventListener('pointermove',onDrag);window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',cancelDrag);
+}
+function beginMove(){
+  drag.moved=true;
+  let b=drag.b;
+  if(drag.fromTbx){b=JSON.parse(JSON.stringify(b));delete b.edit;if(drag.b.edit)b.edit=true;b.id=uid++;if(b.type==='repeat'){b.body=[];b.edit=true;}drag.nb=b;}
+  else{const p=prog();const f=findParentList(b.id,p.A)||findParentList(b.id,p.B);if(f){f.list.splice(f.i,1);drag.origin=f;}drag.nb=b;}
+  const g=blockEl(drag.nb,false);g.classList.add('ghost');g.style.width='max-content';document.body.appendChild(g);drag.ghost=g;
+  if(!drag.fromTbx){renderWs();$('tbx').classList.add('trash');}
+}
+function dropTargets(ws){
+  const out=[];
+  ws.querySelectorAll('.stack').forEach(st=>{
+    const kids=[...st.children].filter(c=>c.classList.contains('blk'));
+    const sr=st.getBoundingClientRect();
+    const depth=(()=>{let d=0,n=st;while(n&&n!==ws){if(n.classList&&n.classList.contains('rep-body'))d++;n=n.parentElement;}return d;})();
+    for(let i=0;i<=kids.length;i++){
+      let y;if(i<kids.length)y=kids[i].getBoundingClientRect().top;else if(kids.length){y=kids[kids.length-1].getBoundingClientRect().bottom;}else y=sr.top+4;
+      out.push({st,i,x:sr.left,y,w:Math.max(160,sr.width),depth});
+    }
+  });
+  return out;
+}
+function onDrag(e){
+  if(!drag)return;
+  if(!drag.moved){if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;beginMove();}
+  drag.ghost.style.left=(e.clientX-drag.dx)+'px';drag.ghost.style.top=(e.clientY-drag.dy)+'px';
+  drag.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);drag.ghost.style.display='';
+  const ws=under&&under.closest('.ws');drag.target=null;mark.style.display='none';
+  if(ws){
+    setActive(ws.dataset.side);
+    let best=null,bd=1e9;
+    for(const t of dropTargets(ws)){
+      if(drag.nb.type==='repeat'&&t.depth>=2)continue;
+      if(e.clientX<t.x-30||e.clientX>t.x+t.w+60)continue;
+      const d=Math.abs(e.clientY-drag.dy-t.y)+(e.clientX<t.x?40:0)+t.depth*2;
+      if(d<bd){bd=d;best=t;}
+    }
+    if(best){drag.target=best;mark.style.display='block';mark.style.left=(best.x)+'px';mark.style.top=(best.y-3)+'px';mark.style.width=Math.min(220,best.w)+'px';}
+  }
+}
+function endDrag(e){
+  window.removeEventListener('pointermove',onDrag);window.removeEventListener('pointerup',endDrag);window.removeEventListener('pointercancel',cancelDrag);
+  mark.style.display='none';$('tbx').classList.remove('trash');
+  if(!drag)return;
+  const d=drag;drag=null;
+  if(!d.moved){ if(d.fromTbx){addToActive(d.b);} return; }
+  d.ghost.remove();
+  const p=prog();
+  if(d.target){
+    const side=d.target.st.closest('.ws').dataset.side;
+    if(side==='A'&&(d.nb.type==='repeat'||hasRepeat(d.nb.body||[]))){toast('А бол давталтгүй шийдэл! «давт» блокийг Б-д оруул.');if(d.origin&&!d.fromTbx&&d.origin.list){d.origin.list.splice(d.origin.i,0,d.nb);}labChanged();return;}
+    d.target.st._list.splice(d.target.i,0,d.nb);
+  }else if(!d.fromTbx){/* ажлын талбараас гадагш → устгагдсан */}
+  labChanged();
+}
+function cancelDrag(){if(drag&&drag.ghost)drag.ghost.remove();if(drag&&drag.origin)drag.origin.list.splice(drag.origin.i,0,drag.nb);drag=null;mark.style.display='none';$('tbx').classList.remove('trash');renderWs();}
+function addToActive(t){
+  if(labRunning)return;
+  const b=JSON.parse(JSON.stringify(t));b.id=uid++;if(b.type==='repeat'){b.body=[];b.edit=true;}
+  if(active==='A'&&b.type==='repeat'){toast('А бол давталтгүй шийдэл! Б талбар дээр дараад «давт» нэм.');return;}
+  const p=prog()[active];
+  // Б-д хамгийн сүүлийн давталт хоосон бол түүний дотор хийнэ
+  // Б-д хамгийн сүүлийн блок давталт бол шинэ блок түүний дотор орно (давталтын дараа оруулах бол чирнэ)
+  const last=p[p.length-1];
+  if(b.type!=='repeat'&&last&&last.type==='repeat')last.body.push(b);
+  else p.push(b);
+  labChanged();
+}
+
+/* ── ажиллуулах ── */
+const cvs={A:$('cv-a'),B:$('cv-b')};
+let rs={};
+function labResetRun(){
+  ['A','B'].forEach(s=>{rs[s]={steps:compile(prog()[s]),i:0,x:L().start[0],y:L().start[1],a:L().ang,segs:[],tw:null,done:false,exec:0};});
+  document.querySelectorAll('.blk.run').forEach(e=>e.classList.remove('run'));
+  document.querySelectorAll('.blk.rep.looping').forEach(e=>e.classList.remove('looping'));
+  $('st-a-n').textContent='0 үйлдэл';$('st-b-n').textContent='0 үйлдэл';
+  $('st-a-f').textContent='Эхлэх байрлал';$('st-b-f').textContent='Эхлэх байрлал';
+  labDraw();
+}
+function stepDur(){return [0,900,600,380,220,110][+$('lab-speed').value];}
+function advance(s){
+  const r=rs[s];if(r.done)return false;
+  while(r.i<r.steps.length&&r.steps[r.i].kind==='loop'){const st=r.steps[r.i];const el=document.querySelector(`#stack-${s.toLowerCase()} .blk[data-id="${st.id}"]`);if(el){el.classList.add('looping');el.querySelector('.rep-cnt').textContent=`${st.i} / ${st.n}`;}r.i++;}
+  if(r.i>=r.steps.length||r.exec>=400){r.done=true;r.tw=null;highlight(s,null);return false;}
+  const c=r.steps[r.i++];r.exec++;highlight(s,c.id);
+  const l=L();
+  if(c.type==='move'){const nx=r.x+Math.cos(r.a*Math.PI/180)*c.value*l.scale,ny=r.y+Math.sin(r.a*Math.PI/180)*c.value*l.scale;r.tw={type:'move',x0:r.x,y0:r.y,x1:nx,y1:ny,t:0};}
+  else r.tw={type:'turn',a0:r.a,a1:r.a+c.value,t:0};
+  return true;
+}
+function finishTween(s){const r=rs[s],t=r.tw;if(!t)return;if(t.type==='move'){r.segs.push([t.x0,t.y0,t.x1,t.y1]);r.x=t.x1;r.y=t.y1;}else r.a=(t.a1+360)%360;r.tw=null;}
+function highlight(s,id){document.querySelectorAll(`#stack-${s.toLowerCase()} .blk.run`).forEach(e=>e.classList.remove('run'));if(id!=null){const el=document.querySelector(`#stack-${s.toLowerCase()} .blk[data-id="${id}"]`);if(el)el.classList.add('run');}}
+function labFooter(){['A','B'].forEach(s=>{const r=rs[s];$(`st-${s.toLowerCase()}-n`).textContent=`${r.exec} үйлдэл`;$(`st-${s.toLowerCase()}-f`).innerHTML=r.done?`<span>✓ Дууслаа</span><span>Бичсэн блок: <b>${countBlocks(prog()[s])}</b> · Гүйцэтгэсэн үйлдэл: <b>${r.exec}</b></span>`:`<span>Ажиллаж байна…</span><span>Гүйцэтгэсэн үйлдэл: <b>${r.exec}</b></span>`;});}
+let lastT=0;
+function frame(now){
+  if(!labRunning)return;
+  const dt=now-lastT;lastT=now;const dur=stepDur();
+  let any=false;
+  ['A','B'].forEach(s=>{const r=rs[s];if(r.done)return;if(!r.tw){if(!advance(s))return;}r.tw.t+=dt/dur;if(r.tw.t>=1){finishTween(s);if(rs.stepMode)return;if(!advance(s))return;}any=true;});
+  labDraw();labFooter();
+  if(rs.stepMode&&!rs.A.tw&&!rs.B.tw){labRunning=false;$('lab-run').textContent='▶ Хоёуланг ажиллуулах';$('lab-run').classList.remove('stop');if(rs.A.done&&rs.B.done)evaluate();return;}
+  if(rs.A.done&&rs.B.done&&!rs.A.tw&&!rs.B.tw){labRunning=false;$('lab-run').textContent='▶ Хоёуланг ажиллуулах';$('lab-run').classList.remove('stop');labDraw();labFooter();evaluate();return;}
+  requestAnimationFrame(frame);
+}
+function labStart(){
+  if(labRunning){labStop();return;}
+  const p=prog();if(!p.A.length&&!p.B.length){toast('Эхлээд блок оруул!');return;}
+  labResetRun();rs.stepMode=false;labRunning=true;lastT=performance.now();
+  $('lab-run').textContent='■ Зогсоох';$('lab-run').classList.add('stop');
+  requestAnimationFrame(frame);
+}
+function labStep(){
+  if(labRunning)return;
+  if(!rs.A||(rs.A.done&&rs.B.done)||(rs.A.i===0&&rs.B.i===0))labResetRun();
+  rs.stepMode=true;let ok=false;['A','B'].forEach(s=>{if(advance(s))ok=true;});
+  if(!ok){labDraw();labFooter();evaluate();return;}
+  labRunning=true;lastT=performance.now();requestAnimationFrame(frame);
+}
+function labStop(){labRunning=false;$('lab-run').textContent='▶ Хоёуланг ажиллуулах';$('lab-run').classList.remove('stop');}
+
+/* ── зураг ── */
+function drawTurtle(g,x,y,a,col){
+  g.save();g.translate(x,y);g.rotate(a*Math.PI/180);
+  g.fillStyle='#7cc36a';g.strokeStyle='#2f6b2a';g.lineWidth=2;
+  [[-9,-11],[9,-11],[-9,11],[9,11]].forEach(([lx,ly])=>{g.beginPath();g.ellipse(lx*.9,ly,5,4,0,0,7);g.fill();g.stroke();});
+  g.beginPath();g.arc(17,0,6.5,0,7);g.fill();g.stroke();
+  g.fillStyle='#1f2a1a';g.beginPath();g.arc(19,-2.5,1.4,0,7);g.arc(19,2.5,1.4,0,7);g.fill();
+  g.fillStyle=col;g.strokeStyle='#ffffff';g.lineWidth=2.5;g.beginPath();g.ellipse(0,0,14,12,0,0,7);g.fill();g.stroke();
+  g.strokeStyle='rgba(255,255,255,.65)';g.lineWidth=1.5;g.beginPath();g.moveTo(-8,0);g.lineTo(8,0);g.moveTo(0,-8);g.lineTo(0,8);g.stroke();
+  g.restore();
+}
+function labDraw(){
+  const l=L(),tgt=targetCmds();
+  ['A','B'].forEach(s=>{
+    const cv=cvs[s],g=cv.getContext('2d'),k=cv.width/400;
+    g.setTransform(k,0,0,k,0,0);
+    g.fillStyle='#f7f9fb';g.fillRect(0,0,400,400);
+    g.fillStyle='#dfe5ec';for(let x=20;x<400;x+=20)for(let y=20;y<400;y+=20){g.beginPath();g.arc(x,y,1.1,0,7);g.fill();}
+    if(tgt){const ts=segsOf(tgt);g.strokeStyle='#c4ccd6';g.lineWidth=9;g.lineCap='round';g.setLineDash([2,14]);ts.forEach(q=>{g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(q[2],q[3]);g.stroke();});g.setLineDash([]);}
+    const r=rs[s];if(!r)return;
+    const col=s==='A'?'#6246c7':'#007b69';
+    g.strokeStyle=col;g.lineWidth=5;g.lineCap='round';g.lineJoin='round';
+    r.segs.forEach(q=>{g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(q[2],q[3]);g.stroke();});
+    let x=r.x,y=r.y,a=r.a;
+    if(r.tw){const t=Math.min(1,r.tw.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;if(r.tw.type==='move'){x=r.tw.x0+(r.tw.x1-r.tw.x0)*e;y=r.tw.y0+(r.tw.y1-r.tw.y0)*e;g.beginPath();g.moveTo(r.tw.x0,r.tw.y0);g.lineTo(x,y);g.stroke();}else a=r.tw.a0+(r.tw.a1-r.tw.a0)*e;}
+    g.fillStyle='#fff';g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.arc(l.start[0],l.start[1],5,0,7);g.fill();g.stroke();
+    drawTurtle(g,x,y,a,col);
+  });
+}
+
+/* ── дүгнэх ── */
+function evaluate(){
+  const p=prog(),l=L(),ca=countBlocks(p.A),cb=countBlocks(p.B);
+  const sA=rs.A.segs,sB=rs.B.segs,tgt=targetCmds();
+  const okA=l.free?sA.length>0:sameDrawing(sA,segsOf(tgt)),okB=l.free?sB.length>0:sameDrawing(sB,segsOf(tgt));
+  const same=sameDrawing(sA,sB)&&sA.length>0;
+  const loopB=hasRepeat(p.B),within=!l.limit||cb<=l.limit;
+  const res=$('lab-result');
+  const table=`<table><thead><tr><th>Харьцуулалт</th><th>А · Давталтгүй</th><th>Б · Давталттай</th></tr></thead><tbody><tr><td>Бичсэн блок</td><td>${ca}</td><td>${cb}${l.limit?` (хязгаар ${l.limit})`:''}</td></tr><tr><td>Гүйцэтгэсэн үйлдэл</td><td>${rs.A.exec}</td><td>${rs.B.exec}</td></tr><tr><td>Зураг ${l.free?'хоорондоо':'загвартай'} таарсан уу?</td><td>${l.free?(same?'✓ Ижил':'✕ Өөр'):(okA?'✓ Тийм':'✕ Үгүй')}</td><td>${l.free?(same?'✓ Ижил':'✕ Өөр'):(okB?'✓ Тийм':'✕ Үгүй')}</td></tr><tr><td>Засахад хялбар</td><td>Давтагдах хэсэг бүрийг тус тусад нь засна</td><td>${loopB?'Давталтын нэг тоог солиход хангалттай':'—'}</td></tr></tbody></table>`;
+  const win=l.free?(same&&loopB&&!hasRepeat(p.A)&&cb<ca):(okA&&okB&&loopB&&within&&!hasRepeat(p.A));
+  if(win){
+    res.className='lab-result ok';res.innerHTML=`<strong>🎉 Амжилттай! Хоёр шийдэл ижил зураг гаргалаа.</strong>Б нь ${ca-cb} блокоор цөөн бичигдсэн — ${ca} блок → ${cb} блок. Гүйцэтгэсэн үйлдэл хоёуланд нь ${rs.A.exec}.${table}`;
+    solved[lvl]=true;labSave();renderLevels();
+    $('win-title').textContent=`${lvl+1}-р түвшин дууслаа!`;
+    $('win-text').textContent=`«${l.t}» — хоёр шийдэл ижил зураг гаргалаа. Давталт ${ca-cb} блок хэмнэлээ!`;
+    $('win-nums').innerHTML=`<div>${ca}<small>А блок</small></div><div>${cb}<small>Б блок</small></div><div>${ca-cb}<small>хэмнэсэн</small></div>`;
+    $('win-next').hidden=lvl>=LEVELS.length-1;$('win').classList.add('show');$('win-next').focus();
+    return;
+  }
+  const tips=[];
+  if(!l.free){if(!okA)tips.push('А-ийн зураг загвартай таарахгүй байна. Блокуудын тоо, дарааллыг шалга.');if(!okB)tips.push('Б-ийн зураг загвартай таарахгүй байна. Давталтын тоо, дотор нь байгаа блокуудыг шалга.');}
+  else if(!same)tips.push('А ба Б өөр зураг гаргалаа. Ижил хээг хоёр аргаар бүтээ.');
+  if(hasRepeat(p.A))tips.push('А-д давталт байна — А бол давталтгүй шийдэл.');
+  if(!loopB)tips.push('Б-д «давт» блок ашиглаагүй байна.');
+  if(!within)tips.push(`Б ${cb} блоктой — хязгаар ${l.limit}. Давтагдаж байгаа хэсгийг давталтад хий.`);
+  if(l.free&&same&&loopB&&cb>=ca)tips.push('Б нь А-аас цөөн блоктой байх ёстой.');
+  res.className='lab-result bad';res.innerHTML=`<strong>Дахин оролдъё 💪</strong>${tips.map(t=>'• '+t).join('<br>')}${table}`;
+}
+
+$('lab-run').onclick=labStart;$('lab-step').onclick=labStep;$('lab-reset').onclick=()=>{labStop();labResetRun();};
+$('lab-hint').onclick=()=>toast('💡 '+L().hint);
+$('lab-clear').onclick=()=>{labStop();progs[lvl]={A:[],B:[]};labChanged();};
+$('win-again').onclick=()=>{$('win').classList.remove('show');};
+$('win-next').onclick=()=>{$('win').classList.remove('show');lvl=Math.min(LEVELS.length-1,lvl+1);loadLevel();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('win').classList.remove('show');});
+$('lab-speed').oninput=()=>{};
+[$('ws-a'),$('ws-b')].forEach(w=>w.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){if(e.target===w){e.preventDefault();setActive(w.dataset.side);}}}));
+
+/* ── 03 · Асуулт ── */
+const questions=[{q:'1 · 4 ширхэг «10 алх» блок ба «4 удаа давт: 10 алх» нийт хэдэн алхам явуулах вэ?',choices:['А: 40, Б: 10','А: 40, Б: 40','А: 4, Б: 2'],answer:1,why:'Давталт доторх «10 алх» 4 удаа ажиллана. 4 × 10 = 40.'},{q:'2 · Дөрвөлжнийг «60 алх → 90° эргэ» гэж 4 удаа бичвэл 8 блок. Давталтаар хураангуйлбал хэдэн блок вэ?',choices:['2 блок','3 блок','8 блок'],answer:1,why:'1 давталтын блок + 1 алхах блок + 1 эргэх блок = 3 бичсэн блок. Гүйцэтгэх хөдөлгөөн, эргэлт нийлээд 8 хэвээр.'},{q:'3 · 40 алхмыг 60 болгоход Сараагийн шийдэлд юу засах вэ?',choices:['«10 алх»-ыг «60 алх» болгоно','Давталтын 4-ийг 6 болгоно','Давталтыг арилгана'],answer:1,why:'6 удаа давт × 10 алх = 60 алхам. Нэг тоог засна.'},{q:'4 · Блок цөөрвөл баатар заавал хурдан хүрэх үү?',choices:['Тийм, үргэлж хурдан','Үгүй. Ижил хөдөлгөөнийг адил хурдтай гүйцэтгэж болно','Үгүй, давталт үргэлж удаан'],answer:1,why:'Бичсэн кодын хэмжээ ба гүйцэтгэх үйлдлийн тоо өөр хэмжүүр. Энд хоёр баатар ижил тооны үйлдлийг ижил хурдаар гүйцэтгэнэ.'},{q:'5 · Хоёр шийдэл ижил үр дүнтэй. Хичээлийн 3 шалгуур аль вэ?',choices:['Өнгө, дуу, зураг','Бичсэн блок, засахад хялбар байдал, уншигдах байдал','Зөвхөн хамгийн цөөн блок'],answer:1,why:'Гурван шалгуурыг хамт хэрэглэнэ. Урт шийдэл ажиллаж байвал буруу гэсэн үг биш.'}];
+$('questions').innerHTML=questions.map((q,i)=>`<div class="question"><h3 id="q-label-${i}">${q.q}</h3><div class="choices" role="radiogroup" aria-labelledby="q-label-${i}">${q.choices.map((choice,j)=>`<label class="choice"><input type="radio" name="q${i}" value="${j}">${choice}</label>`).join('')}</div><div class="feedback" id="feedback-${i}" aria-live="polite"></div></div>`).join('');
+$('quiz-form').onsubmit=e=>{e.preventDefault();let score=0,missing=0;questions.forEach((q,i)=>{const selected=document.querySelector(`input[name="q${i}"]:checked`),el=$('feedback-'+i);if(!selected){missing++;el.className='feedback wrong';el.textContent='Хариултаа сонгоорой.';return;}const ok=Number(selected.value)===q.answer;if(ok)score++;el.className='feedback '+(ok?'correct':'wrong');el.textContent=(ok?'✓ Зөв. ':'↺ Дахин бодъё. ')+q.why;});$('quiz-result').hidden=false;$('quiz-result').classList.toggle('bad',score<5);$('quiz-result').textContent=`${score} / 5 зөв.${missing?` ${missing} асуултад хариулаагүй байна.`:score===5?' Сайн байна! Одоо сонголтоо тоогоор зөвтгөж чадна.':' Тайлбарыг уншаад дахин оролдоорой.'}`;};$('quiz-reset').onclick=()=>{$('quiz-form').reset();document.querySelectorAll('.feedback').forEach(el=>el.textContent='');$('quiz-result').hidden=true;};
+
+/* ── татах ── */
+function download(filename,text){const url=URL.createObjectURL(new Blob(['﻿'+text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('save-report').onclick=()=>{const s=scenarios[scenario],a=expand(s.body,countA),b=expand(s.body,countB);download('hicheel-13-dugnelt.txt',`4-р анги · Хичээл 13\n${s.title}\n\nА · Батаа\n${a.map(blockText).join('\n')}\n\nБ · Сараа\n${countB} удаа давт:\n${s.body.map(c=>'  '+blockText(c)).join('\n')}\n\nБичсэн блок: А ${a.length}, Б ${s.body.length+1}\nГүйцэтгэх үйлдэл: А ${a.length}, Б ${b.length}\nТуулсан алхам: А ${trace(a).distance}, Б ${trace(b).distance}\n\n3 шалгуурын харьцуулалт\n${$('compare-table').innerText}\n\nМиний дүгнэлт\n${$('compare-note').value}`);$('save-status').textContent='Дүгнэлтийн файл татагдлаа.';};
+function progText(list,ind=''){return list.map(b=>b.type==='repeat'?`${ind}${b.value} удаа давт:\n${progText(b.body,ind+'    ')}`:b.type==='move'?`${ind}${b.value} алх`:`${ind}${b.value}° ${b.dir==='left'?'зүүн':'баруун'} эргэ`).join('\n');}
+$('save-build').onclick=()=>{const p=prog(),l=L();download('hicheel-13-minii-algoritm.txt',`4-р анги · Хичээл 13 · Миний алгоритм\nТүвшин ${lvl+1}: ${l.t}${solved[lvl]?' ✓ амжилттай':''}\n\nА · Давталтгүй (${countBlocks(p.A)} блок)\n${progText(p.A)||'(хоосон)'}\n\nБ · Давталттай (${countBlocks(p.B)} блок)\n${progText(p.B)||'(хоосон)'}\n\nГүйцэтгэсэн үйлдэл: А ${compile(p.A).filter(c=>c.kind==='cmd').length}, Б ${compile(p.B).filter(c=>c.kind==='cmd').length}\n\nМиний тайлбар\n${$('build-note').value}`);toast('Файл татагдлаа.');};
+$('print').onclick=()=>window.print();
+renderCompare();
+loadLevel();
+window.__lab={simulate:()=>{labResetRun();['A','B'].forEach(s=>{while(advance(s))finishTween(s);});labDraw();labFooter();evaluate();return {A:rs.A.exec,B:rs.B.exec,res:$('lab-result').className};},LEVELS,prog,setLevel:i=>{lvl=i;loadLevel();},addToActive,setActive,labStart,evaluate,rs:()=>rs,running:()=>labRunning,countBlocks};
+</script></body></html>
