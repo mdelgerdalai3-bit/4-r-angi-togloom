@@ -13,6 +13,16 @@ html,body{margin:0;height:100%;background:#05061a;color:#fff;overflow:hidden;
 .hud{position:fixed;top:10px;display:flex;gap:8px;pointer-events:none;z-index:3;align-items:center}
 #hudL{left:12px} #hudR{right:12px}
 .pill{background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.25);border-radius:10px;padding:5px 11px;font-weight:800;font-size:clamp(12px,1.4vw,17px);line-height:1.15;display:flex;flex-direction:column}
+.pill.hot{background:rgba(160,20,20,.65);border-color:#ff8a5c}
+.lvls{display:grid;grid-template-columns:1fr 1fr;gap:.6em;margin-top:1em}
+.lvbtn{font:inherit;text-align:left;border:3px solid var(--ink);border-radius:14px;padding:.7em .9em;cursor:pointer;background:#fff;color:var(--ink)}
+.lvbtn b{display:block;font-size:1.25em}
+.lvbtn small{display:block;color:#5C6278;font-size:.8em;line-height:1.3;margin-top:.2em}
+.lvbtn.hardbtn{background:linear-gradient(135deg,#2a0b0b,#7a1a12);color:#fff;border-color:#ff6b3d;box-shadow:0 0 18px rgba(255,90,40,.45)}
+.lvbtn.hardbtn small{color:#ffd2bf}
+.lvbtn:focus-visible{outline:3px solid #2F6FD6;outline-offset:2px}
+.btn.hard{background:#7a1a12;border-color:#7a1a12}
+@media (max-width:520px){.lvls{grid-template-columns:1fr}}
 .pill small{font-size:.62em;opacity:.75;letter-spacing:.06em}
 .hud button{pointer-events:auto;font:inherit;font-weight:800;font-size:clamp(14px,1.5vw,18px);background:rgba(0,0,0,.45);color:#fff;border:1.5px solid rgba(255,255,255,.3);border-radius:10px;padding:6px 11px;cursor:pointer}
 .hud button:focus-visible{outline:3px solid var(--neon)}
@@ -69,6 +79,7 @@ html,body{margin:0;height:100%;background:#05061a;color:#fff;overflow:hidden;
 <body>
 <canvas id="c" aria-label="Тоглоомын талбар"></canvas>
 <div class="hud" id="hudL">
+  <div class="pill"><small>ТҮВШИН</small><span id="hMode">Энгийн</span></div>
   <div class="pill"><small>ОРОЛДЛОГО</small><span id="hAtt">1</span></div>
   <div class="pill"><small>ЗӨВ</small><span id="hOk">0/11</span></div>
   <div class="pill"><small>ДҮРС</small><span id="hCoins">· · · ·</span></div>
@@ -91,7 +102,7 @@ const $ = id => document.getElementById(id);
 
 /* ───────────── Асуултууд (4-р анги · Хичээл 12 · Блок-схем) ───────────── */
 // k — мэдлэгийн хаалга (3 нүх) · x — блок-схем гүйцэтгэх (2 нүх: Тийм/Үгүй салаа)
-const QUESTIONS = [
+const QUESTIONS_NORMAL = [
   {t:'k', q:'«ЭХЛЭЛ» ба «ТӨГСГӨЛ»-ийг ямар дүрсээр зурдаг вэ?', opts:['⬭ Бөөрөнхий','▭ Тэгш өнцөгт','◇ Ромб'], ans:0,
    why:'Бөөрөнхий дүрс: «Эхэл» — хамгийн дээр, «Төгсгө» — хамгийн доор. Схем бүрд яг 2 байна.'},
   {t:'k', q:'«Баатрыг 10 алхуул» гэсэн ҮЙЛДЛИЙГ ямар дүрсээр зурах вэ?', opts:['▭ Тэгш өнцөгт','◇ Ромб','⬭ Бөөрөнхий'], ans:0,
@@ -115,6 +126,34 @@ const QUESTIONS = [
   {t:'x', flow:{q:'Шүдээ угаасан уу?', yes:'🛏 Орондоо ор', no:'🪥 Шүдээ угаа'}, sc:'🪥 Сойз чинь хуурай, оо онгойлгоогүй байна…', icon:'🪥', ans:'no',
    why:'Сойз хуурай → шүдээ угаагаагүй → нөхцөл ҮГҮЙ → «Шүдээ угаа» салаа.'}
 ];
+// ── 🔥 ХҮНД ТҮВШИН ── x2 — 2 давхар шийдвэртэй блок-схемийг гүйцэтгэх (3 төгсгөл)
+const QUESTIONS_HARD = [
+  {t:'k', q:'«оноо > 10 уу?» ромбо. оноо = 10 бол аль салаагаар явах вэ?', opts:['Үгүй салаагаар','Тийм салаагаар','Хоёулангаар нь'], ans:0,
+   why:'10 > 10 нь ХУДАЛ (10 нь 10-аас их биш, тэнцүү). Тиймээс ҮГҮЙ салаагаар явна. Тэнцүү үед «>=» хэрэгтэй.'},
+  {t:'k', q:'Блок-схемд 3 ромб байна. Ромбуудаас нийт хэдэн сум гарах ёстой вэ?', opts:['6','3','9'], ans:0,
+   why:'Ромб бүрээс ХОЁР сум (тийм, үгүй) гарна: 3 × 2 = 6.'},
+  {t:'x2', flow:{q1:'Бороо орж байна уу?', q2:'Салхитай юу?', yy:'🧥 Цув өмс', yn:'☂ Шүхэр ав', n:'🧢 Малгай ав'}, sc:'🌧 Бороо орж, хүчтэй салхилж байна!', icon:'🌬', ans:'yy',
+   why:'Бороо орж байна → ТИЙМ → дараагийн ромб «Салхитай юу?» → ТИЙМ → «Цув өмс». Хүчтэй салхинд шүхэр эвдэрнэ!'},
+  {t:'k', q:'АЛДААГ ОЛ: «Эхэл → ◇ Бороо уу? → Тийм: Шүхэр ав → Төгсгө». Юу дутуу вэ?', opts:['Үгүй салаа хаашаа ч хүрэхгүй','Эхэл дүрс байхгүй','Тэгш өнцөгт хэрэггүй'], ans:0,
+   why:'ҮГҮЙ салаа тасарсан байна. Ромбоос гарсан хоёр зам хоёулаа Төгсгөлд хүрэх ёстой.'},
+  {t:'k', q:'Хоёр ромб дараалсан (салаа бүр дахин нийлдэг) бол Эхлэлээс Төгсгөл хүртэл хэдэн өөр зам бий вэ?', opts:['4','2','3'], ans:0,
+   why:'1-р ромб 2 зам × 2-р ромб 2 зам = 4 өөр зам (Т-Т, Т-Ү, Ү-Т, Ү-Ү).'},
+  {t:'x2', flow:{q1:'Оноо > 10 уу?', q2:'Оноо > 20 уу?', yy:'🏆 «Аварга!»', yn:'🎉 «Хожлоо»', n:'🔁 «Дахин тогло»'}, sc:'🎯 Тоглоом дуусахад оноо = 15 боллоо.', icon:'🎯', ans:'yn',
+   why:'15 > 10 → ТИЙМ. Дараа нь 15 > 20 → ҮГҮЙ. Тиймээс «Хожлоо» гарна.'},
+  {t:'k', q:'Аль нь РОМБ дотор бичигдэх ёстой вэ?', opts:['«Даалгавар дууссан уу?»','«Даалгавраа хий»','«Төгсгө»'], ans:0,
+   why:'Ромбд ТИЙМ / ҮГҮЙ гэж хариулах АСУУЛТ бичнэ. «Хий» гэсэн нь үйлдэл — тэгш өнцөгт.'},
+  {t:'x2', flow:{q1:'Унших цаг байна уу?', q2:'Сонирхсон ном байна уу?', yy:'📚 Номоо ав', yn:'🙋 Багшаас асуу', n:'🏠 Гэртээ харь'}, sc:'⏰ 1 цаг чөлөөтэй ч сонирхсон ном алга.', icon:'📚', ans:'yn',
+   why:'Цаг байна → ТИЙМ. Ном алга → 2-р ромб ҮГҮЙ → «Багшаас асуу».'},
+  {t:'k', q:'«оноо = оноо + 1» гэсэн алхмыг ямар дүрсээр зурах вэ?', opts:['▭ Тэгш өнцөгт','◇ Ромб','⬭ Бөөрөнхий'], ans:0,
+   why:'Энэ нь асуулт биш, ҮЙЛДЭЛ (утгыг өөрчилж байна) — тэгш өнцөгт.'},
+  {t:'k', q:'Шийдвэрийн ромбоос гарсан сумыг юугаар тэмдэглэх вэ?', opts:['«Тийм» ба «Үгүй»','1 ба 2 дугаараар','Тэмдэглэх шаардлагагүй'], ans:0,
+   why:'Сум тэмдэглэгдээгүй бол аль нь ТИЙМ болох нь тодорхойгүй — түгээмэл алдаа.'},
+  {t:'x2', flow:{q1:'Даалгавар дууссан уу?', q2:'Цаг 21:00-ээс өмнө үү?', yy:'🎮 Тоглож болно', yn:'😴 Унт', n:'📝 Даалгавраа хий'}, sc:'📚 Даалгавар дууссан. Цаг 21:30 боллоо.', icon:'🌙', ans:'yn',
+   why:'Даалгавар дууссан → ТИЙМ. 21:30 нь 21:00-ээс өмнө биш → ҮГҮЙ → «Унт».'}
+];
+let mode = 'normal';
+let QUESTIONS = QUESTIONS_NORMAL;
+
 
 /* ───────────── Дуу ба хөгжим ───────────── */
 let AC = null, muted = false, musicOn = false, nextBeat = 0, beatIdx = 0;
@@ -172,7 +211,7 @@ function resize(){
 window.addEventListener('resize', resize); resize();
 
 /* ───────────── Түвшин ───────────── */
-const SPEED = 400, SLOW = 190;
+let SPEED = 400, SLOW = 190;
 let blocks, spikes, pads, portals, gates, coinsL, checkpoints, ENDX;
 const OPT_COL = ['#2F80ED','#F2994A','#9B51E0'];
 const COIN_SHAPES = ['oval','rect','diamond','arrow'];
@@ -184,7 +223,13 @@ function buildLevel(){
   let u = 12;
   QUESTIONS.forEach((q, i) => {
     const p = i % 4;
-    if (p === 0){ spike(u+6); spike(u+13); spike(u+19); spike(u+20); block(u+25, 1); }
+    if (mode === 'hard'){
+      if (p === 0){ spike(u+6); spike(u+7); spike(u+8); spike(u+14); spike(u+15); block(u+20, 1); spike(u+21); }
+      else if (p === 1){ block(u+6, 1, 2); spike(u+11); spike(u+12); block(u+17, 1); spike(u+18); spike(u+19); }
+      else if (p === 2){ pads.push({x:(u+5)*U}); spike(u+7); spike(u+8); spike(u+9); spike(u+10); spike(u+17); spike(u+18); spike(u+19); }
+      else { block(u+5, 1, 6); spike(u+7, GY - U); spike(u+16); spike(u+17); spike(u+18); spike(u+24); }
+    }
+    else if (p === 0){ spike(u+6); spike(u+13); spike(u+19); spike(u+20); block(u+25, 1); }
     else if (p === 1){ block(u+5, 1); spike(u+12); block(u+18, 1); spike(u+23); }
     else if (p === 2){ pads.push({x:(u+6)*U}); spike(u+8); spike(u+9); spike(u+10); spike(u+17); spike(u+22); }
     else { block(u+5, 1, 5); spike(u+11); spike(u+12); spike(u+19); }
@@ -194,7 +239,7 @@ function buildLevel(){
     checkpoints.push({x:(pu - 2)*U, mode:'cube', speed:SPEED});      // порталын өмнө (саадгүй)
     const gu = pu + 34;
     const n = q.t === 'x' ? 2 : 3;
-    const order = q.t === 'x' ? (Math.random() < .5 ? ['yes','no'] : ['no','yes']) : [0,1,2].sort(() => Math.random() - .5);
+    const order = q.t === 'x' ? (Math.random() < .5 ? ['yes','no'] : ['no','yes']) : q.t === 'x2' ? ['yy','yn','n'].sort(() => Math.random() - .5) : [0,1,2].sort(() => Math.random() - .5);
     const spans = n === 3 ? [[155,265],[300,410],[445,555]] : [[170,310],[390,530]];
     gates.push({x:gu*U, qi:i, order, spans, done:false, banner:pu*U - 30});
     portals.push({x:(gu + 5)*U, type:'cube'});
@@ -209,9 +254,9 @@ const pl = {x:200, y:GY - S, vy:0, mode:'cube', speed:SPEED, ground:true, rot:0,
 let state = 'start', cam = 0, attempts = 1, cp = 0, gateIdx = 0, tGame = 0;
 let answers = new Array(QUESTIONS.length).fill(null);
 let parts = [], trail = [], feedbackT = 0, flash = 0, bannerKey = '';
-function correctText(q){ return q.t === 'x' ? (q.ans === 'yes' ? q.flow.yes : q.flow.no) : q.opts[q.ans]; }
-function optText(q, o){ return q.t === 'x' ? (o === 'yes' ? q.flow.yes : q.flow.no) : q.opts[o]; }
-function optLabel(q, o){ return q.t === 'x' ? (o === 'yes' ? 'Тийм салаа' : 'Үгүй салаа') : ''; }
+function correctText(q){ return q.t === 'x' ? (q.ans === 'yes' ? q.flow.yes : q.flow.no) : q.t === 'x2' ? q.flow[q.ans] : q.opts[q.ans]; }
+function optText(q, o){ return q.t === 'x' ? (o === 'yes' ? q.flow.yes : q.flow.no) : q.t === 'x2' ? q.flow[o] : q.opts[o]; }
+function optLabel(q, o){ return q.t === 'x' ? (o === 'yes' ? 'Тийм салаа' : 'Үгүй салаа') : q.t === 'x2' ? ({yy:'Тийм → Тийм', yn:'Тийм → Үгүй', n:'Үгүй'}[o]) : ''; }
 
 function resetAll(){
   buildLevel(); attempts = 1; cp = 0; gateIdx = 0; tGame = 0; feedbackT = 0;
@@ -250,6 +295,12 @@ function setBanner(key, html){
 function questionBanner(g){
   const q = QUESTIONS[g.qi];
   const pos = g.order.length === 3 ? ['1 ⬆ Дээд','2 ➡ Дунд','3 ⬇ Доод'] : ['1 ⬆ Дээд','2 ⬇ Доод'];
+  if (q.t === 'x2'){
+    return `<div class="bq"><div class="sc">${esc(q.sc)}</div>
+      <div class="mini"><span class="sh ov">Эхэл</span>➜<span class="sh dm">${esc(q.flow.q1)}</span>➜
+        <span class="br"><span><b class="y">Тийм:</b> <span class="sh dm">${esc(q.flow.q2)}</span> ➜ <b class="y">Т:</b> <span class="sh rc">${esc(q.flow.yy)}</span> · <b class="n">Ү:</b> <span class="sh rc">${esc(q.flow.yn)}</span></span><span><b class="n">Үгүй:</b> <span class="sh rc">${esc(q.flow.n)}</span></span></span></div>
+      <div class="hint">🔥 2 давхар шийдвэр: эхний ромбоос эхлэн гүйцэтгэ! ↑ ↓ сум, 1 · 2 · 3 товч эсвэл дээш/доош дар.</div></div>`;
+  }
   if (q.t === 'x'){
     return `<div class="bq"><div class="sc">${esc(q.sc)}</div>
       <div class="mini"><span class="sh ov">Эхэл</span>➜<span class="sh dm">${esc(q.flow.q)}</span>➜
@@ -378,7 +429,8 @@ function answerGate(g, chosen){
 }
 
 /* ───────────── Зураг ───────────── */
-const HUES = [[20,40,140],[90,20,140],[10,110,120],[140,30,90],[20,90,60]];
+const HUES_N = [[20,40,140],[90,20,140],[10,110,120],[140,30,90],[20,90,60]], HUES_H = [[120,20,30],[110,30,10],[90,10,60],[140,40,20],[70,10,40]];
+let HUES = HUES_N;
 function bgColor(){
   const i = Math.max(0, gates.findIndex(g => !g.done)); const c = HUES[(i < 0 ? 0 : i) % HUES.length];
   return c;
@@ -400,7 +452,7 @@ function render(){
   for (let x = off - 160; x < W + 160; x += 160) for (let y = -40; y < GY; y += 160){ ctx.strokeRect(x + 20, y + 20, 120, 120); }
   // хаалганы цаг агаарын дүрс
   const ng = gates.find(g => !g.done);
-  if (ng && QUESTIONS[ng.qi].t === 'x' && pl.x > ng.banner - 400){
+  if (ng && QUESTIONS[ng.qi].sc && pl.x > ng.banner - 400){
     ctx.globalAlpha = .22; ctx.font = '220px -apple-system,"Segoe UI Emoji",sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(QUESTIONS[ng.qi].icon, W * .72, 330); ctx.globalAlpha = 1;
     if (QUESTIONS[ng.qi].icon === '🌧'){ ctx.strokeStyle = 'rgba(160,210,255,.5)'; ctx.lineWidth = 2; for (let i=0;i<70;i++){ const rx = (i*97 + t*300) % W, ry = (i*53 + t*700) % GY; ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 6, ry + 18); ctx.stroke(); } }
@@ -445,7 +497,7 @@ function render(){
     for (const [a, b] of segs){ ctx.fillRect(g.x, a, 40, b - a); if (!g.done){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.strokeRect(g.x + 1, a + 1, 38, b - a - 2); } }
     const cur = !g.done && pl.mode === 'ship' && gates.find(x => !x.done) === g;
     if (!g.done) g.spans.forEach(([a, b], k) => {
-      const col = q.t === 'x' ? (g.order[k] === 'yes' ? '#0B9A6A' : '#D23F36') : OPT_COL[k];
+      const col = q.t === 'x' ? (g.order[k] === 'yes' ? '#0B9A6A' : '#D23F36') : q.t === 'x2' ? ({yy:'#0B9A6A', yn:'#C9851A', n:'#D23F36'}[g.order[k]]) : OPT_COL[k];
       const picked = cur && pl.lane === k;
       ctx.fillStyle = col; ctx.globalAlpha = cur && !picked ? .5 : .95;
       const bx = g.x - 330, bw = 310, bh = Math.min(80, b - a - 16), by = (a + b)/2 - bh/2;
@@ -539,10 +591,24 @@ function showStart(){
       <b>P</b><span>түр зогсоох</span>
     </div>
     <p class="muted">11 хаалга · 4 нууц дүрс (⬭ ▭ ◇ ➜) · Үхвэл сүүлийн порталын өмнөөс дахин эхэлнэ.</p>
-    <div class="row"><button class="btn go" type="button">Тоглох ▶</button></div>`);
+    <div class="lvls">
+      <button class="lvbtn go" type="button"><b>▶ Энгийн</b><small>Хичээлийн үндсэн ойлголт · тайван хурд</small></button>
+      <button class="lvbtn hardbtn" type="button"><b>🔥 Хүнд</b><small>Хурдан · олон өргөс · 2 давхар шийдвэр, алдаа олох асуулт</small></button>
+    </div>`);
   const go = card.querySelector('.go'); go.focus();
-  go.onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); startMusic(); setTimeout(() => { $('help').style.display = 'none'; }, 6000); };
-  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go.click(); } };
+  go.onclick = () => startMode('normal');
+  card.querySelector('.hardbtn').onclick = () => startMode('hard');
+  modalKey = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); (document.activeElement && document.activeElement.classList.contains('lvbtn') ? document.activeElement : go).click(); } };
+}
+function startMode(m){
+  mode = m;
+  QUESTIONS = m === 'hard' ? QUESTIONS_HARD : QUESTIONS_NORMAL;
+  SPEED = m === 'hard' ? 470 : 400; SLOW = m === 'hard' ? 205 : 190;
+  HUES = m === 'hard' ? HUES_H : HUES_N;
+  $('hMode').textContent = m === 'hard' ? '🔥 ХҮНД' : 'Энгийн';
+  $('hMode').parentElement.classList.toggle('hot', m === 'hard');
+  closeModal(); resetAll(); state = 'play'; last = performance.now(); startMusic();
+  setTimeout(() => { $('help').style.display = 'none'; }, 6000);
 }
 function showPause(){
   if (state !== 'play') return;
@@ -560,15 +626,17 @@ function finishGame(){
   const stars = ok >= 10 ? 3 : ok >= 7 ? 2 : ok >= 1 ? 1 : 0;
   const msg = stars === 3 ? 'Гайхалтай! Чи блок-схемийг уншиж, гүйцэтгэж чаддаг боллоо!' : stars === 2 ? 'Сайн байна! Алдсан хаалгануудаа доороос уншаад дахин оролдоорой.' : 'Эхлэл сайн! Тайлбаруудыг уншаад дахин тоглоод үзээрэй.';
   const miss = QUESTIONS.map((q, i) => ({q, i})).filter(o => answers[o.i] !== true);
-  openModal(`<span class="tag">100% · Төгсгөлд хүрлээ!</span><h1>Дүн</h1>
+  openModal(`<span class="tag">100% · ${mode === 'hard' ? '🔥 ХҮНД түвшин' : 'Энгийн түвшин'} · Төгсгөлд хүрлээ!</span><h1>Дүн</h1>
     <div class="stars">${[0,1,2].map(i => `<span class="${i < stars ? '' : 'off'}">★</span>`).join('')}</div>
     <h2>${ok} / ${n} хаалга зөв</h2>
     <div class="stats"><div>${attempts}<small>оролдлого</small></div><div>${coins}/4<small>нууц дүрс</small></div><div>${Math.floor(tGame/60)}:${String(Math.floor(tGame%60)).padStart(2,'0')}<small>цаг</small></div><div>${ok}/${n}<small>зөв</small></div></div>
     <p>${msg}</p>
-    ${miss.length ? `<p class="muted" style="margin-top:1em">Давтаж уншаарай:</p><div class="review">${miss.map(o => `<div><b>${o.i+1}. ${esc(o.q.t === 'x' ? o.q.sc + ' — ' + o.q.flow.q : o.q.q)}</b><span class="a">✓ ${esc(correctText(o.q))}</span><br><span class="muted">${esc(o.q.why)}</span></div>`).join('')}</div>` : ''}
-    <div class="row"><button class="btn go" type="button">Дахин тоглох ↻</button></div>`);
+    ${miss.length ? `<p class="muted" style="margin-top:1em">Давтаж уншаарай:</p><div class="review">${miss.map(o => `<div><b>${o.i+1}. ${esc(o.q.t === 'x' ? o.q.sc + ' — ' + o.q.flow.q : o.q.t === 'x2' ? o.q.sc + ' — ' + o.q.flow.q1 + ' → ' + o.q.flow.q2 : o.q.q)}</b><span class="a">✓ ${esc(correctText(o.q))}</span><br><span class="muted">${esc(o.q.why)}</span></div>`).join('')}</div>` : ''}
+    <div class="row"><button class="btn go" type="button">Дахин тоглох ↻</button>${mode === 'hard' ? '' : '<button class="btn hard" type="button">🔥 Хүнд түвшинг турших</button>'}<button class="btn alt menu" type="button">Түвшин сонгох</button></div>`);
   const go = card.querySelector('.go'); go.focus();
   go.onclick = () => { closeModal(); resetAll(); state = 'play'; last = performance.now(); startMusic(); };
+  const hb = card.querySelector('.hard'); if (hb) hb.onclick = () => startMode('hard');
+  card.querySelector('.menu').onclick = showStart;
   modalKey = e => { if (e.key === 'Enter'){ e.preventDefault(); go.click(); } };
 }
 
@@ -618,7 +686,7 @@ resetAll();
 showStart();
 requestAnimationFrame(loop);
 window.__game = {pl, update, render, laneSet, laneMove, get gates(){ return gates; }, get spikes(){ return spikes; }, get blocks(){ return blocks; }, get pads(){ return pads; },
-  get coins(){ return coinsL; }, get state(){ return state; }, set state(v){ state = v; }, answers:() => answers, QUESTIONS, attempts:() => attempts, get ENDX(){ return ENDX; }, U, GY, S};
+  get coins(){ return coinsL; }, get state(){ return state; }, set state(v){ state = v; }, answers:() => answers, get QUESTIONS(){ return QUESTIONS; }, startMode, get mode(){ return mode; }, attempts:() => attempts, get ENDX(){ return ENDX; }, U, GY, S};
 })();
 </script>
 </body>
