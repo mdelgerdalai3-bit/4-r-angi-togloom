@@ -11,7 +11,8 @@
 .cdo-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .levels{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .levels .lbl{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
-.lvl{width:42px;height:42px;padding:0;border-radius:50%;border:3px solid #c9d1d6;background:#fff;font-weight:800;font-size:16px;display:grid;place-items:center;color:#5b6770}
+.levels .grp{font-size:12px;font-weight:800;color:#00707a;background:#e2f6f8;border-radius:8px;padding:2px 8px;margin-left:6px}
+.lvl{width:38px;height:38px;padding:0;border-radius:50%;border:3px solid #c9d1d6;background:#fff;font-weight:800;font-size:16px;display:grid;place-items:center;color:#5b6770}
 .lvl.cur{border-color:var(--orange);background:#fff6e0;color:#8a5a00;box-shadow:0 0 0 3px rgba(255,164,0,.25)}
 .lvl.done{background:var(--teal);border-color:var(--teal);color:#fff}
 .lvl.free{border-radius:12px;width:auto;padding:0 12px}
@@ -157,8 +158,22 @@ input.fld{width:52px;padding:2px 4px}
 </section>
 
 <section id="quiz" hidden role="tabpanel" aria-labelledby="tab-quiz"><h2>Таамагла · тоол · зөвтгө</h2><p class="muted">5 асуултад хариулаад тайлбарыг нь уншаарай.</p><form id="quiz-form"><div id="questions"></div><button type="submit" class="primary">Хариултаа шалгах</button> <button type="button" id="quiz-reset">Дахин оролдох</button></form><div id="quiz-result" class="result" aria-live="polite" hidden></div></section>
-<section id="teacher" hidden class="teacher" role="tabpanel" aria-labelledby="tab-teacher"><h2>13-р хичээлд ашиглах дараалал</h2><p>«Үр ашигтай алгоритм — оновчтой шийдэл» PPT-ийн 40 алхмын жишээ, 3 шалгуур, хураангуйлах дадлага, дүгнэлттэй уялдуулсан хэрэглэгдэхүүн.</p><div class="lesson-flow"><div class="flow"><strong>Таамаглах · 4 мин</strong>40 ба 60 алхмын үед хоёр шийдэл юу хийхийг асуу.</div><div class="flow"><strong>Турших · 5 мин</strong>Хоёр шийдлийг зэрэг эсвэл үйлдэл тус бүрээр ажиллуул.</div><div class="flow"><strong>Судлах · 6 мин</strong>Бичсэн блок, гүйцэтгэх үйлдэл болон 3 шалгуурыг харьцуул.</div><div class="flow"><strong>Өөрчлөх · 7 мин</strong>Давталтыг 3 болго. Ялгааг илрүүлээд 4 болгон зас.</div><div class="flow"><strong>Бүтээх · 8 мин</strong>«02 · Туршилт»-д 1–4-р түвшинг хосоороо гүйцээж, дүгнэлтээ тат.</div></div><div class="answer-key"><h3 style="margin-top:0">Багшийн асуултууд</h3><ul><li>Хоёулаа 40 алхсан бол урт шийдэл буруу юу? <strong>Үгүй. Зөв ажиллаж болно.</strong></li><li>4 «10 алх» блок ба «4 удаа давт: 10 алх» нь хэдэн блок вэ? <strong>4 ба 2. Давталтын хүрээ өөрөө нэг блок.</strong></li><li>Баатар тус бүр хэдэн удаа «10 алх» үйлдлийг гүйцэтгэх вэ? <strong>4 удаа. Нийт 40 алхам.</strong></li><li>40-ийг 60 болгоход? <strong>А-д 2 блок нэмнэ. Б-д давталтын 4-ийг 6 болгоно.</strong></li><li>Дөрвөлжин зурахад? <strong>А: 8 блок. Б: 3 блок. Хоёулаа 8 үйлдэл гүйцэтгэнэ.</strong></li></ul></div>
-<div class="answer-key" style="margin-top:14px"><h3 style="margin-top:0">«02 · Туршилт»-ын түвшин ба хариу</h3><ul><li><b>1 · 40 алхам:</b> А — 4 × «10 алх» (4 блок). Б — «4 удаа давт: 10 алх» (2 блок).</li><li><b>2 · Дөрвөлжин:</b> А — 8 блок. Б — «4 удаа давт: 60 алх, 90° баруун эргэ» (3 блок).</li><li><b>3 · Зургаан өнцөгт:</b> 360 ÷ 6 = 60°. А — 12 блок. Б — «6 удаа давт: 50 алх, 60° баруун эргэ» (3 блок).</li><li><b>4 · Шат:</b> А — 16 блок. Б — «4 удаа давт: 30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ» (5 блок).</li><li><b>5 · Чөлөөт:</b> тоо засаж болдог блокоор өөрийн хээг хоёр аргаар бүтээж, ижил зураг гарсныг шалгана.</li></ul></div>
+<section id="teacher" hidden class="teacher" role="tabpanel" aria-labelledby="tab-teacher"><h2>13-р хичээлд ашиглах дараалал</h2><p>«Үр ашигтай алгоритм — оновчтой шийдэл» PPT-ийн 40 алхмын жишээ, 3 шалгуур, хураангуйлах дадлага, дүгнэлттэй уялдуулсан хэрэглэгдэхүүн.</p><div class="lesson-flow"><div class="flow"><strong>Таамаглах · 4 мин</strong>40 ба 60 алхмын үед хоёр шийдэл юу хийхийг асуу.</div><div class="flow"><strong>Турших · 5 мин</strong>Хоёр шийдлийг зэрэг эсвэл үйлдэл тус бүрээр ажиллуул.</div><div class="flow"><strong>Судлах · 6 мин</strong>Бичсэн блок, гүйцэтгэх үйлдэл болон 3 шалгуурыг харьцуул.</div><div class="flow"><strong>Өөрчлөх · 7 мин</strong>Давталтыг 3 болго. Ялгааг илрүүлээд 4 болгон зас.</div><div class="flow"><strong>Бүтээх · 8 мин</strong>«02 · Туршилт»-ын Хялбар (1–4) дасгалыг бүгд, Дунд/Ахисанг хурдан сурагчид хийж, дүгнэлтээ тат.</div></div><div class="answer-key"><h3 style="margin-top:0">Багшийн асуултууд</h3><ul><li>Хоёулаа 40 алхсан бол урт шийдэл буруу юу? <strong>Үгүй. Зөв ажиллаж болно.</strong></li><li>4 «10 алх» блок ба «4 удаа давт: 10 алх» нь хэдэн блок вэ? <strong>4 ба 2. Давталтын хүрээ өөрөө нэг блок.</strong></li><li>Баатар тус бүр хэдэн удаа «10 алх» үйлдлийг гүйцэтгэх вэ? <strong>4 удаа. Нийт 40 алхам.</strong></li><li>40-ийг 60 болгоход? <strong>А-д 2 блок нэмнэ. Б-д давталтын 4-ийг 6 болгоно.</strong></li><li>Дөрвөлжин зурахад? <strong>А: 8 блок. Б: 3 блок. Хоёулаа 8 үйлдэл гүйцэтгэнэ.</strong></li></ul></div>
+<div class="answer-key" style="margin-top:14px"><h3 style="margin-top:0">«02 · Туршилт»-ын дасгал ба хариу</h3><table><thead><tr><th>Дасгал</th><th>А (давталтгүй)</th><th>Б (давталттай)</th></tr></thead><tbody>
+<tr><td>1 · 40 алхам</td><td>4 × «10 алх» = 4 блок</td><td>4 удаа: 10 алх → 2 блок</td></tr>
+<tr><td>2 · Дөрвөлжин</td><td>8 блок</td><td>4 удаа: 60 алх, 90° → 3 блок</td></tr>
+<tr><td>3 · Гурвалжин</td><td>6 блок</td><td>3 удаа: 70 алх, 120° → 3 блок</td></tr>
+<tr><td>4 · Тэгш өнцөгт</td><td>8 блок</td><td>2 удаа: 80 алх, 90°, 40 алх, 90° → 5 блок</td></tr>
+<tr><td>5 · Таван өнцөгт</td><td>10 блок</td><td>5 удаа: 50 алх, 72° → 3 блок</td></tr>
+<tr><td>6 · Зургаан өнцөгт</td><td>12 блок</td><td>6 удаа: 50 алх, 60° → 3 блок</td></tr>
+<tr><td>7 · Найман өнцөгт</td><td>16 блок</td><td>8 удаа: 35 алх, 45° → 3 блок</td></tr>
+<tr><td>8 · Шат</td><td>16 блок</td><td>4 удаа: 30 алх, 90° зүүн, 30 алх, 90° баруун → 5 блок</td></tr>
+<tr><td>9 · Зигзаг</td><td>20 блок</td><td>4 удаа: 45° зүүн, 40 алх, 90° баруун, 40 алх, 45° зүүн → 6 блок</td></tr>
+<tr><td>10 · Ромб</td><td>8 блок</td><td>2 удаа: 60 алх, 60°, 60 алх, 120° → 5 блок</td></tr>
+<tr><td>11 · Загалмай</td><td>24 блок</td><td>4 удаа: 30 алх, 90° зүүн, 30 алх, 90° баруун, 30 алх, 90° баруун → 7 блок</td></tr>
+<tr><td>12 · Цайзын хана</td><td>24 блок</td><td>3 удаа: 90° зүүн, 30 алх, 90° баруун, 30 алх, 90° баруун, 30 алх, 90° зүүн, 30 алх → 9 блок</td></tr>
+<tr><td>13 · Од</td><td>10 блок</td><td>5 удаа: 100 алх, 144° → 3 блок</td></tr>
+</tbody></table><p class="muted">Хэлэлцүүлэх асуулт: Тэгш өнцөгт ба ромбод давтагдах хэсэг ердөө 2 удаа давтагдана. Давталт хэмнэлт өгсөн үү? (8 → 5). «3 ба түүнээс олон» нь заавал биш, баримжаа гэдгийг ярилц. Полигоны дасгалд блокийн хайрцагт <b>буруу өнцөгтэй</b> блок бий — сурагч 360 ÷ n-ээр зөвийг нь сонгоно.</p></div>
 <div class="tip"><strong>Нэр томьёоны ялгаа:</strong> PPT-д «алхмын тоо» нь заримдаа бичсэн блокийг заадаг. Энд сурагчдад ойлгомжтой байлгахын тулд бичсэн блок, гүйцэтгэх үйлдэл, туулсан алхмыг тусад нь тоолсон. Давталтын хяналтын дотоод үйлдлийг хөдөлгөөнд тооцоогүй.</div><p>«3 ба түүнээс олон давталтыг хураангуйлах» нь энэ хичээлийн дасгалын баримжаа. Давталтыг 1 эсвэл 2 удаа ч хэрэглэж болно; үргэлж блок хэмнэнэ гэсэн үг биш.</p><p>Хээний жишээнүүд нь энэ хэрэглэгдэхүүний тооцоотой жишээ. PPT-ийн 48 ба 9 блоктой хээний тоог энд хуулбарлаагүй.</p><p><strong>Төгсгөлийн даалгавар:</strong> Блокын тоо, засахад хялбар байдал, уншигдах байдлаар нэг шийдлээ сонгож, тоогоор зөвтгө.</p><p class="muted">Хуудас интернэтгүй ажиллана. Туршилтын түвшингийн явц энэ төхөөрөмжид хадгалагдана. Дүгнэлт, бүтээлийг файл болгон татаж авна.</p></section>
 <footer><span>4-р анги · Хичээл 13 · Үр ашигтай алгоритм</span><span>Тоол → Давтагдахыг ол → Хураангуйл → Дахин харьцуул</span></footer>
 </main>
@@ -184,19 +199,34 @@ $('scenario').addEventListener('change',setScenario);$('target').addEventListene
 document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>{stop();labStop();document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b===button)));['compare','build','quiz','teacher'].forEach(id=>$(id).hidden=id!==button.dataset.tab);if(button.dataset.tab==='build')labDraw();});
 
 /* ═════════════ 02 · ТУРШИЛТ — code.org маягийн блок лаборатори ═════════════ */
+const M=v=>({type:'move',value:v}),R=v=>({type:'turn',value:v,dir:'right'}),Lf=v=>({type:'turn',value:v,dir:'left'});
 const LEVELS=[
- {t:'40 алхам',goal:'Яст мэлхийг 40 алхуул. А-д «10 алх» блокуудыг дараалуул. Б-д давталт ашиглаад 2 блокоор бүтээ.',hint:'10 алх × ? удаа = 40. А-д хэдэн блок хэрэгтэй вэ? Б-д «давт» блокийн дотор нэг «10 алх» хийнэ.',tool:[{type:'move',value:10}],body:[{type:'move',value:10}],times:4,limit:2,scale:7,start:[60,200],ang:0},
- {t:'Дөрвөлжин',goal:'Дөрвөлжин зур: нэг тал = 60 алхам, эргэлт = 90°. Б-г 3 блокоор бүтээ.',hint:'Дөрвөлжин 4 талтай. «60 алх, 90° эргэ» гэсэн хос хэдэн удаа давтагдаж байна вэ?',tool:[{type:'move',value:60},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:60},{type:'turn',value:90,dir:'right'}],times:4,limit:3,scale:4,start:[80,80],ang:0},
- {t:'Зургаан өнцөгт',goal:'Зургаан өнцөгт зур: нэг тал = 50 алхам. Эргэлт хэдэн градус вэ? Б-г 3 блокоор бүтээ.',hint:'360 ÷ 6 = 60°. «50 алх, 60° баруун эргэ» — 6 удаа.',tool:[{type:'move',value:50},{type:'turn',value:60,dir:'right'},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:50},{type:'turn',value:60,dir:'right'}],times:6,limit:3,scale:3.4,start:[115,53],ang:0},
- {t:'Шат',goal:'4 гишгүүртэй шат зур. Нэг гишгүүр = «30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ». Б-г 5 блокоор бүтээ.',hint:'Нэг гишгүүр 4 блок. Тэр 4 блокийг «4 удаа давт»-ын дотор хий: 1 + 4 = 5 блок.',tool:[{type:'move',value:30},{type:'turn',value:90,dir:'left'},{type:'turn',value:90,dir:'right'}],body:[{type:'move',value:30},{type:'turn',value:90,dir:'left'},{type:'move',value:30},{type:'turn',value:90,dir:'right'}],times:4,limit:5,scale:2.9,start:[26,374],ang:0},
- {t:'Чөлөөт',free:true,goal:'Чөлөөт туршилт: тоог нь өөрчилж болдог блокоор өөрийн хээг хоёр аргаар бүтээ. Хоёр зураг ижил гарч, Б цөөн блоктой байвал амжилттай!',hint:'Санаа: 5 удаа давт: 80 алх, 144° баруун эргэ → од! 360 ÷ n томьёогоор дүрс зурж болно.',tool:[{type:'move',value:50,edit:true},{type:'turn',value:90,dir:'right',edit:true},{type:'turn',value:90,dir:'left',edit:true}],scale:2.4,start:[120,250],ang:0}
+ {grp:'Хялбар',t:'40 алхам',goal:'Яст мэлхийг 40 алхуул. А-д «10 алх» блокуудыг дараалуул. Б-д давталт ашиглаад 2 блокоор бүтээ.',hint:'10 алх × ? удаа = 40. А-д хэдэн блок хэрэгтэй вэ? Б-д «давт» блокийн дотор нэг «10 алх» хийнэ.',tool:[M(10)],body:[M(10)],times:4,limit:2,scale:7,start:[60,200],ang:0},
+ {grp:'Хялбар',t:'Дөрвөлжин',goal:'Дөрвөлжин зур: нэг тал = 60 алхам, эргэлт = 90°. Б-г 3 блокоор бүтээ.',hint:'Дөрвөлжин 4 талтай. «60 алх, 90° эргэ» гэсэн хос хэдэн удаа давтагдаж байна вэ?',tool:[M(60),R(90)],body:[M(60),R(90)],times:4,limit:3,scale:4,start:[80,80],ang:0},
+ {grp:'Хялбар',t:'Гурвалжин',goal:'Тэгш талт гурвалжин зур: нэг тал = 70 алхам. Эргэлт хэдэн градус вэ? Б-г 3 блокоор бүтээ.',hint:'360 ÷ 3 = 120°. «70 алх, 120° баруун эргэ» — 3 удаа.',tool:[M(70),R(120),R(60),R(90)],body:[M(70),R(120)],times:3,limit:3},
+ {grp:'Хялбар',t:'Тэгш өнцөгт',goal:'Тэгш өнцөгт зур: урт тал 80, богино тал 40 алхам. Давтагдах хэсгийг ол! Б-г 5 блокоор бүтээ.',hint:'«80 алх, 90° эргэ, 40 алх, 90° эргэ» гэсэн хэсэг 2 удаа давтагдана. 1 + 4 = 5 блок.',tool:[M(80),M(40),R(90)],body:[M(80),R(90),M(40),R(90)],times:2,limit:5},
+ {grp:'Дунд',t:'Таван өнцөгт',goal:'Таван өнцөгт зур: нэг тал = 50 алхам. Эргэлтийг 360 ÷ n томьёогоор бод. Б-г 3 блокоор бүтээ.',hint:'360 ÷ 5 = 72°. «50 алх, 72° баруун эргэ» — 5 удаа.',tool:[M(50),R(72),R(60),R(90)],body:[M(50),R(72)],times:5,limit:3},
+ {grp:'Дунд',t:'Зургаан өнцөгт',goal:'Зургаан өнцөгт зур: нэг тал = 50 алхам. Эргэлт хэдэн градус вэ? Б-г 3 блокоор бүтээ.',hint:'360 ÷ 6 = 60°. «50 алх, 60° баруун эргэ» — 6 удаа.',tool:[M(50),R(60),R(90)],body:[M(50),R(60)],times:6,limit:3,scale:3.4,start:[115,53],ang:0},
+ {grp:'Дунд',t:'Найман өнцөгт',goal:'Найман өнцөгт зур: нэг тал = 35 алхам. А-д хэдэн блок хэрэгтэй болохыг тоол! Б-г 3 блокоор бүтээ.',hint:'360 ÷ 8 = 45°. А-д 16 блок, Б-д «8 удаа давт: 35 алх, 45° эргэ» — 3 блок.',tool:[M(35),R(45),R(60),R(90)],body:[M(35),R(45)],times:8,limit:3},
+ {grp:'Дунд',t:'Шат',goal:'4 гишгүүртэй шат зур. Нэг гишгүүр = «30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ». Б-г 5 блокоор бүтээ.',hint:'Нэг гишгүүр 4 блок. Тэр 4 блокийг «4 удаа давт»-ын дотор хий: 1 + 4 = 5 блок.',tool:[M(30),Lf(90),R(90)],body:[M(30),Lf(90),M(30),R(90)],times:4,limit:5,scale:2.9,start:[26,374],ang:0},
+ {grp:'Дунд',t:'Зигзаг',goal:'4 оргилтой зигзаг зур. Нэг оргил = «45° зүүн эргэ, 40 алх, 90° баруун эргэ, 40 алх, 45° зүүн эргэ». Б-г 6 блокоор бүтээ.',hint:'Нэг оргил 5 блок. 4 удаа давтвал А-д 20 блок, Б-д 1 + 5 = 6 блок.',tool:[M(40),Lf(45),R(90)],body:[Lf(45),M(40),R(90),M(40),Lf(45)],times:4,limit:6},
+ {grp:'Ахисан',t:'Ромб',goal:'Ромб зур: тал = 60 алхам, эргэлт 60° ба 120° ээлжилнэ. Давтагдах хэсгийг ол! Б-г 5 блокоор бүтээ.',hint:'«60 алх, 60° эргэ, 60 алх, 120° эргэ» — 2 удаа. 60 + 120 + 60 + 120 = 360°.',tool:[M(60),R(60),R(120)],body:[M(60),R(60),M(60),R(120)],times:2,limit:5},
+ {grp:'Ахисан',t:'Загалмай',goal:'Загалмай (+) дүрсийн хүрээг зур. Нэг «гар» = «30 алх, 90° зүүн эргэ, 30 алх, 90° баруун эргэ, 30 алх, 90° баруун эргэ». Б-г 7 блокоор бүтээ.',hint:'Нэг гар 6 блок, 4 гартай. А-д 24 блок, Б-д 1 + 6 = 7 блок.',tool:[M(30),Lf(90),R(90)],body:[M(30),Lf(90),M(30),R(90),M(30),R(90)],times:4,limit:7},
+ {grp:'Ахисан',t:'Цайзын хана',goal:'3 шүдтэй цайзын хана зур. Нэг шүд = «90° зүүн, 30 алх, 90° баруун, 30 алх, 90° баруун, 30 алх, 90° зүүн, 30 алх». Б-г 9 блокоор бүтээ.',hint:'Нэг шүд 8 блок. 3 удаа давтвал А-д 24 блок, Б-д 1 + 8 = 9 блок.',tool:[M(30),Lf(90),R(90)],body:[Lf(90),M(30),R(90),M(30),R(90),M(30),Lf(90),M(30)],times:3,limit:9},
+ {grp:'Ахисан',t:'Од',goal:'5 хошуут од зур: нэг шугам = 100 алхам, эргэлт = 144°. Б-г 3 блокоор бүтээ.',hint:'Од нь «100 алх, 144° баруун эргэ»-г 5 удаа давтана. 5 × 144 = 720° — хоёр тойрог эргэнэ.',tool:[M(100),R(144),R(72)],body:[M(100),R(144)],times:5,limit:3},
+ {grp:'Чөлөөт',t:'Чөлөөт',free:true,goal:'Чөлөөт туршилт: тоог нь өөрчилж болдог блокоор өөрийн хээг хоёр аргаар бүтээ. Хоёр зураг ижил гарч, Б цөөн блоктой байвал амжилттай!',hint:'Санаа: 5 удаа давт: 80 алх, 144° баруун эргэ → од! 360 ÷ n томьёогоор дүрс зурж болно.',tool:[{type:'move',value:50,edit:true},{type:'turn',value:90,dir:'right',edit:true},{type:'turn',value:90,dir:'left',edit:true}],scale:2.4,start:[120,250],ang:0}
 ];
+// эхлэх байрлал, хэмжээг өгөөгүй бол дүрсийг талбарт автоматаар багтаана
+LEVELS.forEach(l=>{if(l.free||l.start)return;let x=0,y=0,a=0,minX=0,maxX=0,minY=0,maxY=0;
+  for(let k=0;k<l.times;k++)for(const c of l.body){if(c.type==='move'){x+=Math.cos(a*Math.PI/180)*c.value;y+=Math.sin(a*Math.PI/180)*c.value;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}else a+=c.dir==='left'?-c.value:c.value;}
+  const w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);l.scale=Math.min(320/w,320/h,7);l.ang=0;
+  l.start=[200-(minX+maxX)/2*l.scale,200-(minY+maxY)/2*l.scale];});
 const REP_TOOL={type:'repeat',value:4,edit:true};
 let lvl=0,uid=1,active='A',labT=null,labRunning=false;
 let progs={};          // түвшин бүрийн програм
 let solved=[];
-try{const s=JSON.parse(localStorage.getItem('h13lab')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
-function labSave(){try{localStorage.setItem('h13lab',JSON.stringify({solved,progs}));}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem('h13lab2')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
+function labSave(){try{localStorage.setItem('h13lab2',JSON.stringify({solved,progs}));}catch(e){}}
 function reid(list){list.forEach(b=>{b.id=uid++;if(b.body)reid(b.body);});return list;}
 Object.values(progs).forEach(p=>{reid(p.A||[]);reid(p.B||[]);});
 function prog(){if(!progs[lvl])progs[lvl]={A:[],B:[]};return progs[lvl];}
@@ -250,11 +280,12 @@ function renderWs(){
 }
 function renderLevels(){
   const box=$('levels');box.innerHTML='<span class="lbl">Түвшин</span>';
-  LEVELS.forEach((l,i)=>{const b=document.createElement('button');b.type='button';b.className='lvl'+(l.free?' free':'')+(i===lvl?' cur':'')+(solved[i]?' done':'');b.textContent=l.free?'★ Чөлөөт':solved[i]?'✓':String(i+1);b.title=l.t;b.setAttribute('aria-label',`${i+1}-р түвшин: ${l.t}`);b.onclick=()=>{labStop();lvl=i;loadLevel();};box.appendChild(b);});
+  let grp='';
+  LEVELS.forEach((l,i)=>{if(l.grp!==grp&&!l.free){grp=l.grp;const g=document.createElement('span');g.className='grp';g.textContent=grp;box.appendChild(g);}const b=document.createElement('button');b.type='button';b.className='lvl'+(l.free?' free':'')+(i===lvl?' cur':'')+(solved[i]?' done':'');b.textContent=l.free?'★ Чөлөөт':solved[i]?'✓':String(i+1);b.title=l.t;b.setAttribute('aria-label',`${i+1}-р түвшин: ${l.t}`);b.onclick=()=>{labStop();lvl=i;loadLevel();};box.appendChild(b);});
 }
 function loadLevel(){
   const l=L();
-  $('goal-title').textContent=`${lvl+1}-р түвшин · ${l.t}`;
+  $('goal-title').textContent=l.free?'★ Чөлөөт туршилт':`${lvl+1}-р дасгал · ${l.grp} · ${l.t}`;
   $('goal-text').textContent=l.goal;
   renderLevels();renderToolbox();renderWs();labResetRun();
   $('lab-result').className='lab-result';$('lab-result').textContent='Блокоо оруулаад «▶ Хоёуланг ажиллуулах» дар. Хоёр яст мэлхий зэрэг зурна.';
@@ -440,7 +471,7 @@ function evaluate(){
   if(win){
     res.className='lab-result ok';res.innerHTML=`<strong>🎉 Амжилттай! Хоёр шийдэл ижил зураг гаргалаа.</strong>Б нь ${ca-cb} блокоор цөөн бичигдсэн — ${ca} блок → ${cb} блок. Гүйцэтгэсэн үйлдэл хоёуланд нь ${rs.A.exec}.${table}`;
     solved[lvl]=true;labSave();renderLevels();
-    $('win-title').textContent=`${lvl+1}-р түвшин дууслаа!`;
+    $('win-title').textContent=`${lvl+1}-р дасгал дууслаа!`;
     $('win-text').textContent=`«${l.t}» — хоёр шийдэл ижил зураг гаргалаа. Давталт ${ca-cb} блок хэмнэлээ!`;
     $('win-nums').innerHTML=`<div>${ca}<small>А блок</small></div><div>${cb}<small>Б блок</small></div><div>${ca-cb}<small>хэмнэсэн</small></div>`;
     $('win-next').hidden=lvl>=LEVELS.length-1;$('win').classList.add('show');$('win-next').focus();
