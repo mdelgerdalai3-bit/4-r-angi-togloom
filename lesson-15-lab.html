@@ -229,13 +229,15 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin
   </div>
   <table class="key"><thead><tr><th>Даалгавар</th><th>Хариу (программ)</th><th>Блок</th><th>Нийт дүрс</th></tr></thead><tbody id="keytbl"></tbody></table>
   <div class="tip"><b>Дебагын дүрэм:</b> жижиг тооноос (2 × 3) эхэл. «Мөр сол» нь дотор давталтын <b>ДАРАА</b>, гэхдээ гадна давталтын <b>ДОТОР</b> байна. Мартвал — бүх зүйл нэг эгнээнд; дотор давталтад тавивал — босоо шугам.</div>
-  <p class="muted">Хуудас интернэтгүй ажиллана. Даалгаврын явц энэ төхөөрөмжид хадгалагдана.</p>
+  <p class="muted">Хуудас интернэтгүй ажиллана. Сурагчийн ажил зөвхөн нээлттэй байх хугацаанд хадгалагдана — хөтчийг хаахад цэвэрлэгдэж, дараагийн сурагч шинээр эхэлнэ. Хадгалах бол «Бүтээлээ татах».</p>
 </section>
 <footer><span>4-р анги · Хичээл 15 · Үүрлэсэн давталт</span><span>Гадна → Дотор → Зур, зөө → Мөр сол</span></footer>
 </main>
 
 <script>
 'use strict';
+/* Ажил зөвхөн энэ табд хадгалагдана — хөтчийг хаахад цэвэрлэгдэнэ (дараагийн сурагч шинээр эхэлнэ) */
+try{['h15lab'].forEach(k=>localStorage.removeItem(k));}catch(e){}
 const $=id=>document.getElementById(id);
 /* ───────── блокийн төрөл ───────── */
 const BT={
@@ -261,10 +263,10 @@ const LEVELS=[
 const COLS=9,ROWS=6,CELL=40,OX=20,OY=30;
 let lvl=0,uid=1,running=false,targetStack=null,targetKey=null;
 let progs={},solved=[];
-try{const s=JSON.parse(localStorage.getItem('h15lab')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
+try{const s=JSON.parse(sessionStorage.getItem('h15lab')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
 function reid(list){list.forEach(b=>{b.id=uid++;if(b.body)reid(b.body);});return list;}
 Object.values(progs).forEach(p=>reid(p));
-function save(){try{localStorage.setItem('h15lab',JSON.stringify({solved,progs}));}catch(e){}}
+function save(){try{sessionStorage.setItem('h15lab',JSON.stringify({solved,progs}));}catch(e){}}
 const L=()=>LEVELS[lvl];
 function prog(){if(!progs[lvl]){progs[lvl]=L().start?reid(L().start()):[];}return progs[lvl];}
 const countBlocks=list=>list.reduce((n,b)=>n+1+(b.body?countBlocks(b.body):0),0);

@@ -188,6 +188,8 @@ select{border:1px solid #B9C0CC;border-radius:6px;padding:.3rem .4rem;background
 <script>
 (() => {
 'use strict';
+/* Ажил зөвхөн энэ табд хадгалагдана — хөтчийг хаахад цэвэрлэгдэнэ (дараагийн сурагч шинээр эхэлнэ) */
+try{['h4fc','h12fg','h12flow'].forEach(k=>localStorage.removeItem(k));}catch(e){}
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -226,9 +228,9 @@ let sel = null, zoom = 1;
 const undoStack = [];
 function snapshot(){ undoStack.push(JSON.stringify(doc)); if (undoStack.length > 60) undoStack.shift(); $('bUndo').disabled = false; }
 function reid(list){ (list || []).forEach(n => { n.id = uid++; ['yes','no','body'].forEach(k => n[k] && reid(n[k])); }); return list; }
-function save(){ try { localStorage.setItem('h4fc', JSON.stringify(doc)); } catch(e){} }
+function save(){ try { sessionStorage.setItem('h4fc', JSON.stringify(doc)); } catch(e){} }
 function load(){
-  try { const s = JSON.parse(localStorage.getItem('h4fc') || 'null'); if (s && Array.isArray(s.flow)){ doc = s; reid(doc.flow); return; } } catch(e){}
+  try { const s = JSON.parse(sessionStorage.getItem('h4fc') || 'null'); if (s && Array.isArray(s.flow)){ doc = s; reid(doc.flow); return; } } catch(e){}
   doc = {title:TEMPLATES.out.title, author:'', flow:TEMPLATES.out.flow()};
 }
 function changed(){ save(); draw(); $('check').classList.remove('show'); }
