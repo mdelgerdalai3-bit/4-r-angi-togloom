@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Хичээл 15 · Дата Тетрис</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#101426;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
+canvas#cv{display:block;position:fixed;inset:0;width:100vw;height:100vh}
+button{font:inherit;cursor:pointer}
+#tools{position:fixed;right:12px;top:12px;z-index:6;display:flex;gap:6px}
+#tools button{width:42px;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(16,20,38,.7);color:#fff;font-size:19px}
+#tipline{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:5;background:rgba(16,20,38,.85);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:7px 14px;font-weight:700;font-size:15px;max-width:min(620px,70vw);text-align:center;display:none}
+#ov{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(6,8,18,.66);padding:16px}
+#ov.show{display:flex}
+#ov.side{justify-content:flex-end;background:rgba(6,8,18,.25)}
+.box{background:#1a2040;border:2px solid #ffcf3f;border-radius:20px;max-width:620px;width:100%;max-height:94vh;overflow:auto;padding:22px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#ov.side .box{max-width:440px}
+.box h1{margin:0 0 4px;font-size:clamp(26px,4vw,38px);line-height:1.1;color:#ffcf3f}
+.box h2{margin:0 0 8px;font-size:22px;line-height:1.25}
+.box p{margin:6px 0;color:#d5dbf2;line-height:1.5}
+.box ul{margin:8px 0;padding-left:20px;color:#d5dbf2}
+.kick{font-size:12px;letter-spacing:.14em;color:#7fd8ff;font-weight:800;text-transform:uppercase}
+.btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 22px;font-weight:800;font-size:17px;background:#2c3566;color:#fff}
+.btn.pri{background:#ffcf3f;color:#1a2040;box-shadow:0 4px 0 #b88f10}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid #7fd8ff;outline-offset:2px}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid #3a457d;background:#232b55;color:#fff;border-radius:12px;padding:10px 12px;font-weight:700;font-size:16px}
+.opt:hover{border-color:#ffcf3f}
+.opt .n{flex:none;width:28px;height:28px;border-radius:50%;background:#ffcf3f;color:#1a2040;display:grid;place-items:center;font-weight:900}
+.opt.ok{border-color:#3ddc84;background:#1d4a34}.opt.no{border-color:#ff6b6b;background:#4a1d26}
+.chartopts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.chartopts .opt{flex-direction:column;justify-content:center;text-align:center;padding:12px 8px}
+.chartopts .ic{font-size:38px;line-height:1}
+.chartopts small{font-weight:600;color:#b7c0e6;font-size:13px}
+.res{display:flex;gap:10px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.res div{background:#101426;border-radius:12px;padding:8px 16px;font-weight:800;font-size:22px;text-align:center}
+.res small{display:block;font-size:12px;color:#9aa3c7;font-weight:700}
+.ok{color:#5ef08f}.bad{color:#ff8a8a}
+.poster{background:#fffdf5;color:#1f2937;border-radius:14px;padding:16px;margin:10px 0}
+.poster h3{margin:0 0 6px;font-size:20px;color:#1f2937}
+.poster .key{font-size:44px;font-weight:900;color:#e8590c;line-height:1}
+.poster .key small{font-size:14px;color:#6b7280;font-weight:700;display:block}
+.poster .concl{background:#fff3bf;border-left:5px solid #f59f00;padding:8px 10px;border-radius:0 8px 8px 0;font-weight:700;margin-top:8px}
+.poster .src{font-size:12px;color:#6b7280;margin-top:6px}
+.poster .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.parts{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.parts span{font-size:12px;font-weight:800;border-radius:9px;padding:2px 8px;background:#e7f5ff;color:#1864ab}
+#touch{position:fixed;left:0;right:0;bottom:12px;z-index:6;display:none;justify-content:center;gap:12px}
+#touch button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(16,20,38,.6);color:#fff;font-size:26px}
+</style>
+</head>
+<body>
+<canvas id="cv" aria-label="Дата Тетрис тоглоомын талбар"></canvas>
+<div id="tools"><button id="b-pause" title="Түр зогсоох (P)" aria-label="Түр зогсоох">⏸</button><button id="b-snd" title="Дуу" aria-label="Дуу">🔊</button><button id="b-fs" title="Бүтэн дэлгэц" aria-label="Бүтэн дэлгэц">⛶</button></div>
+<div id="tipline"></div>
+<div id="touch"><button id="t-l" aria-label="Зүүн">◀</button><button id="t-d" aria-label="Буулгах">⬇</button><button id="t-r" aria-label="Баруун">▶</button></div>
+<div id="ov" role="dialog" aria-modal="true"><div class="box" id="ovbox"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),g=cv.getContext('2d');
+let DPR=1,VW=0,VH=0;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
+addEventListener('resize',resize);resize();
+/* ───────── дуу ───────── */
+let AC=null,soundOn=true;
+function beep(f,d,type,vol,slide){if(!soundOn)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),v=AC.createGain(),t=AC.currentTime;o.type=type||'square';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);v.gain.setValueAtTime(vol||.07,t);v.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(v);v.connect(AC.destination);o.start(t);o.stop(t+d);}catch(e){}}
+const SFX={move:()=>beep(330,.03,'square',.03),land:()=>{beep(520,.06);setTimeout(()=>beep(780,.08),50);},bad:()=>beep(160,.3,'sawtooth',.08,90),ok:()=>{[523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,.1,'triangle',.1),i*80));},win:()=>{[523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>beep(f,.16,'triangle',.11),i*110));}};
+
+/* ───────── судалгаа (Хичээл 15 PPT + Бататгал) ───────── */
+const PAL=['#4dabf7','#69db7c','#ffd43b','#ff8787','#b197fc','#ffa94d','#63e6be','#f783ac'];
+const LEVELS=[
+ {name:'Дэлгэцийн цаг',src:'5-р ангийн 24 сурагчийн судалгаа',title:'Манай анги өдөрт хэдэн цаг дэлгэц хардаг вэ?',
+  cats:['0–1 цаг','1–2 цаг','2–4 цаг','4+ цаг'],short:['0–1','1–2','2–4','4+'],vals:[1,2,6,3],scale:2,unit:'сурагч',ax:'Өдрийн дэлгэцийн цаг',ay:'Сурагчийн тоо',speed:1.5,
+  purpose:'хувь',chart:'pie',chartWhy:'Нэг бүхлийн (24 сурагч) ХЭСГҮҮД, ердөө 4 бүлэг → ДУГУЙ диаграм.',
+  key:{q:'Нүд эхэлж харах ГОЛ ТОО аль вэ?',o:['18/24 — 2 цагаас дээш','6/24 — 4+ цаг','24 — оролцогч'],a:0,w:'2–4 цаг (12) + 4+ цаг (6) = 18 сурагч 2 цагаас дээш хардаг. Энэ бол гол мессеж.'},
+  concl:{o:['24 сурагчийн 18 нь 2 цагаас дээш дэлгэц хардаг','Ангийн ихэнх нь өдөрт 2 цагаас дээш дэлгэц хардаг — зөвлөмжөөс хэтэрсэн','Дэлхийн бүх хүүхэд дэлгэцэнд донтсон'],a:1,kinds:['БАРИМТ — хэмжсэн тоо','ДҮГНЭЛТ ✔','ХЭТРҮҮЛСЭН — өгөгдөл үүнийг харуулахгүй']},
+  extra:{q:'Инфографикийн 4 хэсэг аль нь вэ?',o:['Гарчиг · Гол тоо · Диаграм · Дүгнэлт','Гарчиг · Хөгжим · Хөдөлгөөнт зураг · Өнгө','Хүснэгт · Олон тоо · Урт текст · Лого'],a:0,w:'① Гарчиг ② Гол тоо ③ Диаграм ④ Дүгнэлт (эх сурвалжтай). Хөгжим, хөдөлгөөн хэрэггүй.'}},
+ {name:'Ангийн ном',src:'Номын сангийн бүртгэл, 9-р сар',title:'Аль анги хамгийн их ном уншдаг вэ?',
+  cats:['5а','5б','5в'],short:['5а','5б','5в'],vals:[4,7,5],scale:1,unit:'ном (сарын дундаж)',ax:'Анги',ay:'Уншсан ном',speed:1.9,
+  purpose:'харьцуулах',chart:'bar',chartWhy:'Хэдэн бүлгийг (3 анги) хооронд нь ХАРЬЦУУЛАХ → БАГАНА диаграм.',
+  key:{q:'Гол тоо аль вэ?',o:['7 ном — 5б анги','16 — нийт ном','3 — ангийн тоо'],a:0,w:'Хамгийн их уншсан 5б анги — 7 ном. Энэ нь гарчгийн асуултад хариулна.'},
+  concl:{o:['5б анги сард дунджаар 7 ном уншсан','5а ангийнхан ном огт уншдаггүй','5б анги бусад 2 ангиас илүү их ном уншдаг'],a:2,kinds:['БАРИМТ — хэмжсэн тоо','ХЭТРҮҮЛСЭН — 5а 4 ном уншсан!','ДҮГНЭЛТ ✔']},
+  extra:{q:'Инфографик бүтээх зөв дараалал аль вэ?',o:['Дүрсэл → Цуглуул → Дүгнэ → Цэгцэл','Цуглуул → Цэгцэл → Дүрсэл → Дүгнэ','Дүгнэ → Дүрсэл → Цэгцэл → Цуглуул'],a:1,w:'Өгөгдөлгүй диаграм зурах боломжгүй: цуглуул → цэгцэл → дүрсэл → дүгнэ.'}},
+ {name:'7 хоногийн цаг',src:'Батын өдрийн тэмдэглэл, 10-р сар',title:'7 хоногт дэлгэцийн цаг хэрхэн өөрчлөгдөв?',
+  cats:['Даваа','Мягмар','Лхагва','Пүрэв','Баасан','Бямба','Ням'],short:['Да','Мя','Лх','Пү','Ба','Бя','Ня'],vals:[2,2,3,2,4,6,5],scale:1,unit:'цаг',ax:'Гараг (цаг хугацаа)',ay:'Дэлгэцийн цаг',speed:2.3,
+  purpose:'өөрчлөлт',chart:'line',chartWhy:'Цаг хугацааны дагуух ӨӨРЧЛӨЛТ → ШУГАМАН диаграм. Хэвтээ тэнхлэг нь үргэлж ЦАГ.',
+  key:{q:'Гол тоо аль вэ?',o:['2 цаг — Даваа','24 цаг — 7 хоногт','6 цаг — Бямба (хамгийн их)'],a:2,w:'Бямба гарагт 6 цаг — хамгийн их, хандлагыг харуулна.'},
+  concl:{o:['Амралтын өдрүүдэд дэлгэцийн цаг огцом өсдөг','Хичээлийн өдөр хэн ч дэлгэц хардаггүй','Бямба гарагт 6 цаг харсан'],a:0,kinds:['ДҮГНЭЛТ ✔','ХЭТРҮҮЛСЭН — 2–4 цаг харсан!','БАРИМТ — хэмжсэн тоо']},
+  extra:{q:'Шугаман диаграмын ХЭВТЭЭ тэнхлэг юу байх вэ?',o:['Хамгийн их тоо','Үргэлж ЦАГ хугацаа (өдөр, сар…)','Өнгө'],a:1,w:'Шугаман диаграм цаг хугацааны өөрчлөлтийг харуулна → хэвтээ тэнхлэг = цаг.'}},
+ {name:'Дуртай жимс',src:'5в ангийн 18 сурагчийн судалгаа',title:'Ангийн хамгийн дуртай жимс аль вэ?',
+  cats:['🍎 Алим','🍌 Гадил','🍓 Гүзээлзгэнэ','🍇 Усан үзэм','🍊 Жүрж','🍉 Тарвас','🍐 Лийр','🥝 Киви'],short:['🍎','🍌','🍓','🍇','🍊','🍉','🍐','🥝'],vals:[3,2,4,1,2,3,1,2],scale:1,unit:'сурагч',ax:'Жимс',ay:'Сурагчийн тоо',speed:2.5,
+  purpose:'хувь (гэхдээ 8 хэсэг!)',chart:'bar',chartWhy:'Хувь мэт боловч 8 хэсэг — 5-аас олон бол дугуй уншигдахгүй. БАГАНА диаграм илүү.',
+  key:{q:'Гол тоо аль вэ?',o:['18 — оролцогч','4 сурагч — 🍓 гүзээлзгэнэ','8 — жимсний төрөл'],a:1,w:'Хамгийн олон санал авсан 🍓 — 4 сурагч.'},
+  concl:{o:['Хүн бүр гүзээлзгэнэд дуртай','4 сурагч гүзээлзгэнэ сонгосон','Гүзээлзгэнэ хамгийн дуртай нь боловч алим, тарвастай ялгаа бага'],a:2,kinds:['ХЭТРҮҮЛСЭН — 18-аас 4 нь л!','БАРИМТ — хэмжсэн тоо','ДҮГНЭЛТ ✔']},
+  extra:{q:'Сурагчид хамгийн их алддаг алхам аль вэ? (PPT)',o:['Гарчгийг том бичих','Өнгө сонгох','Диаграм зураад ДҮГНЭЛТ бичихгүй орхих'],a:2,w:'Дүгнэлтгүй бол уншигч «тэгээд юу гэсэн үг вэ?» гэж асуусан хэвээр үлдэнэ.'}},
+];
+const CHARTS={bar:{ic:'📊',n:'Багана',w:'харьцуулах'},pie:{ic:'🥧',n:'Дугуй',w:'хувь, ≤5 хэсэг'},line:{ic:'📈',n:'Шугаман',w:'цаг хугацааны өөрчлөлт'}};
+
+/* ───────── төлөв ───────── */
+const ROWS=9;
+let state='start',paused=false,li=0,heights=[],queue=[],piece=null,next=null,score=0,lives=5,combo=0,chartType=null,morph=0,flashes=[],parts=[],t=0,lvlStats={};
+let best=0;try{best=+localStorage.getItem('g5h15best')||0;}catch(e){}
+const L=()=>LEVELS[li];
+const total=l=>l.vals.reduce((a,b)=>a+b,0);
+
+function tipline(txt,ms){const e=$('tipline');e.innerHTML=txt;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',ms||3000);}
+let ovPrimary=null;
+function ov(html,btns,side){$('ovbox').innerHTML=html+(btns.length?`<div class="btns">${btns.map((b,i)=>`<button class="btn${b.pri?' pri':''}" id="ovb${i}">${b.t}</button>`).join('')}</div>`:'');btns.forEach((b,i)=>$('ovb'+i).onclick=()=>{beep(600,.04);b.f();});ovPrimary=btns.find(b=>b.pri)||null;$('ov').classList.toggle('side',!!side);$('ov').classList.add('show');const p=ovPrimary&&$('ovb'+btns.indexOf(ovPrimary));if(p)p.focus();}
+function ovHide(){$('ov').classList.remove('show');ovPrimary=null;}
+
+/* ───────── урсгал ───────── */
+function showStart(){state='start';
+ ov(`<div class="kick">5-р анги · Хичээл 15 · Инфографик</div><h1>🧱 Дата Тетрис</h1>
+ <p>Сонинчин шар шувуу <b>Дата 🦉</b> сургуулийн эмчид <b>4 инфографик</b> бэлдэж өгөх ёстой. Гэтэл судалгааны өгөгдөл блок болж тэнгэрээс бууж байна!</p>
+ <ul><li>🧱 <b>Цэгцэл:</b> блок бүрийг <b>өөрийн баганад</b> буулгаж диаграм босго (өнгө, нэр таарах ёстой).</li><li>📊 <b>Дүрсэл:</b> зорилгод тохирох диаграмыг сонго.</li><li>🔢 <b>Гол тоо</b> ба 💬 <b>Дүгнэлт</b>-ээ сонгож инфографикаа бүрэн болго.</li></ul>
+ <p><b>Удирдлага:</b> ← → (эсвэл хулганаар багана дээр) — зөөх · ↓ — хурдан · <b>Space</b> / товших — шууд буулгах · P — түр зогсоох.${best?` 🏆 Дээд оноо: <b>${best}</b>`:''}</p>`,[{t:'▶ Эхлэх',pri:true,f:newGame}]);}
+function newGame(){li=0;score=0;lives=5;startLevel();}
+function startLevel(){const l=L();state='intro';heights=l.vals.map(()=>0);chartType=null;morph=0;combo=0;lvlStats={wrong:0};
+ queue=[];l.vals.forEach((v,i)=>{for(let k=0;k<v;k++)queue.push(i);});queue.sort(()=>Math.random()-.5);piece=null;next=queue.shift();
+ ov(`<div class="kick">Судалгаа ${li+1} / ${LEVELS.length} · 📋 ЦУГЛУУЛ</div><h2>${l.title}</h2><p>Эх сурвалж: ${l.src}.</p>
+ <p>${l.cats.map((c,i)=>`<b style="color:${PAL[i]}">■</b> ${c}: <b>${l.vals[i]*l.scale}</b>`).join(' · ')} ${l.unit}</p>
+ <p>🧱 Нийт <b>${total(l)}</b> блок. ${l.scale>1?`<b>1 блок = ${l.scale} ${l.unit}</b> (тайлбар — legend).`:`1 блок = 1 ${l.unit}.`} Блок бүрийг өөрийн баганад буулгаж <b>цэгцэл</b>!</p>`,[{t:'🧱 Эхлэх (Enter)',pri:true,f:()=>{ovHide();state='build';spawn();}}]);}
+function spawn(){if(next==null){piece=null;buildDone();return;}const n=L().vals.length;let col=Math.floor(Math.random()*n);piece={cat:next,col,y:-1,shown:col};next=queue.length?queue.shift():null;}
+function land(){const l=L(),p=piece;
+ if(p.col===p.cat){heights[p.col]++;combo++;score+=10+Math.min(5,combo)*2;SFX.land();burst(p.col,heights[p.col]-1,PAL[p.cat]);if(combo>=5&&combo%5===0)tipline(`🔥 ${combo} дараалан зөв!`,1500);}
+ else{lives--;combo=0;lvlStats.wrong++;SFX.bad();flashes.push({col:p.col,row:heights[p.col],cat:p.cat,t:.8});queue.push(p.cat);queue.sort(()=>Math.random()-.5);if(next==null)next=queue.shift();
+  tipline(`✘ «${l.cats[p.cat]}» блок <b>${l.cats[p.cat]}</b> баганад очих ёстой. Буруу баганад орвол диаграм ХУДЛАА болно!`,2600);
+  if(lives<=0){piece=null;gameOver();return;}}
+ piece=null;spawn();}
+function buildDone(){state='chartQ';SFX.ok();const l=L();
+ const opts=['bar','pie','line'];
+ ov(`<div class="kick">📊 ДҮРСЭЛ · Судалгаа ${li+1}</div><h2>Аль диаграм тохирох вэ?</h2><p>Асуулт: <b>${l.title}</b><br>Асуултаас эхэл: <b>Харьцуулах уу, хувь уу, өөрчлөлт үү?</b></p>
+ <div class="chartopts">${opts.map((k,i)=>`<button class="opt" data-c="${k}"><span class="ic">${CHARTS[k].ic}</span>${i+1}. ${CHARTS[k].n}<small>${CHARTS[k].w}</small></button>`).join('')}</div><p id="cfb"></p>`,[],true);
+ document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>pickChart(b.dataset.c,b));}
+function pickChart(k,btn){if(state!=='chartQ')return;const l=L();const ok=k===l.chart;
+ document.querySelectorAll('[data-c]').forEach(b=>{b.disabled=true;if(b.dataset.c===l.chart)b.classList.add('ok');});
+ if(!ok){btn.classList.add('no');lives--;SFX.bad();}else{score+=50;SFX.ok();}
+ chartType=l.chart;morph=0;state='chartShow';
+ const why=ok?l.chartWhy:(k==='pie'&&l.vals.length>5?`🥧 ${l.vals.length} хэсэгтэй дугуй диаграм уншигдахгүй (5-аас олон бол багана). `:'')+l.chartWhy;
+ $('cfb').innerHTML=`<b class="${ok?'ok':'bad'}">${ok?'✔ Зөв! +50':'✘ Буруу — амь −1'}</b><br>${why}`;
+ $('ovbox').insertAdjacentHTML('beforeend',`<div class="btns"><button class="btn pri" id="cnext">Үргэлжлүүлэх ▶</button></div>`);ovPrimary={f:()=>{if(lives<=0)gameOver();else keyQ();}};$('cnext').onclick=ovPrimary.f;$('cnext').focus();}
+function choiceOv(kick,q,opts,onPick,side){ov(`<div class="kick">${kick}</div><h2>${q}</h2><div class="opts">${opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="n">${i+1}</span>${o}</button>`).join('')}</div><p id="qfb"></p>`,[],side);
+ let done=false;const pick=i=>{if(done)return;done=true;onPick(i);};document.querySelectorAll('.opt[data-i]').forEach(b=>b.onclick=()=>pick(+b.dataset.i));curPick=pick;}
+let curPick=null;
+function markOpts(a,i){document.querySelectorAll('.opt[data-i]').forEach(b=>{b.disabled=true;if(+b.dataset.i===a)b.classList.add('ok');else if(+b.dataset.i===i)b.classList.add('no');});}
+function afterBtn(label,f){$('ovbox').insertAdjacentHTML('beforeend',`<div class="btns"><button class="btn pri" id="qnext">${label}</button></div>`);ovPrimary={f};$('qnext').onclick=f;$('qnext').focus();curPick=null;}
+function keyQ(){state='keyQ';const k=L().key;choiceOv('🔢 ГОЛ ТОО · Хамгийн чухал тоо, маш том үсгээр',k.q,k.o,i=>{const ok=i===k.a;markOpts(k.a,i);if(ok){score+=30;SFX.ok();}else{lives--;SFX.bad();}
+ $('qfb').innerHTML=`<b class="${ok?'ok':'bad'}">${ok?'✔ Зөв! +30':'✘ Буруу — амь −1'}</b><br>${k.w}`;afterBtn('Үргэлжлүүлэх ▶',()=>{if(lives<=0)gameOver();else conclQ();});},true);}
+function conclQ(){state='conclQ';const c=L().concl;choiceOv('💬 ДҮГНЭЛТ · Баримт уу, дүгнэлт үү?','Аль нь өгөгдлөөр нотлогдсон ДҮГНЭЛТ вэ?',c.o,i=>{const ok=i===c.a;markOpts(c.a,i);if(ok){score+=50;SFX.ok();}else{lives--;SFX.bad();}
+ $('qfb').innerHTML=`<b class="${ok?'ok':'bad'}">${ok?'✔ Зөв! +50':'✘ Буруу — амь −1'}</b><br>${c.o.map((o,j)=>`${j+1}. ${c.kinds[j]}`).join('<br>')}<br><small>Баримт = хэмжсэн тоо. Дүгнэлт = тооноос гарах гол санаа. Дүгнэлт өгөгдлөөс ХЭТРЭХ ёсгүй.</small>`;
+ afterBtn('Үргэлжлүүлэх ▶',()=>{if(lives<=0)gameOver();else extraQ();});},true);}
+function extraQ(){state='extraQ';const x=L().extra;choiceOv('❓ Бататгал асуулт',x.q,x.o,i=>{const ok=i===x.a;markOpts(x.a,i);if(ok){score+=30;SFX.ok();}else{lives--;SFX.bad();}
+ $('qfb').innerHTML=`<b class="${ok?'ok':'bad'}">${ok?'✔ Зөв! +30':'✘ Буруу — амь −1'}</b><br>${x.w}`;afterBtn('🖼 Инфографикаа харах',()=>{if(lives<=0)gameOver();else poster();});});}
+function poster(){state='poster';SFX.win();const l=L();
+ const k=l.key.o[l.key.a].split(' — ');
+ ov(`<div class="kick">🎉 Инфографик ${li+1} бэлэн!</div>
+ <div class="poster"><div class="parts"><span>① Гарчиг</span><span>② Гол тоо</span><span>③ Диаграм</span><span>④ Дүгнэлт + эх сурвалж</span></div>
+  <h3>${l.title}</h3><div class="row"><div class="key">${k[0]}<small>${k[1]||''}</small></div><canvas id="pc" width="640" height="330" style="flex:1;min-width:220px;max-width:100%;height:auto"></canvas></div>
+  <div class="concl">💬 ${l.concl.o[l.concl.a]}</div><div class="src">Эх сурвалж: ${l.src} · ${total(l)*l.scale} ${l.unit.split(' ')[0]}</div></div>
+ <div class="res"><div>${score}<small>оноо</small></div><div>${'❤'.repeat(Math.max(0,lives))||'0'}<small>амь</small></div><div>${lvlStats.wrong}<small>буруу блок</small></div></div>`,
+ [{t:li<LEVELS.length-1?'Дараагийн судалгаа ▶':'🏁 Дүнгээ харах',pri:true,f:()=>{if(li<LEVELS.length-1){li++;startLevel();}else win();}}]);
+ const pc=$('pc').getContext('2d');pc.fillStyle='#fffdf5';pc.fillRect(0,0,640,330);drawChart(pc,10,10,620,310,l.chart,1,true);}
+function gameOver(){state='over';saveBest();SFX.bad();
+ ov(`<div class="kick">Амь дууслаа</div><h2 class="bad">💥 Инфографик дуусаагүй үлдлээ</h2><div class="res"><div>${score}<small>оноо</small></div><div>${li+1}<small>судалгаа</small></div></div><p>Блок бүрийг <b>өөрийн</b> баганад буулга, диаграмыг асуултаас нь сонго: <b>харьцуулах → багана, хувь → дугуй (≤5), өөрчлөлт → шугам</b>.</p>`,
+ [{t:'↺ Энэ судалгааг дахин',pri:true,f:()=>{lives=3;startLevel();}},{t:'Нүүр',f:showStart}]);}
+function win(){state='win';saveBest();SFX.win();
+ ov(`<div class="kick">Бүх 4 инфографик бэлэн!</div><h1>🏆 Дата сонинч болов!</h1><div class="res"><div>${score}<small>оноо</small></div><div>${'❤'.repeat(Math.max(0,lives))||'0'}<small>амь</small></div><div>${best}<small>дээд оноо</small></div></div>
+ <p>Чи <b>📋 цуглуул → 🔢 цэгцэл → 📊 дүрсэл → 💬 дүгнэ</b> алхмуудыг 4 удаа хийлээ. Диаграм сонгох дүрэм:</p><ul><li>📊 Харьцуулах → <b>багана</b></li><li>🥧 Нэг бүхлийн хувь (≤5 хэсэг) → <b>дугуй</b></li><li>📈 Цаг хугацааны өөрчлөлт → <b>шугам</b></li></ul>`,
+ [{t:'↺ Дахин тоглох',pri:true,f:newGame},{t:'Нүүр',f:showStart}]);}
+function saveBest(){if(score>best){best=score;try{localStorage.setItem('g5h15best',best);}catch(e){}}}
+function setPause(p){if(state!=='build')return;paused=p;$('b-pause').textContent=p?'▶':'⏸';if(p)ov('<h2>⏸ Түр зогслоо</h2><p>P эсвэл Enter дарж үргэлжлүүл.</p>',[{t:'▶ Үргэлжлүүлэх',pri:true,f:()=>setPause(false)}]);else ovHide();}
+
+/* ───────── геометр ───────── */
+function geo(){const n=L().vals.length,panelW=VW>900?300:0,availW=VW-panelW-60,availH=VH-150;
+ const cs=Math.floor(Math.min(availW/n,availH/(ROWS+0.5),86));const w=cs*n,h=cs*ROWS;const x0=Math.round((VW-panelW-w)/2),y0=Math.round(70+(availH-h)/2);return {n,cs,w,h,x0,y0,panelW};}
+function colAt(px){const G=geo();const c=Math.floor((px-G.x0)/G.cs);return c>=0&&c<G.n?c:null;}
+
+/* ───────── шинэчлэл ───────── */
+function update(dt){t+=dt;
+ for(const f of flashes)f.t-=dt;flashes=flashes.filter(f=>f.t>0);
+ for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt;p.life-=dt;}parts=parts.filter(p=>p.life>0);
+ if(state==='chartShow'||state==='keyQ'||state==='conclQ'||state==='extraQ')morph=Math.min(1,morph+dt*1.4);
+ if(paused||state!=='build'||!piece)return;
+ piece.shown+=(piece.col-piece.shown)*Math.min(1,dt*18);
+ const sp=soft?L().speed*7:L().speed;piece.y+=sp*dt;
+ const floor=ROWS-1-heights[piece.col];
+ if(piece.y>=floor){piece.y=floor;land();}}
+function hardDrop(){if(state!=='build'||!piece||paused)return;piece.y=ROWS-1-heights[piece.col];piece.shown=piece.col;land();}
+function move(d){if(state!=='build'||!piece||paused)return;const n=L().vals.length,c=Math.max(0,Math.min(n-1,piece.col+d));if(c!==piece.col){piece.col=c;if(piece.y>ROWS-1-heights[c])piece.col-=d;else SFX.move();}}
+function burst(col,row,color){const G=geo();const x=G.x0+col*G.cs+G.cs/2,y=G.y0+(ROWS-1-row)*G.cs+G.cs/2;for(let i=0;i<12;i++){const a=Math.random()*7,s=80+Math.random()*160;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-120,life:.6,col:color});}}
+
+/* ───────── зураг ───────── */
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function block(c,x,y,s,col,label,alpha){c.globalAlpha=alpha==null?1:alpha;c.fillStyle=col;rr(c,x+2,y+2,s-4,s-4,Math.max(3,s*.12));c.fill();
+ c.fillStyle='rgba(255,255,255,.35)';rr(c,x+5,y+5,s-10,(s-10)*.3,3);c.fill();c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=2;rr(c,x+2,y+2,s-4,s-4,Math.max(3,s*.12));c.stroke();
+ if(label){c.fillStyle='#1a2040';c.font=`800 ${Math.max(11,Math.round(s*.3))}px -apple-system,"Apple Color Emoji","Segoe UI Emoji",Arial`;c.textAlign='center';c.textBaseline='middle';c.fillText(label,x+s/2,y+s/2+1,s-6);}c.globalAlpha=1;}
+/* диаграм: x,y,w,h талбарт, type, morph t, poster=цагаан дэвсгэр */
+function drawChart(c,x,y,w,h,type,k,poster){const l=L(),n=l.vals.length,vals=l.vals.map(v=>v*l.scale),step=Math.max(1,Math.ceil(Math.max(...vals)/4)),mx=step*4;const ink=poster?'#1f2937':'#e8ecff',sub=poster?'#6b7280':'#aab3da';
+ c.save();c.textAlign='center';c.textBaseline='middle';
+ if(type==='pie'){const cx=x+w*.36,cy=y+h/2,R=Math.min(w*.3,h*.44)*(.6+.4*k);let a=-Math.PI/2;const tot=vals.reduce((p,q)=>p+q,0);
+  vals.forEach((v,i)=>{const da=v/tot*Math.PI*2*k;c.fillStyle=PAL[i];c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,R,a,a+da);c.closePath();c.fill();c.strokeStyle=poster?'#fff':'#101426';c.lineWidth=2;c.stroke();
+   if(k>.9&&v/tot>.06){const m=a+da/2;c.fillStyle='#1a2040';c.font='800 14px -apple-system,Arial';c.fillText(Math.round(v/tot*100)+'%',cx+Math.cos(m)*R*.65,cy+Math.sin(m)*R*.65);}a+=da;});
+  c.textAlign='left';vals.forEach((v,i)=>{const ly=y+h/2-(n*24)/2+i*24+12;c.fillStyle=PAL[i];c.fillRect(x+w*.7,ly-7,14,14);c.fillStyle=ink;c.font='700 14px -apple-system,"Apple Color Emoji",Arial';c.fillText(`${l.cats[i]} — ${v}`,x+w*.7+20,ly);});c.restore();return;}
+ const px=x+46,py=y+10,pw=w-56,ph=h-58,bw=pw/n;
+ c.strokeStyle=sub;c.lineWidth=1.5;c.beginPath();c.moveTo(px,py);c.lineTo(px,py+ph);c.lineTo(px+pw,py+ph);c.stroke();
+ c.fillStyle=sub;c.font='600 11px -apple-system,Arial';for(let s=0;s<=4;s++){const v=step*s,yy=py+ph-ph*s/4;c.fillText(v,px-14,yy);c.strokeStyle=poster?'#eee':'rgba(255,255,255,.07)';c.beginPath();c.moveTo(px+1,yy);c.lineTo(px+pw,yy);c.stroke();}
+ c.fillStyle=ink;c.font='700 12px -apple-system,Arial';c.save();c.translate(x+10,py+ph/2);c.rotate(-Math.PI/2);c.fillText(l.ay,0,0);c.restore();c.fillText(l.ax,px+pw/2,y+h-8);
+ const pts=[];vals.forEach((v,i)=>{const bh=ph*v/mx,bx=px+i*bw;pts.push([bx+bw/2,py+ph-bh*(type==='line'?k:1)]);
+  if(type==='bar'||(type==='line'&&k<1)){c.globalAlpha=type==='line'?1-k:1;c.fillStyle=PAL[i];c.fillRect(bx+bw*.15,py+ph-bh,bw*.7,bh);c.globalAlpha=1;}
+  c.fillStyle=ink;c.font=`700 ${n>6?11:13}px -apple-system,"Apple Color Emoji",Arial`;c.fillText(l.short[i],bx+bw/2,py+ph+14);
+  if(type==='bar'){c.fillText(v,bx+bw/2,py+ph-bh-9);}});
+ if(type==='line'){c.globalAlpha=k;c.strokeStyle='#f76707';c.lineWidth=3;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],py+ph-(py+ph-p[1])):c.moveTo(p[0],p[1]));c.stroke();pts.forEach((p,i)=>{c.fillStyle='#f76707';c.beginPath();c.arc(p[0],p[1],5,0,7);c.fill();c.fillStyle=ink;c.font='700 12px -apple-system,Arial';c.fillText(vals[i],p[0],p[1]-13);});c.globalAlpha=1;}
+ c.restore();}
+function draw(){g.setTransform(DPR,0,0,DPR,0,0);
+ const bg=g.createLinearGradient(0,0,0,VH);bg.addColorStop(0,'#141a33');bg.addColorStop(1,'#0c1022');g.fillStyle=bg;g.fillRect(0,0,VW,VH);
+ if(state==='start'){for(let i=0;i<14;i++){const s=40;block(g,(i*137)%VW,((t*40+i*90)%(VH+80))-80,s,PAL[i%8],'',.25);}return;}
+ const l=L(),G=geo();
+ // гарчиг
+ g.fillStyle='#ffcf3f';g.font='800 20px -apple-system,Arial';g.textAlign='left';g.textBaseline='middle';g.fillText(`📋 ${l.title}`,G.x0,40,VW-G.panelW-G.x0-60);
+ const showChart=chartType&&['chartShow','keyQ','conclQ','extraQ','poster'].includes(state);
+ if(showChart){g.fillStyle='#1a2040';rr(g,G.x0-10,G.y0-10,G.w+20,G.h+60,14);g.fill();drawChart(g,G.x0-6,G.y0-6,G.w+12,G.h+52,chartType,morph,false);}
+ else{
+  // тор
+  g.fillStyle='rgba(255,255,255,.04)';g.fillRect(G.x0,G.y0,G.w,G.h);
+  for(let i=0;i<G.n;i++){g.fillStyle=i%2?'rgba(255,255,255,.025)':'rgba(255,255,255,.05)';g.fillRect(G.x0+i*G.cs,G.y0,G.cs,G.h);
+   // зорилтот өндөр (тасархай)
+   const ty=G.y0+(ROWS-l.vals[i])*G.cs;g.setLineDash([5,5]);g.strokeStyle=PAL[i]+'88';g.lineWidth=2;g.strokeRect(G.x0+i*G.cs+4,ty+2,G.cs-8,l.vals[i]*G.cs-4);g.setLineDash([]);
+   for(let r=0;r<heights[i];r++)block(g,G.x0+i*G.cs,G.y0+(ROWS-1-r)*G.cs,G.cs,PAL[i],l.short[i]);
+   // доод нэр
+   g.fillStyle=PAL[i];g.fillRect(G.x0+i*G.cs+3,G.y0+G.h+4,G.cs-6,6);g.fillStyle='#e8ecff';g.font=`700 ${Math.max(11,Math.min(15,G.cs*.2))}px -apple-system,"Apple Color Emoji",Arial`;g.textAlign='center';g.fillText(l.cats[i],G.x0+i*G.cs+G.cs/2,G.y0+G.h+24,G.cs-4);
+   g.fillStyle='#aab3da';g.font='700 12px -apple-system,Arial';g.fillText(`${heights[i]*l.scale}/${l.vals[i]*l.scale}`,G.x0+i*G.cs+G.cs/2,G.y0+G.h+42);}
+  g.strokeStyle='#3a457d';g.lineWidth=2;g.strokeRect(G.x0,G.y0,G.w,G.h);
+  for(const f of flashes){block(g,G.x0+f.col*G.cs,G.y0+(ROWS-1-f.row)*G.cs,G.cs,'#ff4d4d','✘',Math.min(1,f.t*1.5));}
+  if(piece){const px=G.x0+piece.shown*G.cs;
+   const gy=ROWS-1-heights[piece.col];block(g,G.x0+piece.col*G.cs,G.y0+gy*G.cs,G.cs,PAL[piece.cat],'',.22);
+   g.strokeStyle='rgba(255,255,255,.12)';g.beginPath();g.moveTo(px+G.cs/2,G.y0);g.lineTo(px+G.cs/2,G.y0+G.h);g.stroke();
+   block(g,px,G.y0+Math.max(-1,piece.y)*G.cs,G.cs,PAL[piece.cat],l.short[piece.cat]);}
+ }
+ for(const p of parts){g.globalAlpha=Math.max(0,p.life/.6);g.fillStyle=p.col;g.fillRect(p.x-3,p.y-3,6,6);}g.globalAlpha=1;
+ // самбар
+ if(G.panelW){const x=VW-G.panelW-12,y=64,w=G.panelW;g.fillStyle='rgba(26,32,64,.92)';rr(g,x,y,w,VH-y-16,14);g.fill();g.strokeStyle='#3a457d';g.lineWidth=2;g.stroke();
+  let yy=y+26;g.textAlign='left';g.fillStyle='#7fd8ff';g.font='800 12px -apple-system,Arial';g.fillText(`СУДАЛГАА ${li+1} / ${LEVELS.length} · ${l.name.toUpperCase()}`,x+16,yy);yy+=28;
+  g.fillStyle='#fff';g.font='800 22px -apple-system,Arial';g.fillText(`${score} оноо`,x+16,yy);g.fillStyle='#ff6b6b';g.font='20px -apple-system,"Apple Color Emoji",Arial';g.fillText('❤'.repeat(Math.max(0,lives)),x+150,yy);yy+=30;
+  g.fillStyle='#ffcf3f';g.font='800 13px -apple-system,Arial';g.fillText('📋 Хүснэгт (цэгцэлсэн)',x+16,yy);yy+=22;
+  l.cats.forEach((c,i)=>{g.fillStyle=PAL[i];g.fillRect(x+16,yy-7,12,12);g.fillStyle='#e8ecff';g.font='600 13px -apple-system,"Apple Color Emoji",Arial';g.fillText(c,x+36,yy,140);g.textAlign='right';g.fillText(`${heights[i]*l.scale} / ${l.vals[i]*l.scale}`,x+w-16,yy);g.textAlign='left';yy+=21;});
+  yy+=6;g.fillStyle='#aab3da';g.font='700 13px -apple-system,Arial';g.fillText(`🧱 1 блок = ${l.scale} ${l.unit.split(' ')[0]}`,x+16,yy);yy+=30;
+  if(state==='build'&&next!=null){g.fillStyle='#ffcf3f';g.font='800 13px -apple-system,Arial';g.fillText('Дараагийн блок',x+16,yy);block(g,x+w-70,yy-22,48,PAL[next],l.short[next]);g.textAlign='left';g.textBaseline='middle';yy+=44;}
+  g.fillStyle='#ffcf3f';g.font='800 13px -apple-system,Arial';g.fillText('🦉 Дата хэлэхдээ:',x+16,yy);yy+=20;
+  const tips=['Өнгө, нэрээ тааруулж буулга.','Тасархай хүрээ = хүрэх ёстой өндөр.','Цуглуул → Цэгцэл → Дүрсэл → Дүгнэ.','Диаграм зураад ДҮГНЭЛТ бичихээ бүү март!'];
+  g.fillStyle='#d5dbf2';g.font='600 13px -apple-system,Arial';wrap(tips[Math.floor(t/5)%tips.length],x+16,yy,w-32,18);}
+}
+function wrap(txt,x,y,w,lh){const words=txt.split(' ');let line='';for(const wd of words){const tt=line?line+' '+wd:wd;if(g.measureText(tt).width>w&&line){g.fillText(line,x,y);y+=lh;line=wd;}else line=tt;}if(line)g.fillText(line,x,y);}
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop);}
+
+/* ───────── оролт ───────── */
+let soft=false;
+addEventListener('keydown',e=>{
+ if($('ov').classList.contains('show')){
+  if(curPick&&['1','2','3'].includes(e.key)){curPick(+e.key-1);return;}
+  if(state==='chartQ'&&['1','2','3'].includes(e.key)){const k=['bar','pie','line'][+e.key-1];pickChart(k,document.querySelector(`[data-c="${k}"]`));return;}
+  if((e.key==='Enter'||e.key===' ')&&ovPrimary&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();ovPrimary.f();}else if(e.code==='KeyP'&&paused)setPause(false);return;}
+ if(e.code==='KeyP'||e.key==='Escape'){setPause(!paused);return;}
+ if(e.key==='ArrowLeft'||e.code==='KeyA'){move(-1);e.preventDefault();}
+ if(e.key==='ArrowRight'||e.code==='KeyD'){move(1);e.preventDefault();}
+ if(e.key==='ArrowDown'||e.code==='KeyS'){soft=true;e.preventDefault();}
+ if(e.key===' '||e.key==='ArrowUp'||e.code==='KeyW'){hardDrop();e.preventDefault();}
+});
+addEventListener('keyup',e=>{if(e.key==='ArrowDown'||e.code==='KeyS')soft=false;});
+cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||state!=='build'||!piece)return;const c=colAt(e.clientX);if(c!=null&&c!==piece.col){const d=Math.sign(c-piece.col);for(let k=0;k<Math.abs(c-piece.col)+1&&piece.col!==c;k++){const before=piece.col;move(d);if(piece.col===before)break;}}});
+cv.addEventListener('pointerdown',e=>{if(state!=='build'||!piece)return;if(e.pointerType==='mouse'){hardDrop();return;}const c=colAt(e.clientX);if(c!=null){if(c===piece.col)hardDrop();else{const d=Math.sign(c-piece.col);while(piece.col!==c){const b=piece.col;move(d);if(piece.col===b)break;}}}});
+if('ontouchstart' in window){$('touch').style.display='flex';$('t-l').onclick=()=>move(-1);$('t-r').onclick=()=>move(1);$('t-d').onclick=hardDrop;}
+$('b-pause').onclick=()=>setPause(!paused);
+$('b-snd').onclick=()=>{soundOn=!soundOn;$('b-snd').textContent=soundOn?'🔊':'🔇';};
+$('b-fs').onclick=()=>{const d=document,el=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);}else{(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}};
+addEventListener('blur',()=>{soft=false;});
+showStart();requestAnimationFrame(loop);
+window.__game={update,state:()=>state,piece:()=>piece,move,hardDrop,L,li:()=>li,score:()=>score,lives:()=>lives,heights:()=>heights,ovPrimary:()=>ovPrimary,curPick:()=>curPick,pickChart,draw};
+</script>
+</body>
+</html>
