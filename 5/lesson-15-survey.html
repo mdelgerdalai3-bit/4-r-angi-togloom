@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Хичээл 15 · Сургуульдаа юугаар ирдэг вэ?</title>
+<style>
+:root{--ink:#172536;--muted:#596878;--paper:#f5f4ef;--line:#dce1de;--navy:#172536;--teal:#00adbc;--sun:#ffcf3f;--ok:#2b8a3e;--bad:#c92a2a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input,textarea{font:inherit}
+header{background:var(--navy);color:#fff;padding:22px max(20px,calc((100vw - 900px)/2))}
+.brand{font-size:14px;color:#b0c9c5;letter-spacing:.1em}.brand strong{color:#fff}
+h1{font-size:clamp(26px,4vw,38px);margin:6px 0 4px;line-height:1.15}
+header p{margin:0;color:#ccd5da}
+main{max-width:900px;margin:auto;padding:20px 20px 40px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.card h2{margin:0 0 8px;font-size:21px;display:flex;align-items:center;gap:10px}
+.no{flex:none;background:var(--navy);color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:15px}
+.no.s{background:var(--sun);color:var(--navy)}
+.muted{color:var(--muted);font-size:15px}
+.big{font-size:20px;font-weight:800}
+.go{display:inline-block;background:var(--teal);color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:11px 20px;box-shadow:0 3px 0 #00808b}
+.go:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e5a921;outline-offset:2px}
+.fields{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;background:#f3f4f8;border-radius:10px;padding:10px 14px;margin:10px 0}
+.fields b{white-space:nowrap}
+code{background:#fff3bf;border-radius:6px;padding:1px 7px;font-family:inherit;font-weight:700}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+th{background:#ebece6;font-size:15px}
+td.l{text-align:left}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.cats div{background:#f3f4f8;border-radius:12px;padding:10px;text-align:center;font-weight:800}
+.cats span{display:block;font-size:34px}
+ul.check{list-style:none;padding:0;margin:8px 0}
+ul.check li{padding:5px 0}
+ul.check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+ul.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--teal)}
+.inline{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+input.n{width:80px;border:2px solid #b9c3c8;border-radius:9px;padding:5px 8px;text-align:center;font-weight:800}
+textarea{width:100%;min-height:64px;border:1px solid #b9c3c8;border-radius:9px;padding:9px 11px;resize:vertical}
+.q{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+.q p{margin:0 0 8px;font-weight:700}
+.q .row{display:flex;gap:6px;flex-wrap:wrap}
+.q button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 14px;font-weight:700;cursor:pointer}
+.q button.ok{background:#d3f9d8;border-color:#69db7c}.q button.no{background:#ffe3e3;border-color:#ff8787}
+.q .fb{font-size:15px;color:var(--muted);margin-top:6px}
+.tip{border-left:4px solid #d69b26;background:#fff4d7;padding:10px 14px;margin:10px 0;border-radius:0 8px 8px 0;font-size:16px}
+.goal{display:flex;gap:10px;flex-wrap:wrap}
+.goal span{background:#e7f5ff;color:#1864ab;font-weight:800;border-radius:20px;padding:3px 12px;font-size:15px}
+details{background:#fff;border:1px dashed #b9c3c8;border-radius:14px;padding:12px 18px}
+summary{font-weight:800;cursor:pointer}
+.res{font-weight:800;margin-top:6px}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:24px;padding-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:640px){.cats{grid-template-columns:1fr 1fr}.fields{grid-template-columns:1fr}}
+@media print{.go,button,details{display:none!important}body{background:#fff}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div class="brand"><strong>5-Р АНГИ</strong> / ХИЧЭЭЛ 15 · ИНФОГРАФИК · ДАСГАЛ</div>
+<h1>🚶 Манай анги сургуульдаа юугаар ирдэг вэ?</h1>
+<p>Ангиасаа бодит өгөгдөл цуглуулж, 4 хэсэгтэй инфографик бүтээнэ.</p></header>
+<main>
+<div class="card">
+  <div class="goal"><span>📋 Цуглуул</span><span>🔢 Цэгцэл</span><span>📊 Дүрсэл</span><span>💬 Дүгнэ</span></div>
+  <p style="margin:10px 0 12px">Энэ хуудсыг нэг цонхонд, <b>Инфографик бүтээгч</b>-ийг нөгөө цонхонд нээгээд алхам алхмаар хий.</p>
+  <a class="go" href="https://mdelgerdalai3-bit.github.io/4-r-angi-togloom/5/lesson-15-infographic.html" target="_blank" rel="noopener">📊 Инфографик бүтээгчийг нээх ↗</a>
+</div>
+
+<div class="card">
+  <h2><span class="no s">0</span>🤔 Таамаглах</h2>
+  <p>Манай ангийн <b>хэдэн</b> хүүхэд <b>машинаар</b> ирдэг бол? Өгөгдөл цуглуулахаас <b>өмнө</b> бич.</p>
+  <span class="inline">Миний таамаг: <input class="n" id="guess" type="number" min="0" max="60" aria-label="Таамаг"> хүүхэд</span>
+</div>
+
+<div class="card">
+  <h2><span class="no">1</span>📋 ЦУГЛУУЛ</h2>
+  <p>Багш бүлэг бүрийг уншихад гараа өргө. <b>Ганцхан</b> хариулт сонго: <b>ихэнх өдөр</b> юугаар ирдэг вэ?</p>
+  <div class="cats"><div><span>🚶</span>Явган</div><div><span>🚌</span>Автобус</div><div><span>🚗</span>Машин<br><small class="muted">(эцэг эх, такси)</small></div><div><span>🚲</span>Бусад<br><small class="muted">(дугуй, скүтер…)</small></div></div>
+  <p>Бүтээгч дээр <b>«＋ Хоосон (өөрийн судалгаа)»</b> дараад бич:</p>
+  <div class="fields"><b>① Гарчиг:</b><span><code>Манай анги сургуульдаа юугаар ирдэг вэ?</code></span><b>Эх сурвалж:</b><span><code>5_ ангийн судалгаа, 10-р сар</code> <span class="muted">(ангиа бич)</span></span><b>Нэгж:</b><span><code>сурагч</code></span></div>
+</div>
+
+<div class="card">
+  <h2><span class="no">2</span>🔢 ЦЭГЦЭЛ</h2>
+  <ul class="check">
+    <li><label><input type="checkbox">Бүлгийн нэрийг <code>Явган</code>, <code>Автобус</code>, <code>Машин</code>, <code>Бусад</code> болгож сольсон.</label></li>
+    <li><label><input type="checkbox">Багш бүлэг дуудах үед гар өргөсөн хүн бүрд <b>＋</b> дарж тоолсон.</label></li>
+    <li><label><input type="checkbox">«Нийт» тоо ангийн сурагчдын тоотой <b>таарч</b> байна.</label></li>
+  </ul>
+  <div class="tip">📦 <b>Бодит өгөгдөл цуглуулах боломжгүй бол</b> энэ бэлэн өгөгдлийг (24 сурагч) ашигла:
+    <table><tr><th>🚶 Явган</th><th>🚌 Автобус</th><th>🚗 Машин</th><th>🚲 Бусад</th><th>Нийт</th></tr><tr><td>9</td><td>7</td><td>6</td><td>2</td><td><b>24</b></td></tr></table></div>
+</div>
+
+<div class="card">
+  <h2><span class="no">3</span>📊 ДҮРСЭЛ</h2>
+  <p>Өөрөөсөө асуу: <b>Харьцуулах уу, хувь уу, өөрчлөлт үү?</b></p>
+  <div class="q" data-q><p>Бидний өгөгдөл юуг харуулах вэ?</p><div class="row">
+    <button type="button" data-a="0">⚖️ Харьцуулах</button><button type="button" data-a="1" data-ok>🧩 Хувь (нэг бүхлийн хэсэг)</button><button type="button" data-a="2">⏳ Цаг хугацааны өөрчлөлт</button></div>
+    <div class="fb" data-w="Нэг ангийн БҮХ сурагч 4 бүлэгт хуваагдаж байна — нэг бүхлийн хэсгүүд."></div></div>
+  <div class="q" data-q><p>Тэгвэл аль диаграм вэ?</p><div class="row">
+    <button type="button" data-a="0">📊 Багана</button><button type="button" data-a="1" data-ok>🥧 Дугуй</button><button type="button" data-a="2">📈 Шугам</button></div>
+    <div class="fb" data-w="Хувь + ердөө 4 хэсэг (5-аас олон биш) → дугуй диаграм."></div></div>
+  <p class="muted">Бүтээгч дээр зорилго ба диаграмаа сонго.</p>
+</div>
+
+<div class="card">
+  <h2><span class="no">4</span>💬 ДҮГНЭ</h2>
+  <p><b>② Гол тоо</b> хайх нууц: гол тоо нь хамгийн том бүлэг <b>байх албагүй</b>! Бүлгүүдийг <b>нэгтгэвэл</b> илүү хүчтэй мессеж гарч магадгүй.</p>
+  <div class="q" data-q><p>Бэлэн өгөгдлөөр (9 · 7 · 6 · 2) хэдэн хүүхэд <b>машингүйгээр</b> ирдэг вэ?</p><div class="row">
+    <button type="button" data-a="0">9</button><button type="button" data-a="1">16</button><button type="button" data-a="2" data-ok>18</button></div>
+    <div class="fb" data-w="Явган 9 + Автобус 7 + Бусад 2 = 18. Гол тоо: 18/24, тайлбар: «сурагч машингүйгээр ирдэг»."></div></div>
+  <p style="margin-top:12px"><b>Баримт уу, дүгнэлт үү, хэтрүүлэг үү?</b></p>
+  <div class="q" data-q><p>«9 сурагч явганаар ирдэг.»</p><div class="row"><button type="button" data-a="0" data-ok>Баримт</button><button type="button" data-a="1">Дүгнэлт</button><button type="button" data-a="2">Хэтрүүлэг</button></div><div class="fb" data-w="Хэмжсэн тоо — баримт."></div></div>
+  <div class="q" data-q><p>«Ангийн ихэнх нь машингүйгээр сургуульдаа ирдэг.»</p><div class="row"><button type="button" data-a="0">Баримт</button><button type="button" data-a="1" data-ok>Дүгнэлт</button><button type="button" data-a="2">Хэтрүүлэг</button></div><div class="fb" data-w="Тооноос (18/24) гарсан гол санаа — дүгнэлт. Үүнийг инфографиктаа бич!"></div></div>
+  <div class="q" data-q><p>«Хэн ч машинаар ирдэггүй.»</p><div class="row"><button type="button" data-a="0">Баримт</button><button type="button" data-a="1">Дүгнэлт</button><button type="button" data-a="2" data-ok>Хэтрүүлэг</button></div><div class="fb" data-w="6 хүүхэд машинаар ирдэг шүү дээ! Өгөгдөл үүнийг харуулахгүй."></div></div>
+  <p class="res" id="score"></p>
+  <p>Бүтээгч дээр <b>гол тоо</b>, <b>тайлбар</b>, <b>дүгнэлтээ</b> (өөрийн өгөгдлөөрөө!) бич.</p>
+</div>
+
+<div class="card">
+  <h2><span class="no">✓</span>Дууссан уу?</h2>
+  <ul class="check">
+    <li><label><input type="checkbox">Бүтээгчийн <b>«Шалгуур»</b> хэсэг <b>7 / 7</b> ✅ боллоо.</label></li>
+    <li><label><input type="checkbox"><b>⬇ PNG татах</b> дарж инфографикаа хадгаллаа.</label></li>
+    <li><label><input type="checkbox">Таамгаа бодит тоотой харьцууллаа: <span id="cmp" class="muted">(таамгаа 0-р алхамд бич)</span></label></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2><span class="no s">⭐</span>Ахисан даалгавар</h2>
+  <p><b>«Бусад» бүлгийг задал:</b> <code>Дугуй</code>, <code>Скүтер</code>, <code>Такси</code>… гэж тусад нь бич. 6 бүлэг болоход шалгуур юу гэж анхааруулж байна вэ? Яагаад? Инфографикаа засаж шалгуурыг дахин 7 / 7 болго.</p>
+  <textarea placeholder="Шалгуур … гэж анхааруулсан. Учир нь … Би диаграмыг … болгож сольсон."></textarea>
+</div>
+
+<div class="card">
+  <h2><span class="no s">💬</span>Эргэцүүлэх</h2>
+  <p>1. Энэ инфографикийг <b>сургуулийн захиралд</b> үзүүлбэл ямар санал гаргах вэ?</p>
+  <textarea placeholder="Жишээ: Ихэнх нь явган ирдэг тул сургуулийн урд явган хүний гарцыг…"></textarea>
+  <p>2. Өвөл <b>−25°</b> хүйтэн өдөр судалгаа авбал тоо өөрчлөгдөх үү? Тэгвэл <b>эх сурвалж, огноо</b> яагаад чухал вэ?</p>
+  <textarea placeholder="Хүйтэн өдөр … Тиймээс огноо бичих нь …"></textarea>
+</div>
+
+<details>
+  <summary>👩‍🏫 Багшид</summary>
+  <p><b>Хугацаа:</b> ~20 мин (таамаг 1 · цуглуулах 3 · цэгцлэх 3 · дүрслэх 3 · дүгнэх 5 · эргэцүүлэх 5). <b>Хариу (бэлэн өгөгдөл):</b> зорилго — хувь, диаграм — дугуй, гол тоо — 18/24 «сурагч машингүйгээр ирдэг», дүгнэлт — «Ангийн ихэнх нь машингүйгээр сургуульдаа ирдэг.»</p>
+  <p><b>Ахисан даалгаврын зорилго:</b> 6+ бүлэг болоход хэрэгсэл «дугуйд 5-аас олон хэсэг» гэж анхааруулна → зорилгоо «Харьцуулах», диаграмаа 📊 багана болгож засна (PPT-ийн дүрэм).</p>
+  <p><b>Анхаар:</b> дүгнэлтийн шалгуур түлхүүр үгээр (ихэнх, илүү, хамгийн… / бүх, хэн ч…) ажилладаг тул заримдаа алдана — «Энэ өгөгдөл үүнийг үнэхээр харуулж байна уу?» гэж сурагчаар хэлүүлээрэй.</p>
+</details>
+<footer><span>5-р анги · Хичээл 15 · Инфографик дасгал</span><span>ОЮУНЛАГ INTERNATIONAL SCHOOL · Мэдээллийн технологи</span></footer>
+</main>
+<script>
+'use strict';
+const qs=[...document.querySelectorAll('[data-q]')];let right=0,done=0;
+qs.forEach(q=>q.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(q.dataset.done)return;q.dataset.done=1;done++;const ok=b.hasAttribute('data-ok');if(ok)right++;b.classList.add(ok?'ok':'no');if(!ok)q.querySelector('[data-ok]').classList.add('ok');const fb=q.querySelector('.fb');fb.textContent=(ok?'✔ Зөв! ':'↺ ')+fb.dataset.w;
+ document.getElementById('score').textContent=done===qs.length?`Нийт: ${right} / ${qs.length} зөв ${right===qs.length?'🎉':''}`:'';}));
+const g=document.getElementById('guess');g.addEventListener('input',()=>{document.getElementById('cmp').textContent=g.value===''?'(таамгаа 0-р алхамд бич)':`миний таамаг ${g.value} хүүхэд — бодит нь хэд байв?`;});
+</script>
+</body></html>
