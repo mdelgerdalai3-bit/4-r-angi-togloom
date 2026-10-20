@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Хичээл 16 · Хувьсагч ба нөхцөлийн лаборатори</title>
+<style>
+:root{--ink:#172536;--muted:#596878;--paper:#f5f4ef;--line:#dce1de;--navy:#172536;--teal:#00adbc;--orange:#ffa400;--var:#FF8C1A;--var-d:#DB6E00;--looks:#9966FF;--looks-d:#774DCB;--ctrl:#FFAB19;--ctrl-d:#CF8B17;--event:#FFBF00;--event-d:#CC9900;--op:#59C059;--op-d:#389438;--ws:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:8px 14px;font-weight:650}
+button:hover{filter:brightness(.96)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #e5a921;outline-offset:2px}
+.small{font-size:14px;padding:5px 10px}
+.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+header{background:var(--navy);color:#fff;padding:20px max(20px,calc((100vw - 1300px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-size:14px;color:#b0c9c5;letter-spacing:.1em}.brand strong{color:#fff}
+h1{font-size:clamp(24px,3vw,34px);margin:4px 0;line-height:1.18}
+header p{margin:4px 0 0;color:#ccd5da;font-size:15px}
+.number{font-size:52px;line-height:1;font-weight:750;color:#75d3b6}
+main{max-width:1400px;margin:auto;padding:18px 20px 40px}
+nav{display:flex;gap:8px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px;flex-wrap:wrap}
+nav button{background:transparent;border-color:transparent}
+nav button[aria-selected=true]{background:var(--navy);color:#fff}
+section[hidden]{display:none!important}
+h2{font-size:23px;margin:0 0 6px}
+.muted{color:var(--muted);font-size:15px}
+.tip{border-left:4px solid #d69b26;background:#fff4d7;padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0;font-size:15px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.levels{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.levels .grp{font-size:12px;font-weight:800;color:#00707a;background:#e2f6f8;border-radius:8px;padding:2px 8px;margin-left:4px}
+.levels .grp.bug{color:#b3321f;background:#ffe6e0}
+.lvl{width:38px;height:38px;padding:0;border-radius:50%;border:3px solid #c9d1d6;background:#fff;font-weight:800;display:grid;place-items:center;color:#5b6770}
+.lvl.cur{border-color:var(--orange);background:#fff6e0;color:#8a5a00;box-shadow:0 0 0 3px rgba(255,164,0,.25)}
+.lvl.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.lvl.free{border-radius:12px;width:auto;padding:0 12px}
+.bubble{flex:1 1 380px;display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--teal);border-radius:14px;padding:9px 14px}
+.bubble.bug{border-color:#e0533d}
+.bubble .who{flex:none;width:44px;height:44px;border-radius:50%;background:#e2f6f8;display:grid;place-items:center;font-size:26px}
+.bubble b{display:block;font-size:17px}
+.bubble span{font-size:15px;color:var(--muted)}
+.runrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 14px;margin-bottom:10px}
+.runbtn{background:var(--orange);border-color:var(--orange);color:#fff;font-size:18px;font-weight:800;padding:9px 24px;border-radius:10px;box-shadow:0 3px 0 #c77f00}
+.speed{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);font-weight:650}
+.speed input{width:100px;accent-color:var(--teal)}
+.labgrid{display:grid;grid-template-columns:400px 250px 1fr;border:1px solid #c9d1d6;border-radius:12px;overflow:hidden;background:#fff}
+.stagecol{border-right:1px solid #d7dbe3;background:#fafbfc;display:flex;flex-direction:column}
+.stage{position:relative;border-bottom:1px solid #e3e6ec}
+.stage canvas{display:block;width:100%;aspect-ratio:400/300;background:#fff;cursor:pointer}
+.mons{position:absolute;left:6px;top:6px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.mon{display:flex;align-items:center;gap:6px;background:rgba(230,240,255,.95);border:1px solid #c7ccd8;border-radius:5px;padding:2px 3px 2px 7px;font-size:13px;font-weight:700;color:#575E75;transition:transform .15s}
+.mon b{background:var(--var);color:#fff;border-radius:4px;padding:0 8px;min-width:30px;text-align:center}
+.mon.flash{transform:scale(1.12)}.mon.flash b{background:#00a35e}.mon.neg b{background:#e0453a}
+.evbtns{display:flex;flex-wrap:wrap;gap:6px;padding:10px}
+.evbtns button{font-weight:800}
+.evbtns .flag{background:#e6f9ec;border-color:#4cbf56;color:#1e7b2a}
+.hist{margin:0 10px 10px;background:#172536;color:#e9f2ff;border-radius:10px;padding:8px 10px;font:600 13px/1.5 ui-monospace,Menlo,Consolas,monospace;min-height:120px;max-height:190px;overflow:auto}
+.hist .e{color:#ffd166}.hist .ok{color:#7dff9a}.hist .no{color:#ff9a8a}
+.memnote{margin:0 10px 10px;font-size:12.5px;color:var(--muted)}
+.tbx{background:#f3f4f8;border-right:1px solid #d7dbe3;padding:10px;display:flex;flex-direction:column;gap:9px;position:relative}
+.tbx h3{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#575E75}
+.tbx .hint{font-size:12.5px;color:var(--muted);line-height:1.35;margin:4px 0 0}
+.tbx.trash::after{content:'🗑 Энд тавьж устга';position:absolute;inset:6px;border:3px dashed #e0533d;border-radius:10px;background:rgba(255,235,230,.92);display:grid;place-items:center;font-weight:800;color:#b3321f}
+.mkvar{background:#fff;border:2px solid var(--var);color:#b35500;font-weight:800;border-radius:8px;padding:6px 10px;width:100%}
+.varform{display:none;gap:6px}.varform.show{display:flex}
+.varform input{flex:1;min-width:0;border:2px solid var(--var);border-radius:8px;padding:4px 8px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--var);color:#fff;border-radius:12px;padding:1px 4px 1px 10px;font-size:13px;font-weight:800}
+.chip button{border:0;background:rgba(255,255,255,.25);color:#fff;border-radius:50%;width:20px;height:20px;padding:0;font-size:12px;line-height:1}
+.ws{position:relative;padding:12px 12px 40px;background-color:var(--ws);background-image:radial-gradient(#dfe3ea 1px,transparent 1px);background-size:18px 18px;min-height:460px;overflow:auto}
+.ws-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:750;font-size:14px}
+.scripts{display:flex;flex-wrap:wrap;gap:22px 30px;align-items:flex-start}
+.script{min-width:220px}
+/* блок */
+.blk{position:relative;display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 11px;border-radius:7px;color:#fff;font-weight:700;font-size:15px;background:var(--var);border:1px solid var(--var-d);user-select:none;-webkit-user-select:none;cursor:grab;width:max-content;max-width:100%;touch-action:none;line-height:1.2;--bd:var(--var-d);flex-wrap:wrap}
+.blk.looks{background:var(--looks);--bd:var(--looks-d);border-color:var(--looks-d)}
+.blk::before{content:'';position:absolute;top:-1px;left:16px;width:24px;height:7px;background:var(--ws);border:1px solid var(--bd);border-top:0;border-radius:0 0 6px 6px}
+.blk::after{content:'';position:absolute;bottom:-8px;left:16px;width:24px;height:8px;background:inherit;border:1px solid var(--bd);border-top:0;border-radius:0 0 6px 6px;z-index:2}
+.tbx .blk::before{background:#f3f4f8}
+.fld{display:inline-block;min-width:34px;text-align:center;background:#fff;color:#575E75;border-radius:14px;padding:2px 6px;font-weight:800;border:0}
+input.fld{width:50px}input.fld.txt{width:120px}
+select.fld{-webkit-appearance:none;appearance:none;padding:2px 10px;cursor:pointer}
+select.fld.vsel{background:#ffe2c4;color:#8a4500}
+.blk.c{display:block;padding:0;background:var(--ctrl);border-color:var(--ctrl-d);--bd:var(--ctrl-d)}
+.c-h,.c-mid{display:flex;align-items:center;gap:6px;padding:8px 11px;flex-wrap:wrap}
+.c-mid{padding:5px 11px}
+.cnd{display:inline-flex;align-items:center;gap:4px;background:var(--op);border:1px solid var(--op-d);border-radius:16px;padding:3px 6px}
+.cnd select.fld.op{min-width:30px;padding:2px 6px}
+.c-body{margin-left:18px;min-height:30px;padding:8px 0 10px;background:var(--ws);border-top:1px solid var(--ctrl-d);border-bottom:1px solid var(--ctrl-d);display:flex;flex-direction:column;align-items:flex-start}
+.c-body.empty::after{content:'энд блок оруул';font-size:12px;color:#b78a3a;padding:4px 10px}
+.c-f{height:18px;border-radius:0 0 7px 7px}
+.cbadge{font-size:12px;border-radius:10px;padding:1px 8px;font-weight:800;display:none}
+.cbadge.t{display:inline-block;background:#d3f9d8;color:#1b6b2a}.cbadge.f{display:inline-block;background:#ffe3e3;color:#a61e1e}
+.hat{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:11px 16px 8px;border-radius:22px 22px 7px 7px;background:var(--event);border:1px solid var(--event-d);color:#fff;font-weight:800;position:relative}
+.hat::after{content:'';position:absolute;bottom:-8px;left:16px;width:24px;height:8px;background:inherit;border:1px solid var(--event-d);border-top:0;border-radius:0 0 6px 6px;z-index:2}
+.stack{display:flex;flex-direction:column;align-items:flex-start;min-height:20px}
+.stack.root{min-height:110px;min-width:200px}
+.stack.target{outline:3px dashed var(--orange);outline-offset:3px;border-radius:6px}
+.blk.run{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--orange);filter:brightness(1.1)}
+.ghost{position:fixed;z-index:60;pointer-events:none;opacity:.92;transform:rotate(2deg);filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.ins-mark{position:fixed;z-index:59;height:6px;border-radius:3px;background:var(--orange);pointer-events:none;box-shadow:0 0 8px var(--orange);display:none}
+/* алгоритм */
+.algo{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;margin-top:12px}.algo>*{min-width:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h3{margin:0 0 8px;font-size:16px}
+.flowwrap{overflow:auto;max-height:560px;border:1px solid #eef0f3;border-radius:8px;background:#fcfcfd;display:flex;gap:16px;padding:8px;align-items:flex-start}
+.flowwrap svg{display:block;flex:none}
+pre.pseudo{margin:0;background:#172536;color:#e9f2ff;border-radius:10px;padding:12px 14px;font:600 15px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;min-height:120px}
+pre.pseudo .k{color:#ffb27a} pre.pseudo .v{color:#ffd166} pre.pseudo .e{color:#8cc4ff}
+.result{margin-top:12px;border-radius:12px;padding:12px 16px;background:#fff;border:1px solid var(--line)}
+.result.ok{background:#e3f6f7;border-color:#7fd3da}.result.bad{background:#fff0e9;border-color:#e3b69e}
+.result strong{display:block;font-size:18px;margin-bottom:3px}
+textarea{width:100%;min-height:80px;border:1px solid #b9c3c8;border-radius:9px;padding:10px;resize:vertical}
+.win{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(23,37,54,.45);padding:16px}
+.win.show{display:flex}
+.win .box{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:22px 24px;text-align:center;border:4px solid var(--teal);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.win .big{font-size:50px;line-height:1}
+.win h3{margin:8px 0 4px;font-size:23px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;background:#172536;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;display:none;max-width:90vw}
+.toast.show{display:block}
+/* мөшгих */
+.calc{display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start}
+.sl{display:grid;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.sl label{font-weight:700}
+.sl input[type=range]{width:100%;accent-color:var(--var)}
+.bigv{font-size:40px;font-weight:850;color:var(--var);text-align:center}
+.demo{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px}
+.demo .blk{cursor:default}
+.demo .c-body{min-height:44px}
+.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #2fb344}
+.dim{opacity:.4}
+.cmpt{width:100%;border-collapse:collapse}
+.cmpt td,.cmpt th{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left}
+.cmpt .t{color:#1b6b2a;font-weight:800}.cmpt .f{color:#a61e1e;font-weight:800}
+.saybox{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800}
+.saybox .sp{font-size:40px}
+.saybox .sb{background:#fff;border:2px solid #9966FF;border-radius:16px;padding:6px 14px;min-width:140px}
+.question{margin:12px 0;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.question h3{margin:0 0 10px;font-size:17px}
+.choices{display:grid;gap:7px}
+.choice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer}
+.choice:has(input:checked){border-color:var(--teal);background:#e8f8f9}
+.feedback{font-size:15px;padding-top:8px}.feedback.correct{color:#00674e}.feedback.wrong{color:#a43914}
+.flow5{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.flow5 div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.flow5 strong{display:block;color:#00707a;margin-bottom:6px}
+table.key{width:100%;border-collapse:collapse;background:#fff}
+table.key th,table.key td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14.5px;vertical-align:top}
+table.key th{background:#ebece6;font-size:13px;color:var(--muted)}
+table.key pre{margin:0;font:600 13px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:24px;padding-top:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media(max-width:1180px){.labgrid{grid-template-columns:1fr 1fr}.stagecol{grid-column:1/-1;border-right:0;border-bottom:1px solid #d7dbe3;display:grid;grid-template-columns:400px 1fr}.stage{border-bottom:0;border-right:1px solid #e3e6ec}}
+@media(max-width:820px){.labgrid{grid-template-columns:1fr}.stagecol{display:flex}.tbx{border-right:0;border-bottom:1px solid #d7dbe3}.algo,.calc{grid-template-columns:1fr}.flow5{grid-template-columns:1fr 1fr}.number{display:none}}
+@media print{header{background:#fff;color:#172536}nav,.runrow,.tbx,footer,button,.evbtns{display:none!important}.algo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div><div class="brand"><strong>4-Р АНГИ</strong> / АЛГОРИТМЫН СЭТГЭЛГЭЭ</div><h1>Хувьсагч ба нөхцөлийн лаборатори</h1><p>Хувьсагч үүсгэж, оноо тоолж, «хэрэв … бол … үгүй бол»-оор программыг шийдвэр гаргуул.</p></div><div class="number" aria-hidden="true">16</div></header>
+<main>
+<nav role="tablist" aria-label="Хэсгүүд">
+  <button role="tab" aria-selected="true" data-tab="lab">01 · 🧩 Дадлага</button>
+  <button role="tab" aria-selected="false" data-tab="calc">02 · 🔎 Нөхцөл туршигч</button>
+  <button role="tab" aria-selected="false" data-tab="teacher">Багшид</button>
+</nav>
+
+<section id="lab">
+  <div class="top">
+    <div class="levels" id="levels" aria-label="Даалгавар"></div>
+    <div class="bubble" id="bubble" aria-live="polite"><div class="who" aria-hidden="true" id="who">✏️</div><div><b id="goal-title"></b><span id="goal-text"></span></div></div>
+  </div>
+  <div class="runrow">
+    <button class="runbtn" id="check" type="button">✔ Шалгах</button>
+    <span class="muted" style="font-size:14px">Эхлээд доорх <b>🚩 / 🍎</b> товчоор өөрөө туршаад, дараа нь <b>Шалгах</b> дар.</span>
+    <label class="speed">🐢 <input id="speed" type="range" min="1" max="5" value="3" aria-label="Хурд"> 🐇</label>
+    <span style="flex:1"></span>
+    <button id="hint" class="small" type="button">💡 Сануулга</button>
+    <button id="restart" class="small" type="button">↺ Эхний хувилбар</button>
+    <button id="clear" class="small" type="button">🗑 Цэвэрлэх</button>
+  </div>
+  <div class="labgrid">
+    <div class="stagecol">
+      <div class="stage"><canvas id="cv" width="800" height="600" aria-label="Тайз: Бит могой"></canvas><div class="mons" id="mons"></div></div>
+      <div>
+        <div class="evbtns" id="evbtns"></div>
+        <div class="hist" id="hist" aria-live="polite"></div>
+        <p class="memnote">💾 Хувьсагч утгаа <b>санадаг</b>: 🚩-г дахин дарахад өөрөө 0 болохгүй — үүнийг «set … to 0» хийдэг!</p>
+      </div>
+    </div>
+    <aside class="tbx" id="tbx" aria-label="Блокийн хайрцаг">
+      <h3>Хувьсагч</h3>
+      <button class="mkvar" id="mkvar" type="button">➕ Хувьсагч үүсгэх</button>
+      <div class="varform" id="varform"><input id="varname" maxlength="12" placeholder="нэр: оноо" aria-label="Хувьсагчийн нэр"><button class="small primary" id="varok" type="button">OK</button></div>
+      <div class="chips" id="chips"></div>
+      <h3 style="margin-top:4px">Блокууд</h3>
+      <div id="tbx-blocks" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start"></div>
+      <p class="hint">Блокоо <b>чирж</b> оруул, эсвэл <b>шар тасархай</b> хүрээтэй хэсэгт <b>дарж</b> нэм. Хасах бол энд буцааж чир. Цагаан нүдэнд тоо, үг бичиж болно.</p>
+    </aside>
+    <div class="ws" id="ws" aria-label="Ажлын талбар">
+      <div class="ws-h"><span>Миний программ</span><span class="muted" style="font-size:13px">Скрипт бүр өөрийн үйл явдлаар гүйнэ</span></div>
+      <div class="scripts" id="scripts"></div>
+    </div>
+  </div>
+  <div class="result" id="result" aria-live="polite"></div>
+  <div class="algo">
+    <div class="card"><h3>📐 Миний алгоритм — блок-схем</h3><div class="flowwrap" id="flow"></div><p class="muted" style="margin:6px 0 0">◇ Шийдвэр: <b>Тийм</b> — баруун, <b>Үгүй</b> — зүүн. Блок нэмэх бүрт өөрөө зурагдана.</p></div>
+    <div class="card"><h3>📝 Алгоритм — алхмаар</h3><pre class="pseudo" id="pseudo"></pre>
+      <h3 style="margin-top:12px">✍️ Миний тайлбар</h3><textarea id="note" placeholder="Ямар хувьсагч үүсгэсэн бэ? Нөхцөл хэзээ ҮНЭН, хэзээ ХУДАЛ болох вэ? «set 0»-ыг яагаад тэнд тавьсан бэ?"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button id="save" type="button">⬇ Бүтээлээ татах</button><button id="print" type="button">🖨 Хэвлэх</button></div></div>
+  </div>
+  <div class="ins-mark" id="mark"></div>
+  <div class="win" id="win" role="dialog" aria-modal="true"><div class="box"><div class="big">🎉</div><h3 id="win-title"></h3><p class="muted" id="win-text"></p><div style="display:flex;gap:8px;justify-content:center"><button id="win-again" type="button">Хаах</button><button id="win-next" class="primary" type="button">Дараагийн даалгавар ▶</button></div></div></div>
+  <div class="toast" id="toast" role="status"></div>
+</section>
+
+<section id="calc" hidden>
+  <h2>Нөхцөл хэзээ ҮНЭН вэ?</h2>
+  <p class="muted">Гулсуураар <b style="color:var(--var)">оноо</b> хувьсагчийн утгыг өөрчил. Харьцуулах тэмдэг ба тоог сонгоод аль салаа гүйхийг хар.</p>
+  <div class="calc">
+    <div class="sl">
+      <label for="cs">оноо хувьсагч</label>
+      <div class="bigv" id="cv-val">8</div>
+      <input id="cs" type="range" min="0" max="20" value="8">
+      <label>Нөхцөл: оноо <select id="cop" class="fld" style="border:1px solid #ccc"><option>&gt;</option><option>&lt;</option><option>=</option></select> <input id="ck" type="number" value="10" min="0" max="20" style="width:64px;border:1px solid #ccc;border-radius:8px;text-align:center"></label>
+      <table class="cmpt" id="cmpt"></table>
+    </div>
+    <div class="demo" id="demo"></div>
+  </div>
+  <h2 style="margin-top:22px">Өөрийгөө шалга</h2>
+  <form id="quiz"><div id="qs"></div><button class="primary" type="submit">Хариултаа шалгах</button> <button type="button" id="qreset">Дахин</button></form>
+  <div class="result" id="qresult" hidden></div>
+</section>
+
+<section id="teacher" hidden>
+  <h2>16-р хичээлд ашиглах дараалал</h2>
+  <p>«Нөхцөл (if) ба хувьсагч» PPT-ийн хувьсагчтай хийх 3 үйлдэл (үүсгэх · set · change), «хэрэв … бол» ба «… үгүй бол», харьцуулах тэмдэг (&gt; &lt; =), 3 түгээмэл алдаа, «Монгол хэлний тест» төсөлтэй уялдуулсан. PRIMM дарааллаар:</p>
+  <div class="flow5">
+    <div><strong>Predict · Run · 9 мин</strong>Даалгавар 1–2: «оноо» үүсгэж, 🚩-д 0, 🍎-д +1. 🚩-г 2 удаа дарж хувьсагч санадгийг харуул.</div>
+    <div><strong>Investigate · Modify · 10 мин</strong>Даалгавар 3–4: «хэрэв оноо &gt; 10 бол», дараа нь «үгүй бол». 02-р хэсгийн туршигчаар 10 ба 11-ийг харьцуул.</div>
+    <div><strong>Дебаг · 8 мин</strong>🐞 5–7: set 0 мартсан / тэмдэг андуурсан / нөхцөл буруу скриптэд (нэг л удаа шалгагдана).</div>
+    <div><strong>Make · 8 мин</strong>8 — амьдрал, 9 — «Монгол хэлний тест» төсөл (2 удаа дараалан ажиллуулж шалгана), ★ Чөлөөт.</div>
+  </div>
+  <table class="key"><thead><tr><th>Даалгавар</th><th>Хариу (программ)</th><th>«Шалгах» юу турших вэ</th></tr></thead><tbody id="keytbl"></tbody></table>
+  <div class="tip"><b>Анхаар:</b> «Шалгах» товч программыг <b>хэд хэдэн удаа</b>, мөн хувьсагчид <b>өмнөх тоглоомын утга үлдсэн</b> үед ажиллуулж туршина. Тиймээс «set оноо to 0» мартвал заавал илэрнэ — PPT-ийн «2 дараалсан гүйлтийн шалгалт».</div>
+  <p class="muted">Хуудас интернэтгүй ажиллана. Сурагчийн ажил зөвхөн нээлттэй байх хугацаанд хадгалагдана — хөтчийг хаахад цэвэрлэгдэж, дараагийн сурагч шинээр эхэлнэ. Хадгалах бол «Бүтээлээ татах».</p>
+</section>
+<footer><span>4-р анги · Хичээл 16 · Нөхцөл (if) ба хувьсагч</span><span>Үүсгэх → set 0 → change +1 → хэрэв … бол … үгүй бол</span></footer>
+</main>
+
+<script>
+'use strict';
+/* Ажил зөвхөн энэ табд хадгалагдана — хөтчийг хаахад цэвэрлэгдэнэ (дараагийн сурагч шинээр эхэлнэ) */
+try{['h16lab'].forEach(k=>localStorage.removeItem(k));}catch(e){}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ───────── үйл явдал ───────── */
+const EV={
+ flag:{hat:'🚩 дарахад',btn:'🚩',ic:'🚩'},
+ apple:{hat:'🍎 бай хүрэхэд',btn:'🍎 Бай хүрэх',ic:'🍎'},
+ bomb:{hat:'💣 бөмбөг хүрэхэд',btn:'💣 Бөмбөг хүрэх',ic:'💣'},
+ ok:{hat:'✅ зөв хариулахад',btn:'✅ Зөв хариулт',ic:'✅'},
+ bad:{hat:'❌ буруу хариулахад',btn:'❌ Буруу хариулт',ic:'❌'},
+ finish:{hat:'🏁 тест дуусахад',btn:'🏁 Тест дуусгах',ic:'🏁'},
+};
+/* ───────── блок үүсгэгч ───────── */
+const St=(v,n)=>({type:'set',v,n}),Ch=(v,n)=>({type:'change',v,n}),Say=txt=>({type:'say',txt}),C=(v,op,n)=>({v,op,n}),If=(c,body)=>({type:'if',c,body}),IfE=(c,body,els)=>({type:'ifelse',c,body,els});
+const A=(n,ev='apple')=>Array(n).fill(ev);
+const WIN10=[{seq:['flag',...A(10)],pre:{'оноо':0},exp:{vars:{'оноо':10},notSaid:'хожлоо'},why:'10 удаа хүрэхэд «Хожлоо» гэх ёсгүй (10 > 10 биш).'},{seq:['flag',...A(11)],pre:{'оноо':0},exp:{vars:{'оноо':11},said:'хожлоо'},why:'11 дэх удаад «Хожлоо» гэх ёстой.'}];
+const LEVELS=[
+ {grp:'Хялбар',t:'Хувьсагч үүсгэх',ev:['flag','apple'],focus:'flag',vars:[],start:{flag:[],apple:[]},tool:['set','change','say'],
+  goal:'«➕ Хувьсагч үүсгэх» дарж «оноо» нэртэй хувьсагч үүсгэ. Дараа нь «🚩 дарахад» дор «set оноо to 0» тавь.',
+  hint:'1) ➕ → «оноо» → OK. 2) «set оноо to 0» блокыг 🚩 скриптэд чир.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[]},
+  tests:[{seq:['flag'],pre:{'оноо':7},exp:{vars:{'оноо':0}},why:'🚩 дарахад оноо 0 болох ёстой.'}],
+  need:p=>p.vars.includes('оноо')?null:'«оноо» нэртэй хувьсагч үүсгээгүй байна (Variables → Make a Variable).'},
+ {grp:'Хялбар',t:'Бай хүрэхэд +1',ev:['flag','apple'],focus:'apple',vars:['оноо'],start:{flag:[St('оноо',0)],apple:[]},tool:['set','change','say'],
+  goal:'Бит 🍎 бай хүрэх бүрт оноо 1-ээр өсөх ёстой. «🍎 бай хүрэхэд» дор «change оноо by 1» нэм.',
+  hint:'«change оноо by 1»-ийг 🍎 скриптэд оруул. 🚩 → 🍎 🍎 🍎 дарж оноо 3 болохыг хар.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[Ch('оноо',1)]},
+  tests:[{seq:['flag','apple','apple','apple'],pre:{'оноо':0},exp:{vars:{'оноо':3}},why:'🚩 → 🍎×3 хийхэд оноо 3 болох ёстой.'}]},
+ {grp:'Дунд',t:'Хэрэв … бол',ev:['flag','apple'],focus:'apple',vars:['оноо'],start:{flag:[St('оноо',0)],apple:[Ch('оноо',1)]},tool:['set','change','say','if'],
+  goal:'Оноо 10-аас ИХ болоход Бит «Хожлоо» гэх ёстой. 🍎 скриптэд «хэрэв ‹оноо > 10› бол → «Хожлоо» гэ» нэм.',
+  hint:'«хэрэв … бол» блокыг «change оноо by 1»-ийн ДООР тавь. Нөхцөл: оноо > 10. Дотор нь 💬 «Хожлоо» гэ.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[Ch('оноо',1),If(C('оноо','>',10),[Say('Хожлоо')])]},
+  tests:WIN10,need:p=>uses(p,'if')||uses(p,'ifelse')?null:'«хэрэв … бол» блок ашиглаагүй байна.'},
+ {grp:'Дунд',t:'… үгүй бол',ev:['flag','apple'],focus:'apple',vars:['оноо'],start:{flag:[St('оноо',0)],apple:[Ch('оноо',1)]},tool:['set','change','say','if','ifelse'],
+  goal:'Одоо ХОЁР зам: оноо > 10 бол «Хожлоо», ҮГҮЙ БОЛ «Дахин туршъя» гэ. «хэрэв … бол … үгүй бол» блок хэрэглэ.',
+  hint:'«хэрэв ‹оноо > 10› бол: «Хожлоо» гэ / үгүй бол: «Дахин туршъя» гэ» — change-ийн доор.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[Ch('оноо',1),IfE(C('оноо','>',10),[Say('Хожлоо')],[Say('Дахин туршъя')])]},
+  tests:[{seq:['flag',...A(5)],pre:{'оноо':0},exp:{vars:{'оноо':5},said:'дахин'},why:'5 оноотой үед «Дахин туршъя» гэх ёстой (үгүй бол салаа).'},WIN10[1]],
+  need:p=>uses(p,'ifelse')?null:'«… үгүй бол» салаатай блок ашиглаагүй байна.'},
+ {grp:'🐞 Алдаа засах',bug:true,t:'Оноо хуримтлагдаад байна!',ev:['flag','apple'],focus:'flag',vars:['оноо'],mem:{'оноо':9},start:{flag:[Say('Эхэллээ!')],apple:[Ch('оноо',1),IfE(C('оноо','>',10),[Say('Хожлоо')],[Say('Дахин туршъя')])]}},
+ {grp:'🐞 Алдаа засах',bug:true,t:'Шууд хожчихлоо?!',ev:['flag','apple'],focus:'apple',vars:['оноо'],start:{flag:[St('оноо',0)],apple:[Ch('оноо',1),If(C('оноо','<',10),[Say('Хожлоо')])]}},
+ {grp:'🐞 Алдаа засах',bug:true,t:'Нөхцөл ажиллахгүй байна',ev:['flag','apple'],focus:'apple',vars:['оноо'],start:{flag:[St('оноо',0),If(C('оноо','>',10),[Say('Хожлоо')])],apple:[Ch('оноо',1)]}},
+ {grp:'Ахисан',t:'Амьдрал',ev:['flag','apple','bomb'],focus:'bomb',vars:['оноо'],start:{flag:[St('оноо',0)],apple:[Ch('оноо',1)],bomb:[]},tool:['set','change','say','if','ifelse']},
+ {grp:'Ахисан',t:'Төсөл: Монгол хэлний тест',ev:['flag','ok','bad','finish'],focus:'ok',vars:[],start:{flag:[],ok:[],bad:[],finish:[]},tool:['set','change','say','if','ifelse']},
+ {grp:'Чөлөөт',free:true,t:'Чөлөөт',ev:['flag','apple','bomb','finish'],focus:'apple',vars:['оноо'],start:{flag:[],apple:[],bomb:[],finish:[]},tool:['set','change','say','if','ifelse'],
+  goal:'Өөрийн тоглоомоо бүтээ: оноо, амьдрал, түвшин… хувьсагч үүсгэж, нөхцөлөөр хариу үйлдэл хийлгэ!',hint:'Санаа: «хэрэв оноо = 5 бол → change түвшин by 1». «хэрэв амьдрал < 1 бол → «Тоглоом дууслаа» гэ».'},
+];
+Object.assign(LEVELS[4],{tool:['set','change','say','if','ifelse'],
+  goal:'Тоглогч 🚩-г дарж ДАХИН тоглоход оноо 0-ээс эхлэхгүй, өмнөх оноо нь үлдээд байна (одоо оноо = 9). Юу дутуу вэ? Засаад 🚩 → 🍎 → 🚩 дарж шалга.',
+  hint:'🚩 скриптэд «set оноо to 0» байхгүй байна! Түүнийг «Эхэллээ!»-гийн өмнө оруул.',
+  sol:{vars:['оноо'],flag:[St('оноо',0),Say('Эхэллээ!')],apple:[Ch('оноо',1),IfE(C('оноо','>',10),[Say('Хожлоо')],[Say('Дахин туршъя')])]},
+  tests:[{seq:['flag','apple'],pre:{'оноо':9},exp:{vars:{'оноо':1}},why:'Өмнөх тоглоомоос оноо 9 үлдсэн байхад 🚩 → 🍎 хийхэд оноо 1 болох ёстой.'},{seq:['flag',...A(3),'flag'],pre:{'оноо':0},exp:{vars:{'оноо':0}},why:'2 дахь удаа 🚩 дарахад оноо дахин 0 болох ёстой.'}]});
+Object.assign(LEVELS[5],{tool:['set','change','say','if'],
+  goal:'Бит эхний 🍎 дээр л «Хожлоо» гэчихлээ! 10-аас ИХ оноо авахад л хожих ёстой. Аль тэмдэг буруу вэ?',
+  hint:'«оноо < 10» нь «10-аас БАГА уу?» гэсэн асуулт. Хэрэгтэй нь «оноо > 10» — тэмдгийг соль.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[Ch('оноо',1),If(C('оноо','>',10),[Say('Хожлоо')])]},tests:WIN10,need:p=>uses(p,'if')||uses(p,'ifelse')?null:'«хэрэв … бол» блок хэрэгтэй.'});
+Object.assign(LEVELS[6],{tool:['set','change','say','if'],
+  goal:'11 удаа хүрсэн ч Бит «Хожлоо» гэхгүй байна. Нөхцөлийг 🚩 үед ганц л удаа (оноо = 0 байхад) шалгаж байна. Хаана байх ёстой вэ?',
+  hint:'«хэрэв … бол» блокыг 🚩 скриптээс 🍎 скрипт рүү (change-ийн доор) ЧИРЖ зөө. Тэгвэл бай хүрэх БҮРТ шалгана.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],apple:[Ch('оноо',1),If(C('оноо','>',10),[Say('Хожлоо')])]},tests:WIN10});
+Object.assign(LEVELS[7],{
+  goal:'«амьдрал» хувьсагч үүсгэ. 🚩: «set амьдрал to 3». 💣 хүрэх бүрт амьдрал −1. Амьдрал = 0 болоход «Тоглоом дууслаа» гэ.',
+  hint:'💣 скрипт: «change амьдрал by -1», дараа нь «хэрэв ‹амьдрал = 0› бол → «Тоглоом дууслаа» гэ».',
+  sol:{vars:['оноо','амьдрал'],flag:[St('оноо',0),St('амьдрал',3)],apple:[Ch('оноо',1)],bomb:[Ch('амьдрал',-1),If(C('амьдрал','=',0),[Say('Тоглоом дууслаа')])]},
+  tests:[{seq:['flag','bomb','bomb'],pre:{'амьдрал':0,'оноо':0},exp:{vars:{'амьдрал':1},notSaid:'дууслаа'},why:'🚩 → 💣×2: амьдрал 1 үлдэх ба тоглоом дуусах ёсгүй.'},{seq:['flag','bomb','bomb','bomb'],pre:{'амьдрал':0,'оноо':0},exp:{vars:{'амьдрал':0},said:'дууслаа'},why:'🚩 → 💣×3: амьдрал 0 болж «Тоглоом дууслаа» гэх ёстой.'}],
+  need:p=>p.vars.includes('амьдрал')?null:'«амьдрал» нэртэй хувьсагч үүсгээгүй байна.'});
+Object.assign(LEVELS[8],{
+  goal:'PPT-ийн төсөл: 5 асуулттай тест. «оноо» үүсгэ, 🚩-д 0, ✅ зөв хариулт бүрт +1. 🏁 тест дуусахад: оноо > 3 бол «Тэнцлээ», үгүй бол «Дахин уншъя».',
+  hint:'🚩: set оноо to 0 · ✅: change оноо by 1 · 🏁: хэрэв ‹оноо > 3› бол «Тэнцлээ» гэ / үгүй бол «Дахин уншъя» гэ. ❌ скрипт хоосон байж болно.',
+  sol:{vars:['оноо'],flag:[St('оноо',0)],ok:[Ch('оноо',1)],bad:[],finish:[IfE(C('оноо','>',3),[Say('Тэнцлээ')],[Say('Дахин уншъя')])]},
+  tests:[{seq:['flag',...A(4,'ok'),'bad','finish'],pre:{'оноо':0},exp:{vars:{'оноо':4},said:'тэнцл'},why:'4 зөв, 1 буруу → «Тэнцлээ».'},
+   {seq:['flag',...A(2,'ok'),...A(3,'bad'),'finish'],pre:{'оноо':0},exp:{vars:{'оноо':2},said:'дахин'},why:'2 зөв, 3 буруу → «Дахин уншъя».'},
+   {seq:['flag',...A(5,'ok'),'finish','flag',...A(3,'ok'),...A(2,'bad'),'finish'],pre:{'оноо':0},exp:{vars:{'оноо':3},said:'дахин'},why:'2 дахь удаа тоглоход оноо 0-ээс эхэлж, 3 зөв → «Дахин уншъя».'}],
+  need:p=>!p.vars.includes('оноо')?'«оноо» нэртэй хувьсагч үүсгээгүй байна.':!uses(p,'ifelse')?'Төгсгөлд «… үгүй бол» хэрэгтэй: Тэнцлээ / Дахин уншъя.':null});
+
+/* ───────── төлөв ───────── */
+let lvl=0,uid=1,targetStack=null,targetKey=null;
+let progs={},solved=[],mem={},memLvl=-1;
+try{const s=JSON.parse(sessionStorage.getItem('h16lab')||'null');if(s){solved=s.solved||[];progs=s.progs||{};}}catch(e){}
+const clone=o=>JSON.parse(JSON.stringify(o));
+function reid(list){list.forEach(b=>{b.id=uid++;if(b.body)reid(b.body);if(b.els)reid(b.els);});return list;}
+Object.values(progs).forEach(p=>Object.values(p.s).forEach(reid));
+function save(){try{sessionStorage.setItem('h16lab',JSON.stringify({solved,progs}));}catch(e){}}
+const L=()=>LEVELS[lvl];
+function P(){if(!progs[lvl]){const l=L(),s={};l.ev.forEach(e=>s[e]=reid(clone(l.start[e]||[])));progs[lvl]={vars:[...l.vars],s};}return progs[lvl];}
+const vars=()=>P().vars;
+function walk(list,f){list.forEach(b=>{f(b);if(b.body)walk(b.body,f);if(b.els)walk(b.els,f);});}
+function uses(p,type){let u=false;Object.values(p.s||p).forEach(l=>Array.isArray(l)&&walk(l,b=>{if(b.type===type)u=true;}));return u;}
+const countBlocks=p=>{let n=0;Object.values(p.s).forEach(l=>walk(l,()=>n++));return n;};
+const norm=s=>String(s==null?'':s).toLowerCase().replace(/[«»"'!.,?\s]/g,'');
+
+/* ───────── ажиллуулагч ───────── */
+const num=v=>{const n=Number(v);return isFinite(n)?n:0;};
+const test=(c,m)=>{const a=num(m[c.v]),b=num(c.n);return c.op==='>'?a>b:c.op==='<'?a<b:a===b;};
+function execList(list,m,ctx){for(const b of list){if(++ctx.n>400)return;
+  if(b.type==='set'){m[b.v]=num(b.n);ctx.tr.push({id:b.id,m:{...m},said:ctx.said,txt:`set ${b.v} to ${num(b.n)}`,chg:b.v});}
+  else if(b.type==='change'){m[b.v]=num(m[b.v])+num(b.n);ctx.tr.push({id:b.id,m:{...m},said:ctx.said,txt:`change ${b.v} by ${num(b.n)} → ${m[b.v]}`,chg:b.v,neg:num(b.n)<0});}
+  else if(b.type==='say'){ctx.said=b.txt;ctx.tr.push({id:b.id,m:{...m},said:ctx.said,txt:`💬 «${b.txt}»`});}
+  else{const ok=test(b.c,m);ctx.tr.push({id:b.id,m:{...m},said:ctx.said,cond:ok,ctext:`${num(m[b.c.v])} ${b.c.op} ${num(b.c.n)}`,txt:`хэрэв ${b.c.v} ${b.c.op} ${num(b.c.n)} → ${ok?'ҮНЭН':'ХУДАЛ'}`});
+    if(ok)execList(b.body,m,ctx);else if(b.els)execList(b.els,m,ctx);}}}
+function runEventPure(p,ev,m,said){const ctx={tr:[],n:0,said};execList(p.s[ev]||[],m,ctx);return ctx;}
+
+/* ───────── блокийн DOM ───────── */
+const TBX_DEF={set:()=>St(vars()[0]||'?',0),change:()=>Ch(vars()[0]||'?',1),say:()=>Say('Хожлоо'),if:()=>If(C(vars()[0]||'?','>',10),[]),ifelse:()=>IfE(C(vars()[0]||'?','>',10),[],[])};
+function vSel(cur,key){const vs=vars().slice();if(!vs.includes(cur))vs.push(cur);return `<select class="fld vsel" data-k="${key}" aria-label="хувьсагч">${vs.map(v=>`<option${v===cur?' selected':''}>${esc(v)}</option>`).join('')}</select>`;}
+function inner(b){
+  if(b.type==='set')return `set ${vSel(b.v,'v')} to <input class="fld" type="number" data-k="n" value="${esc(b.n)}" aria-label="утга">`;
+  if(b.type==='change')return `change ${vSel(b.v,'v')} by <input class="fld" type="number" data-k="n" value="${esc(b.n)}" aria-label="хэдээр">`;
+  if(b.type==='say')return `💬 <input class="fld txt" data-k="txt" value="${esc(b.txt)}" style="width:${Math.min(18,Math.max(5,String(b.txt).length+2))}ch" aria-label="хэлэх үг"> гэ`;
+  const cnd=`<span class="cnd">${vSel(b.c.v,'c.v')}<select class="fld op" data-k="c.op" aria-label="тэмдэг">${['>','<','='].map(o=>`<option${o===b.c.op?' selected':''}>${esc(o)}</option>`).join('')}</select><input class="fld" type="number" data-k="c.n" value="${esc(b.c.n)}" aria-label="тоо"></span>`;
+  return `<div class="c-h">хэрэв ${cnd} бол <span class="cbadge"></span></div><div class="c-body stack" data-part="body"></div>${b.type==='ifelse'?'<div class="c-mid">үгүй бол</div><div class="c-body stack" data-part="els"></div>':''}<div class="c-f"></div>`;
+}
+function blockEl(b,inTbx){
+  const el=document.createElement('div');
+  const isC=b.type==='if'||b.type==='ifelse';
+  el.className='blk'+(isC?' c':b.type==='say'?' looks':'');
+  el.innerHTML=inner(b);
+  if(isC){el.querySelectorAll(':scope>.c-body').forEach(st=>{const part=st.dataset.part;if(!inTbx){st._list=b[part];st.classList.toggle('empty',!b[part].length);b[part].forEach(c=>st.appendChild(blockEl(c,false)));}else st.classList.add('empty');});}
+  el.querySelectorAll(':scope>.fld,:scope>.c-h .fld').forEach(f=>{
+    f.addEventListener('pointerdown',e=>e.stopPropagation());
+    f.addEventListener('change',()=>{const k=f.dataset.k;let val=f.value;if(f.type==='number'){val=Math.round(+val);if(!isFinite(val)||val<-99||val>999){toast('−99 … 999 хооронд тоо бич.');renderWs();return;}}
+      if(k.startsWith('c.'))b.c[k.slice(2)]=val;else b[k]=val;if(!inTbx)changed();});
+  });
+  if(!inTbx)el.dataset.id=b.id;
+  el._block=b;el._tbx=!!inTbx;
+  el.addEventListener('pointerdown',startDrag);
+  return el;
+}
+function renderToolbox(){
+  const box=$('tbx-blocks');box.replaceChildren();const l=L();
+  if(!l._tools||l._toolsFor!==vars().join('|')){l._tools=l.tool.map(t=>TBX_DEF[t]());l._toolsFor=vars().join('|');}
+  const noVar=!vars().length;
+  l._tools.forEach(t=>{const el=blockEl(t,true);if(noVar&&t.type!=='say'){el.style.opacity=.45;el.title='Эхлээд хувьсагч үүсгэ';}box.appendChild(el);});
+  $('chips').innerHTML=vars().map(v=>`<span class="chip">${esc(v)}<button type="button" data-del="${esc(v)}" aria-label="${esc(v)} устгах">✕</button></span>`).join('')||'<span class="muted" style="font-size:13px">Хувьсагч алга.</span>';
+  $('chips').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delVar(b.dataset.del));
+}
+function renderWs(){
+  const box=$('scripts');box.replaceChildren();const p=P();
+  L().ev.forEach(ev=>{const sc=document.createElement('div');sc.className='script';sc.innerHTML=`<div class="hat">${EV[ev].hat}</div>`;const st=document.createElement('div');st.className='stack root';st.dataset.ev=ev;st._list=p.s[ev];p.s[ev].forEach(b=>st.appendChild(blockEl(b,false)));sc.appendChild(st);box.appendChild(sc);});
+  let kept=null;if(targetKey){if(targetKey.ev)kept=box.querySelector(`.stack.root[data-ev="${targetKey.ev}"]`);else kept=box.querySelector(`.blk[data-id="${targetKey.id}"] > .c-body[data-part="${targetKey.part}"]`);}
+  setTarget(kept||box.querySelector(`.stack.root[data-ev="${L().focus}"]`)||box.querySelector('.stack.root'));
+  renderAlgo();renderMons();
+}
+function setTarget(st){document.querySelectorAll('.stack.target').forEach(s=>s.classList.remove('target'));targetStack=st;
+  targetKey=!st?null:st.dataset.ev?{ev:st.dataset.ev}:{id:st.parentElement.dataset.id,part:st.dataset.part};if(st)st.classList.add('target');}
+function renderLevels(){
+  const box=$('levels');box.innerHTML='';let g='';
+  LEVELS.forEach((l,i)=>{if(l.grp!==g&&!l.free){g=l.grp;const s=document.createElement('span');s.className='grp'+(l.bug?' bug':'');s.textContent=g;box.appendChild(s);}
+    const b=document.createElement('button');b.type='button';b.className='lvl'+(l.free?' free':'')+(i===lvl?' cur':'')+(solved[i]?' done':'');b.textContent=l.free?'★ Чөлөөт':solved[i]?'✓':String(i+1);b.title=l.t;b.setAttribute('aria-label',`${i+1}-р даалгавар: ${l.t}`);b.onclick=()=>{lvl=i;loadLevel();};box.appendChild(b);});
+}
+function resetMem(){mem={};vars().forEach(v=>mem[v]=0);if(L().mem)Object.assign(mem,L().mem);said=null;hist=[];memLvl=lvl;renderMons();renderHist();drawStage();}
+function loadLevel(){
+  const l=L();queue=[];busy=false;
+  $('goal-title').textContent=l.free?'★ Чөлөөт туршилт':`${lvl+1}-р даалгавар · ${l.t}`;
+  $('goal-text').textContent=l.goal;
+  $('bubble').classList.toggle('bug',!!l.bug);$('who').textContent=l.bug?'🐞':'✏️';
+  targetStack=null;targetKey=null;$('varform').classList.remove('show');
+  $('evbtns').innerHTML=l.ev.map(e=>`<button type="button" class="${e==='flag'?'flag':''}" data-ev="${e}">${EV[e].btn}</button>`).join('');
+  $('evbtns').querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>fire(b.dataset.ev));
+  renderLevels();renderToolbox();renderWs();resetMem();
+  $('result').className='result';$('result').innerHTML=l.bug?'🐞 Эхлээд <b>🚩 / 🍎</b> товчоор ажиллуулж алдааг <b>харж</b>, дараа нь засаад <b>✔ Шалгах</b> дар.':'Блокоо оруулаад <b>🚩 / 🍎</b> товчоор туршиж, хувьсагч хэрхэн өөрчлөгдөхийг хар. Бэлэн бол <b>✔ Шалгах</b>.';
+}
+function changed(){renderToolbox();renderWs();save();}
+function toast(t){const el=$('toast');el.innerHTML=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);}
+
+/* ───────── хувьсагч үүсгэх ───────── */
+$('mkvar').onclick=()=>{$('varform').classList.toggle('show');$('varname').value='';$('varname').focus();};
+function addVar(){const n=$('varname').value.trim().replace(/\s+/g,'_');
+  if(!n){toast('Нэр бич.');return;}
+  if(n.length<3||/^[a-zа-яөүё]\d*$/i.test(n)){toast('🙅 «'+esc(n)+'» гэж бүү нэрлэ — дараа нь юу болохыг мартана. Ойлгомжтой нэр өг: «оноо», «амьдрал», «түвшин».');return;}
+  if(vars().includes(n)){toast('Ийм хувьсагч аль хэдийн бий.');return;}
+  vars().push(n);mem[n]=0;$('varform').classList.remove('show');changed();toast(`✔ «${esc(n)}» хувьсагч үүслээ — утга нь 0.`);}
+$('varok').onclick=addVar;$('varname').addEventListener('keydown',e=>{if(e.key==='Enter')addVar();});
+function delVar(n){let used=false;Object.values(P().s).forEach(l=>walk(l,b=>{if(b.v===n||(b.c&&b.c.v===n))used=true;}));if(used){toast(`«${esc(n)}» блокт ашиглагдаж байна — эхлээд тэр блокуудыг хас.`);return;}P().vars=vars().filter(v=>v!==n);delete mem[n];changed();}
+
+/* ───────── чирэх ───────── */
+let drag=null;const mark=$('mark');
+function allLists(){return Object.values(P().s);}
+function findParent(id){let r=null;const f=list=>{for(let i=0;i<list.length&&!r;i++){const b=list[i];if(b.id===id){r={list,i};return;}if(b.body)f(b.body);if(b.els)f(b.els);}};allLists().forEach(l=>{if(!r)f(l);});return r;}
+function startDrag(e){
+  if(e.button!==undefined&&e.button!==0)return;
+  e.stopPropagation();e.preventDefault();
+  const el=e.currentTarget,r=el.getBoundingClientRect();
+  if(el._tbx&&!vars().length&&el._block.type!=='say'){toast('Эхлээд <b>➕ Хувьсагч үүсгэх</b> дар.');return;}
+  drag={el,b:el._block,fromTbx:el._tbx,x0:e.clientX,y0:e.clientY,dx:e.clientX-r.left,dy:e.clientY-r.top,moved:false};
+  window.addEventListener('pointermove',onDrag);window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',cancelDrag);
+}
+function freshCopy(t){const b=clone(t);delete b.id;b.id=uid++;if(b.body)b.body=[];if(b.els)b.els=[];return b;}
+function beginMove(){
+  drag.moved=true;
+  if(drag.fromTbx)drag.nb=freshCopy(drag.b);
+  else{const f=findParent(drag.b.id);if(f){f.list.splice(f.i,1);drag.origin=f;}drag.nb=drag.b;renderWs();$('tbx').classList.add('trash');}
+  const g=blockEl(drag.nb,false);g.classList.add('ghost');document.body.appendChild(g);drag.ghost=g;
+}
+function targets(){
+  const out=[];
+  $('ws').querySelectorAll('.stack').forEach(st=>{
+    const kids=[...st.children].filter(c=>c.classList.contains('blk')),sr=st.getBoundingClientRect();
+    let d=0,n=st;while(n&&n.id!=='ws'){if(n.classList&&n.classList.contains('c-body'))d++;n=n.parentElement;}
+    for(let i=0;i<=kids.length;i++){const y=i<kids.length?kids[i].getBoundingClientRect().top:kids.length?kids[kids.length-1].getBoundingClientRect().bottom:sr.top+4;out.push({st,i,x:sr.left,y,w:Math.max(160,sr.width),d});}
+  });return out;
+}
+function onDrag(e){
+  if(!drag)return;
+  if(!drag.moved){if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;beginMove();}
+  drag.ghost.style.left=(e.clientX-drag.dx)+'px';drag.ghost.style.top=(e.clientY-drag.dy)+'px';
+  drag.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);drag.ghost.style.display='';
+  drag.t=null;mark.style.display='none';
+  if(under&&under.closest('#ws')){
+    let best=null,bd=1e9;const isC=drag.nb.type==='if'||drag.nb.type==='ifelse';
+    for(const t of targets()){if(isC&&t.d>=2)continue;if(e.clientX<t.x-30||e.clientX>t.x+t.w+60)continue;const dd=Math.abs(e.clientY-drag.dy-t.y)+(e.clientX<t.x?40:0)+t.d*2;if(dd<bd){bd=dd;best=t;}}
+    if(best){drag.t=best;mark.style.display='block';mark.style.left=best.x+'px';mark.style.top=(best.y-3)+'px';mark.style.width=Math.min(220,best.w)+'px';}
+  }
+}
+function endDrag(){
+  window.removeEventListener('pointermove',onDrag);window.removeEventListener('pointerup',endDrag);window.removeEventListener('pointercancel',cancelDrag);
+  mark.style.display='none';$('tbx').classList.remove('trash');
+  if(!drag)return;const d=drag;drag=null;
+  if(!d.moved){if(d.fromTbx)addBlock(d.b);return;}
+  d.ghost.remove();
+  if(d.t){d.t.st._list.splice(d.t.i,0,d.nb);changed();if(d.nb.body){const s=document.querySelector(`#ws .blk[data-id="${d.nb.id}"] > .c-body[data-part="body"]`);if(s)setTarget(s);}return;}
+  changed();
+}
+function cancelDrag(){if(drag&&drag.ghost)drag.ghost.remove();if(drag&&drag.origin)drag.origin.list.splice(drag.origin.i,0,drag.nb);drag=null;mark.style.display='none';$('tbx').classList.remove('trash');renderWs();}
+function addBlock(t){
+  if(!vars().length&&t.type!=='say'){toast('Эхлээд <b>➕ Хувьсагч үүсгэх</b> дар.');return;}
+  const b=freshCopy(t);
+  const st=targetStack&&document.contains(targetStack)?targetStack:$('ws').querySelector('.stack.root');
+  let depth=0,n=st;while(n&&n.id!=='ws'){if(n.classList.contains('c-body'))depth++;n=n.parentElement;}
+  if(b.body&&depth>=2){toast('3 давхар нөхцөл энэ хичээлд хэрэггүй.');return;}
+  st._list.push(b);changed();
+  if(b.body){const s=document.querySelector(`#ws .blk[data-id="${b.id}"] > .c-body[data-part="body"]`);if(s)setTarget(s);}
+}
+$('ws').addEventListener('pointerdown',e=>{if(e.target.closest('.blk')&&!e.target.classList.contains('c-body'))return;const st=e.target.closest('.stack');if(st)setTarget(st);});
+$('ws').addEventListener('click',e=>{if(e.target.classList&&e.target.classList.contains('c-body'))setTarget(e.target);});
+
+/* ───────── тайз ───────── */
+const cv=$('cv'),g=cv.getContext('2d');
+let said=null,hist=[],bit={x:120,y:190,hop:0},items={apple:{x:300,y:120},bomb:{x:310,y:230}},queue=[],busy=false,pop=null;
+function renderMons(changedVar,neg){$('mons').innerHTML=vars().map(v=>`<div class="mon${v===changedVar?' flash'+(neg?' neg':''):''}" data-v="${esc(v)}"><span>${esc(v)}</span><b>${esc(mem[v]??0)}</b></div>`).join('');}
+function renderHist(){$('hist').innerHTML=hist.length?hist.slice(-40).join('<br>'):'<span style="opacity:.6">Гүйлтийн түүх энд гарна. 🚩 дарж эхэл!</span>';$('hist').scrollTop=1e6;}
+function drawStage(){
+  g.setTransform(2,0,0,2,0,0);
+  const sky=g.createLinearGradient(0,0,0,300);sky.addColorStop(0,'#dff4ff');sky.addColorStop(1,'#f4fbff');g.fillStyle=sky;g.fillRect(0,0,400,300);
+  g.fillStyle='#bfe8b0';g.fillRect(0,250,400,50);g.fillStyle='#9fd68c';g.fillRect(0,250,400,4);
+  const evs=L().ev;g.textAlign='center';g.textBaseline='middle';
+  if(evs.includes('apple')){g.font='34px -apple-system,"Apple Color Emoji","Segoe UI Emoji",sans-serif';g.fillText('🍎',items.apple.x,items.apple.y);}
+  if(evs.includes('bomb')){g.font='32px -apple-system,"Apple Color Emoji","Segoe UI Emoji",sans-serif';g.fillText('💣',items.bomb.x,items.bomb.y);}
+  if(evs.includes('ok')){g.fillStyle='#fff';g.strokeStyle='#adb5bd';g.lineWidth=2;g.fillRect(280,70,92,120);g.strokeRect(280,70,92,120);g.fillStyle='#495057';g.font='700 12px -apple-system,Arial';g.fillText('Монгол хэл',326,86);g.font='600 11px -apple-system,Arial';for(let i=0;i<5;i++){g.fillText(`${i+1}. ______`,326,108+i*16);}}
+  // Бит могой
+  const by=bit.y-Math.sin(Math.min(1,bit.hop)*Math.PI)*30;
+  for(let i=6;i>=1;i--){const x=bit.x-i*13,y=by+Math.sin(i*.9+performance.now()/400)*4+6;g.fillStyle=i%2?'#7a5cff':'#33c9ef';g.beginPath();g.arc(x,y,13-i*.8,0,7);g.fill();}
+  g.fillStyle='#33c9ef';g.beginPath();g.arc(bit.x,by,19,0,7);g.fill();g.strokeStyle='#1b8fb0';g.lineWidth=2;g.stroke();
+  for(const s of [-1,1]){g.fillStyle='#fff';g.beginPath();g.arc(bit.x+7,by+s*7-4,6,0,7);g.fill();g.fillStyle='#172536';g.beginPath();g.arc(bit.x+9,by+s*7-4,3,0,7);g.fill();}
+  g.strokeStyle='#172536';g.lineWidth=2;g.beginPath();g.arc(bit.x+6,by+6,6,.2,1.4);g.stroke();
+  if(pop){g.globalAlpha=Math.max(0,1-pop.t);g.font='800 18px -apple-system,Arial';g.fillStyle=pop.col;g.fillText(pop.txt,pop.x,pop.y-pop.t*30);g.globalAlpha=1;}
+  // яриа
+  if(said!=null&&said!==''){g.font='700 15px -apple-system,Arial';const w=Math.min(250,g.measureText(said).width+26),x=Math.min(400-w-6,bit.x-10),y=by-80;
+    g.fillStyle='#fff';g.strokeStyle='#9966FF';g.lineWidth=2;g.beginPath();g.roundRect?g.roundRect(x,y,w,38,14):g.rect(x,y,w,38);g.fill();g.stroke();
+    g.beginPath();g.moveTo(x+22,y+38);g.lineTo(x+18,y+52);g.lineTo(x+34,y+38);g.closePath();g.fill();g.stroke();g.fillStyle='#fff';g.fillRect(x+20,y+35,13,4);
+    g.fillStyle='#3b2a77';g.fillText(said,x+w/2,y+20,w-14);}
+}
+let animOn=false;
+function animTo(tx,ty,ms){return new Promise(res=>{const x0=bit.x,y0=bit.y,t0=performance.now();animOn=true;const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms);bit.x=x0+(tx-x0)*k;bit.y=y0+(ty-y0)*k;bit.hop=k;if(pop)pop.t=k;drawStage();if(k<1)setTimeout(f,16);else{bit.hop=0;animOn=false;res();}};f();});}
+const stepMs=()=>[0,650,420,240,90,0][+$('speed').value];
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function fire(ev){if(queue.length>30)return;queue.push(ev);if(!busy)pump();}
+async function pump(){busy=true;const myLvl=lvl;
+  while(queue.length&&lvl===myLvl){const ev=queue.shift();
+    if(memLvl!==lvl)resetMem();
+    vars().forEach(v=>{if(!(v in mem))mem[v]=0;});
+    document.querySelectorAll('#ws .cbadge').forEach(b=>{b.className='cbadge';b.textContent='';});
+    hist.push(`<span class="e">${EV[ev].hat}</span>`);renderHist();
+    const ms=stepMs();
+    if(ev==='apple'||ev==='bomb'){const it=items[ev];pop={txt:ev==='apple'?'хүрлээ!':'бум!',col:ev==='apple'?'#2b8a3e':'#c92a2a',x:it.x,y:it.y-20,t:0};await animTo(it.x-30,it.y+10,Math.max(120,ms));}
+    if(ev==='flag'){bit.x=120;bit.y=190;}
+    const p=P(),ctx=runEventPure(p,ev,{...mem},said);
+    if(!ctx.tr.length){hist.push('  (энэ скрипт хоосон)');renderHist();}
+    for(const s of ctx.tr){
+      const el=document.querySelector(`#ws .blk[data-id="${s.id}"]`);document.querySelectorAll('#ws .blk.run').forEach(e=>e.classList.remove('run'));if(el)el.classList.add('run');
+      if(s.cond!==undefined&&el){const bd=el.querySelector(':scope>.c-h .cbadge');bd.className='cbadge '+(s.cond?'t':'f');bd.textContent=`${s.ctext} → ${s.cond?'ҮНЭН':'ХУДАЛ'}`;}
+      mem=s.m;said=s.said;renderMons(s.chg,s.neg);drawStage();
+      hist.push(`  ${s.cond===undefined?'':s.cond?'<span class="ok">':'<span class="no">'}${esc(s.txt)}${s.cond===undefined?'':'</span>'}`);renderHist();
+      if(ms)await wait(ms);if(lvl!==myLvl)break;}
+    document.querySelectorAll('#ws .blk.run').forEach(e=>e.classList.remove('run'));
+    if(ev==='apple'){items.apple={x:200+Math.random()*170,y:60+Math.random()*150};}
+    if(ev==='bomb'){items.bomb={x:200+Math.random()*170,y:60+Math.random()*150};}
+    if(ev!=='flag')await animTo(120,190,Math.max(100,ms*.6));
+    pop=null;drawStage();renderMons();
+  }
+  busy=false;}
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*400,y=(e.clientY-r.top)/r.height*300;
+  for(const k of ['apple','bomb'])if(L().ev.includes(k)&&Math.hypot(x-items[k].x,y-items[k].y)<26){fire(k);return;}
+  if(Math.hypot(x-bit.x,y-bit.y)<30&&L().ev.includes('flag'))fire('flag');});
+
+/* ───────── шалгах ───────── */
+function runTests(p,l){
+  if(l.need){const m=l.need(p);if(m)return {ok:false,msg:m};}
+  for(const t of l.tests){let m={};p.vars.forEach(v=>m[v]=0);Object.assign(m,t.pre||{});let s=null;
+    for(const ev of t.seq){const ctx=runEventPure(p,ev,m,s);s=ctx.said;}
+    const e=t.exp,seqTxt=compress(t.seq);
+    if(e.vars)for(const v in e.vars){if(!p.vars.includes(v))return {ok:false,msg:`«${v}» хувьсагч алга.`};if(num(m[v])!==e.vars[v])return {ok:false,msg:`${seqTxt} хийхэд <b>${v} = ${e.vars[v]}</b> болох ёстой, харин <b>${v} = ${num(m[v])}</b> боллоо.<br>📘 ${t.why}${t.pre&&num(t.pre[v])?` <i>(Шалгалт эхлэхэд ${v} = ${t.pre[v]} үлдсэн байсан — өмнөх тоглоом шиг.)</i>`:''}`};}
+    if(e.said&&!norm(s).includes(e.said))return {ok:false,msg:`${seqTxt} хийхэд Бит ${s?`«${esc(s)}» гэлээ`:'юу ч хэлсэнгүй'}.<br>📘 ${t.why}`};
+    if(e.notSaid&&norm(s).includes(e.notSaid))return {ok:false,msg:`${seqTxt} хийхэд Бит «${esc(s)}» гэчихлээ!<br>📘 ${t.why}`};
+  }
+  return {ok:true};
+}
+function compress(seq){const out=[];seq.forEach(e=>{const last=out[out.length-1];if(last&&last.e===e)last.n++;else out.push({e,n:1});});return out.map(x=>EV[x.e].ic+(x.n>1?'×'+x.n:'')).join(' → ');}
+$('check').onclick=()=>{const l=L();
+  if(l.free){const n=countBlocks(P());$('result').className='result ok';$('result').innerHTML=`<strong>Чөлөөт бүтээл</strong>${vars().length} хувьсагч · ${n} блок · ${uses(P(),'ifelse')?'⭐ «үгүй бол» ашигласан':uses(P(),'if')?'«хэрэв … бол» ашигласан':'Нөхцөл ашиглаагүй байна'}. 🚩-г 2 удаа дарж оноо зөв сэргэж байгааг шалгаарай!`;return;}
+  const r=runTests(P(),l);
+  if(r.ok){$('result').className='result ok';$('result').innerHTML=`<strong>🎉 Зөв! Бүх шалгалтыг давлаа.</strong>${l.tests.length} өөр тохиолдлоор (${l.tests.map(t=>compress(t.seq)).join(' · ')}) туршлаа.`;
+    solved[lvl]=true;save();renderLevels();
+    $('win-title').textContent=`${lvl+1}-р даалгавар дууслаа!`;$('win-text').innerHTML=l.bug?'Алдааг олж засчихлаа! 🐞':`«${l.t}» — ${l.tests.length} тохиолдол бүгд зөв ажиллалаа.`;
+    $('win-next').hidden=lvl>=LEVELS.length-1;$('win').classList.add('show');$('win-next').focus();return;}
+  $('result').className='result bad';$('result').innerHTML=`<strong>Дахин оролдъё 💪</strong>${r.msg}`;
+};
+$('hint').onclick=()=>toast('💡 '+esc(L().hint));
+$('clear').onclick=()=>{const p=P();L().ev.forEach(e=>p.s[e]=[]);targetKey=null;changed();};
+$('restart').onclick=()=>{delete progs[lvl];L()._tools=null;targetKey=null;changed();resetMem();};
+$('win-again').onclick=()=>$('win').classList.remove('show');
+$('win-next').onclick=()=>{$('win').classList.remove('show');lvl=Math.min(LEVELS.length-1,lvl+1);loadLevel();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('win').classList.remove('show');});
+
+/* ───────── алгоритм: блок-схем ба бичвэр ───────── */
+const NS='http://www.w3.org/2000/svg';
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+const NW=150,NH=32,DW=170,DH=54,GAP=22;
+const lab=b=>b.type==='set'?`${b.v} = ${num(b.n)}`:b.type==='change'?`${b.v} = ${b.v} ${num(b.n)<0?'−':'+'} ${Math.abs(num(b.n))}`:b.type==='say'?`«${b.txt}»`:`${b.c.v} ${b.c.op} ${num(b.c.n)}`;
+function meas(list){let l=NW/2+6,r=NW/2+6,h=0;list.forEach(b=>{measN(b);l=Math.max(l,b._l);r=Math.max(r,b._r);h+=GAP+b._h;});return {l,r,h:h+GAP};}
+function measN(b){if(b.type==='if'||b.type==='ifelse'){const T=meas(b.body),E=meas(b.els||[]);b._T=T;b._E=E;b._dr=Math.max(DW/2+30,T.l+16);b._dl=b.type==='ifelse'?Math.max(DW/2+30,E.r+16):DW/2+30;b._r=b._dr+T.r;b._l=b._dl+(b.type==='ifelse'?E.l:12);b._h=DH/2+Math.max(T.h,b.type==='ifelse'?E.h:GAP)+8;}else{b._l=b._r=NW/2+6;b._h=NH;}}
+function seg(gp,x,y1,y2,arrow){el('line',{x1:x,y1,x2:x,y2,stroke:'#495057','stroke-width':1.5,'marker-end':arrow?'url(#fa)':''},gp);}
+function pl(gp,pts,arrow){el('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:'#495057','stroke-width':1.5,'marker-end':arrow?'url(#fa)':''},gp);}
+function tx(gp,t,x,y,c,sz){const e=el('text',{x,y,'text-anchor':'middle','font-family':'Arial','font-size':sz||13,'font-weight':'bold',fill:c||'#212529'},gp);e.textContent=t;}
+function fit(t,n){return t.length>n?t.slice(0,n-1)+'…':t;}
+function dList(gp,list,cx,y){list.forEach(b=>{seg(gp,cx,y,y+GAP,true);y+=GAP;y=dNode(gp,b,cx,y);});seg(gp,cx,y,y+GAP,false);return y+GAP;}
+function dNode(gp,b,cx,y){
+  if(b.type==='set'||b.type==='change'){el('rect',{x:cx-NW/2,y,width:NW,height:NH,fill:'#fff3bf',stroke:'#b08900','stroke-width':1.5},gp);tx(gp,fit(lab(b),20),cx,y+20);return y+NH;}
+  if(b.type==='say'){const k=10;el('polygon',{points:`${cx-NW/2+k},${y} ${cx+NW/2+k},${y} ${cx+NW/2-k},${y+NH} ${cx-NW/2-k},${y+NH}`,fill:'#d3f9d8',stroke:'#2b8a3e','stroke-width':1.5},gp);tx(gp,fit(lab(b),18),cx,y+20);return y+NH;}
+  const my=y+DH/2,xr=cx+b._dr,xl=cx-b._dl;
+  el('polygon',{points:`${cx},${y} ${cx+DW/2},${my} ${cx},${y+DH} ${cx-DW/2},${my}`,fill:'#ffe3ec',stroke:'#c2255c','stroke-width':1.8},gp);tx(gp,fit(lab(b),16),cx,my+5);
+  tx(gp,'Тийм',cx+DW/2+20,my-6,'#2b8a3e',11);tx(gp,'Үгүй',cx-DW/2-20,my-6,'#c92a2a',11);
+  pl(gp,[[cx+DW/2,my],[xr,my]]);pl(gp,[[cx-DW/2,my],[xl,my]]);
+  const yT=dList(gp,b.body,xr,my),yE=b.type==='ifelse'?dList(gp,b.els,xl,my):my+GAP;
+  if(b.type!=='ifelse')seg(gp,xl,my,yE,false);
+  const ym=y+b._h;seg(gp,xr,yT,ym,false);seg(gp,xl,yE,ym,false);
+  pl(gp,[[xr,ym],[cx+5,ym]],true);pl(gp,[[xl,ym],[cx-5,ym]],true);el('circle',{cx,cy:ym,r:4,fill:'#495057'},gp);
+  return ym;
+}
+function flowFor(ev,list){
+  const m=meas(list),hw=Math.max(m.l,m.r,90),W=hw*2+20,H=14+32+m.h+32+14,cx=hw+10;
+  const s=el('svg',{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':EV[ev].hat+' блок-схем'});
+  const defs=el('defs',{},s),mk=el('marker',{id:'fa',viewBox:'0 0 10 10',refX:10,refY:5,markerWidth:8,markerHeight:8,orient:'auto-start-reverse',markerUnits:'userSpaceOnUse'},defs);el('path',{d:'M0,0 L10,5 L0,10 z',fill:'#495057'},mk);
+  const gp=el('g',{},s);
+  el('rect',{x:cx-75,y:14,width:150,height:32,rx:16,fill:'#fff9db',stroke:'#495057','stroke-width':1.5},gp);tx(gp,EV[ev].hat,cx,35);
+  const y=dList(gp,list,cx,46);
+  el('rect',{x:cx-55,y,width:110,height:30,rx:15,fill:'#fff9db',stroke:'#495057','stroke-width':1.5},gp);tx(gp,'Төгсгөл',cx,y+20);
+  return s;
+}
+function pseudo(p,html){const h=(c,t)=>html?`<span class="${c}">${t}</span>`:t;
+  const ps=(list,ind)=>list.map(b=>b.type==='set'?`${ind}${h('v',esc(b.v))} = ${num(b.n)}`:b.type==='change'?`${ind}${h('v',esc(b.v))} = ${h('v',esc(b.v))} ${num(b.n)<0?'−':'+'} ${Math.abs(num(b.n))}`:b.type==='say'?`${ind}«${esc(b.txt)}» гэ`:
+    `${ind}${h('k','ХЭРЭВ')} ${h('v',esc(b.c.v))} ${esc(b.c.op)} ${num(b.c.n)} ${h('k','БОЛ')}:\n${ps(b.body,ind+'    ')||ind+'    (хоосон)'}${b.type==='ifelse'?`\n${ind}${h('k','ҮГҮЙ БОЛ')}:\n${ps(b.els,ind+'    ')||ind+'    (хоосон)'}`:''}`).join('\n');
+  return `${h('e','Хувьсагч:')} ${p.vars.map(esc).join(', ')||'(алга)'}\n\n`+L().ev.map(ev=>`${h('e',EV[ev].hat+':')}\n${ps(p.s[ev],'    ')||'    (хоосон)'}`).join('\n\n');}
+function renderAlgo(){const p=P();$('flow').replaceChildren(...L().ev.map(ev=>flowFor(ev,p.s[ev])));$('pseudo').innerHTML=pseudo(p,true);}
+$('save').onclick=()=>{const p=P(),l=L();
+  const txt=`4-р анги · Хичээл 16 · Нөхцөл (if) ба хувьсагч\nДаалгавар ${lvl+1}: ${l.t}${solved[lvl]?' ✓':''}\n\nМиний алгоритм:\n${pseudo(p,false).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"')}\n\nМиний тайлбар:\n${$('note').value}`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+txt],{type:'text/plain;charset=utf-8'}));a.download='hicheel-16-minii-programm.txt';document.body.appendChild(a);a.click();a.remove();toast('Файл татагдлаа.');};
+$('print').onclick=()=>window.print();
+
+/* ───────── 02 · Нөхцөл туршигч ───────── */
+function renderCalc(){const v=+$('cs').value,op=$('cop').value,k=Math.round(+$('ck').value)||0,ok=op==='>'?v>k:op==='<'?v<k:v===k;
+  $('cv-val').textContent=v;
+  $('cmpt').innerHTML=`<tr><th>Асуулт</th><th>Хариу</th></tr>`+[['>','их үү?',v>k],['<','бага уу?',v<k],['=','тэнцүү юү?',v===k]].map(([o,w,r])=>`<tr><td>оноо ${o} ${k} — ${v} нь ${k}-аас ${w}</td><td class="${r?'t':'f'}">${r?'ҮНЭН ✔':'ХУДАЛ ✘'}</td></tr>`).join('');
+  $('demo').innerHTML=`<div class="blk c" style="width:max-content"><div class="c-h">хэрэв <span class="cnd"><span class="fld vsel" style="background:#ffe2c4">оноо</span> <span class="fld">${esc(op)}</span> <span class="fld">${k}</span></span> бол <span class="cbadge ${ok?'t':'f'}">${v} ${esc(op)} ${k} → ${ok?'ҮНЭН':'ХУДАЛ'}</span></div>
+   <div class="c-body"><div class="blk looks ${ok?'lit':'dim'}">💬 Хожлоо гэ</div></div><div class="c-mid">үгүй бол</div><div class="c-body"><div class="blk looks ${ok?'dim':'lit'}">💬 Дахин туршъя гэ</div></div><div class="c-f"></div></div>
+   <div class="saybox"><span class="sp">🐍</span><span class="sb">${ok?'Хожлоо! 🏆':'Дахин туршъя'}</span></div>
+   <p class="muted" style="margin:0">${ok?'Нөхцөл <b>ҮНЭН</b> → дээд салаа гүйлээ.':'Нөхцөл <b>ХУДАЛ</b> → «үгүй бол» салаа гүйлээ.'} Гулсуурыг ${k}, ${k+1} дээр тавьж харьцуул — «${k} ${esc(op)} ${k}» юу гарах вэ?</p>`;}
+['cs','cop','ck'].forEach(id=>$(id).addEventListener('input',renderCalc));
+const QS=[
+ {q:'оноо = 12. «хэрэв оноо > 10 бол «Хожлоо» гэ». Бит юу гэх вэ?',c:['«Хожлоо»','Юу ч хэлэхгүй','«Дахин туршъя»'],a:0,w:'12 > 10 ҮНЭН → дотор нь гүйнэ.'},
+ {q:'оноо = 10. «хэрэв оноо > 10 бол «Хожлоо» гэ, үгүй бол «Дахин туршъя» гэ». Юу гэх вэ?',c:['«Хожлоо»','«Дахин туршъя»','Хоёуланг нь'],a:1,w:'10 > 10 нь ХУДАЛ (тэнцүү, их биш) → «үгүй бол» салаа.'},
+ {q:'«set оноо to 0», дараа нь «change оноо by 1» 3 удаа. оноо хэд вэ?',c:['1','3','4'],a:1,w:'0 + 1 + 1 + 1 = 3.'},
+ {q:'амьдрал = 3. 💣 хүрэх бүрт «change амьдрал by -1». 2 удаа хүрвэл?',c:['1','5','2'],a:0,w:'3 − 1 − 1 = 1.'},
+ {q:'Тоглоомыг 2 дахь удаа эхлүүлэхэд оноо 0-ээс эхлэхгүй байна. Шалтгаан?',c:['«change оноо by 1» дутуу','«set оноо to 0» 🚩-д байхгүй','Хувьсагчийн нэр урт'],a:1,w:'Хувьсагч утгаа санадаг — эхлэхэд ҮРГЭЛЖ «set оноо to 0».'},
+ {q:'Хувьсагчид аль нэр нь хамгийн тохиромжтой вэ?',c:['«а»','«х»','«амьдрал»'],a:2,w:'Ойлгомжтой нэр — дараа нь юу хадгалдгийг мартахгүй.'}
+];
+$('qs').innerHTML=QS.map((q,i)=>`<div class="question"><h3>${i+1} · ${esc(q.q)}</h3><div class="choices">${q.c.map((c,j)=>`<label class="choice"><input type="radio" name="q${i}" value="${j}">${esc(c)}</label>`).join('')}</div><div class="feedback" id="fb${i}"></div></div>`).join('');
+$('quiz').onsubmit=e=>{e.preventDefault();let s=0;QS.forEach((q,i)=>{const sel=document.querySelector(`input[name=q${i}]:checked`),f=$('fb'+i);if(!sel){f.className='feedback wrong';f.textContent='Хариултаа сонго.';return;}const ok=+sel.value===q.a;if(ok)s++;f.className='feedback '+(ok?'correct':'wrong');f.textContent=(ok?'✓ Зөв. ':'↺ ')+q.w;});$('qresult').hidden=false;$('qresult').className='result '+(s===QS.length?'ok':'bad');$('qresult').textContent=`${s} / ${QS.length} зөв.`;};
+$('qreset').onclick=()=>{$('quiz').reset();document.querySelectorAll('.feedback').forEach(f=>f.textContent='');$('qresult').hidden=true;};
+
+/* ───────── Багшид: хариу хүснэгт ───────── */
+(function(){$('keytbl').innerHTML=LEVELS.filter(l=>l.sol).map((l,i)=>{const sp={vars:l.sol.vars,s:{}};l.ev.forEach(e=>sp.s[e]=l.sol[e]||[]);const saveL=lvl;lvl=LEVELS.indexOf(l);const txt=pseudo(sp,false);lvl=saveL;
+  return `<tr><td>${i+1} · ${esc(l.t)}${l.bug?' 🐞':''}</td><td><pre>${txt}</pre></td><td>${l.tests.map(t=>compress(t.seq)+(t.pre&&Object.values(t.pre).some(Boolean)?' <i>(эхэнд '+Object.entries(t.pre).filter(x=>x[1]).map(x=>x.join(' = ')).join(', ')+')</i>':'')).join('<br>')}</td></tr>`;}).join('');})();
+
+/* ───────── табууд ───────── */
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));['lab','calc','teacher'].forEach(id=>$(id).hidden=id!==b.dataset.tab);});
+renderCalc();loadLevel();
+window.__lab16={LEVELS,P,setLevel:i=>{lvl=i;loadLevel();},runTests,loadSol:i=>{const l=LEVELS[i];const s={};l.ev.forEach(e=>s[e]=reid(clone(l.sol[e]||[])));progs[i]={vars:[...l.sol.vars],s};lvl=i;loadLevel();},fire,mem:()=>mem,said:()=>said,addVar:n=>{$('varname').value=n;addVar();},addBlock,TBX_DEF};
+</script>
+</body></html>

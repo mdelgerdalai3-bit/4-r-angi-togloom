@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Хичээл 16 · Бит могой</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0a0f1f;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
+canvas{display:block;position:fixed;inset:0;width:100vw;height:100vh}
+button{font:inherit;cursor:pointer}
+/* хувьсагчийн монитор (Scratch маягийн) */
+#vars{position:fixed;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.mon{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.93);color:#575E75;border:1px solid #c7ccd8;border-radius:6px;padding:3px 4px 3px 9px;font-size:15px;font-weight:700;min-width:150px;transition:transform .15s}
+.mon b{margin-left:auto;background:#FF8C1A;color:#fff;border-radius:5px;padding:1px 10px;min-width:34px;text-align:center;font-size:17px}
+.mon.flash{transform:scale(1.12)}.mon.flash b{background:#00b36b}.mon.flash.neg b{background:#e0453a}
+/* дүрмийн карт */
+#rule{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:5;font-size:15px;font-weight:700;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.sc .ev{display:inline-block;background:#FFBF00;border:1px solid #cc9900;border-radius:16px 16px 5px 5px;padding:6px 12px 5px;margin-bottom:-1px}
+.sc .ifh,.sc .mid,.sc .end{background:#FFAB19;border:1px solid #CF8B17;padding:6px 12px;display:flex;align-items:center;gap:7px;border-radius:5px}
+.sc .mid{border-radius:0;padding:4px 12px}.sc .end{height:12px;padding:0;border-radius:0 0 6px 6px;width:120px}
+.sc .in{margin-left:16px;border-left:1px solid #CF8B17;background:rgba(10,15,31,.55);padding:5px 7px;display:flex;flex-direction:column;gap:4px;transition:background .2s}
+.sc .in.on{background:rgba(0,220,140,.55)}.sc .in.onbad{background:rgba(240,70,60,.6)}
+.cond{background:#59C059;border:1px solid #389438;border-radius:16px;padding:2px 12px;display:inline-flex;gap:6px;align-items:center;transition:background .2s}
+.cond .tok{background:#fff;color:#575E75;border-radius:10px;padding:0 8px}
+.cond.t{background:#00c46a}.cond.f{background:#e0453a;border-color:#a8302a}
+.vb{background:#FF8C1A;border:1px solid #db6e00;border-radius:5px;padding:3px 9px;display:inline-block;width:max-content}
+.vb i{font-style:normal;background:#fff;color:#575E75;border-radius:9px;padding:0 6px;margin:0 2px}
+.badge{margin-left:6px;font-size:13px;padding:1px 8px;border-radius:9px;background:#0a0f1f}
+/* лог */
+#log{position:fixed;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column-reverse;gap:4px;font-size:14px;font-weight:700;pointer-events:none}
+#log .vb{animation:fade 3.2s forwards}
+@keyframes fade{0%{opacity:0;transform:translateX(-10px)}8%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+#tools{position:fixed;right:12px;top:12px;z-index:6;display:flex;gap:6px}
+#tools button{width:42px;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(10,15,31,.7);color:#fff;font-size:19px}
+#lvl{position:fixed;right:12px;top:62px;z-index:5;font-weight:800;font-size:14px;background:rgba(10,15,31,.7);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:5px 10px;text-align:right}
+#tipline{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;background:rgba(10,15,31,.78);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:7px 14px;font-weight:700;font-size:15px;max-width:min(640px,80vw);text-align:center;display:none}
+/* хариултын мөр */
+#gatebar{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:6;width:min(820px,94vw);background:rgba(10,15,31,.9);border:2px solid #7cf;border-radius:16px;padding:10px 14px;display:none}
+#gatebar .q{font-weight:800;font-size:17px;margin-bottom:6px}
+#gatebar .ops{display:grid;gap:5px}
+.op{display:flex;gap:9px;align-items:center;font-weight:700;font-size:15.5px}
+.op .L{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#0a0f1f;font-weight:900}
+/* overlay */
+#ov{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(5,8,18,.72);padding:16px}
+#ov.show{display:flex}
+.box{background:#121a33;border:2px solid #3fd0ff;border-radius:20px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:22px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.box h1{margin:0 0 4px;font-size:clamp(26px,4vw,38px);line-height:1.1;background:linear-gradient(90deg,#5ff,#f6f,#ff5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.box h2{margin:0 0 8px;font-size:24px}
+.box p{margin:6px 0;color:#cdd6f0;line-height:1.5}
+.box .kick{font-size:12px;letter-spacing:.14em;color:#7cf;font-weight:800;text-transform:uppercase}
+.box ul{margin:8px 0;padding-left:20px;color:#cdd6f0}
+.btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 22px;font-weight:800;font-size:17px;background:#2a355c;color:#fff}
+.btn.pri{background:linear-gradient(90deg,#00d2ff,#c04bff);box-shadow:0 4px 0 #6a2a9a}
+.btn:focus-visible{outline:3px solid #ff5;outline-offset:2px}
+.prog{display:flex;flex-direction:column;gap:3px;background:#0a0f1f;border-radius:12px;padding:12px;margin:10px 0;font-weight:700;font-size:15px}
+.prog .ind{margin-left:22px}.prog .ind2{margin-left:44px}
+.hat{background:#FFBF00;border-radius:14px 14px 4px 4px;padding:5px 11px;width:max-content;color:#fff}
+.ctl{background:#FFAB19;border-radius:4px;padding:4px 10px;width:max-content;color:#fff}
+.say{background:#9966FF;border-radius:4px;padding:3px 10px;width:max-content;color:#fff}
+.ok{color:#5f5}.bad{color:#f77}
+.qopts{display:grid;gap:7px;margin:10px 0}
+.res{display:flex;gap:10px;justify-content:center;margin:12px 0}
+.res div{background:#0a0f1f;border-radius:12px;padding:8px 16px;font-weight:800;font-size:22px;text-align:center}
+.res small{display:block;font-size:12px;color:#9aa;font-weight:700}
+#touch{position:fixed;right:14px;bottom:14px;z-index:6;display:none;gap:8px}
+#touch button{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(10,15,31,.6);color:#fff;font-size:26px}
+@media (max-width:700px){#rule{transform:translateX(-50%) scale(.82);transform-origin:top center}.mon{min-width:120px;font-size:13px}}
+</style>
+</head>
+<body>
+<canvas id="cv" aria-label="Бит могой тоглоомын талбар"></canvas>
+<div id="vars" aria-live="polite"></div>
+<div id="rule" style="display:none"></div>
+<div id="log"></div>
+<div id="tools"><button id="b-pause" title="Түр зогсоох (P)" aria-label="Түр зогсоох">⏸</button><button id="b-snd" title="Дуу" aria-label="Дуу">🔊</button><button id="b-fs" title="Бүтэн дэлгэц" aria-label="Бүтэн дэлгэц">⛶</button></div>
+<div id="lvl"></div>
+<div id="tipline"></div>
+<div id="gatebar"><div class="q" id="gq"></div><div class="ops" id="gops"></div></div>
+<div id="touch"><button id="t-boost" aria-label="Хурдлах">⚡</button></div>
+<div id="ov" role="dialog" aria-modal="true"><div class="box" id="ovbox"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),g=cv.getContext('2d');
+let DPR=1,VW=0,VH=0;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
+addEventListener('resize',resize);resize();
+
+/* ───────── дуу ───────── */
+let AC=null,soundOn=true;
+function beep(f,d,type,vol,slide){if(!soundOn)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),v=AC.createGain(),t=AC.currentTime;o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);v.gain.setValueAtTime(vol||.12,t);v.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(v);v.connect(AC.destination);o.start(t);o.stop(t+d);}catch(e){}}
+const SFX={good:()=>{beep(660,.09,'triangle',.13);setTimeout(()=>beep(990,.12,'triangle',.13),70);},bad:()=>beep(220,.28,'sawtooth',.1,110),gate:()=>{[523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,.12,'triangle',.12),i*90));},win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.18,'triangle',.13),i*120));},hit:()=>beep(140,.25,'square',.08,70),set:()=>beep(440,.07,'sine',.08)};
+
+/* ───────── түвшин ба асуулт (Хичээл 16 PPT + Бататгал) ───────── */
+const LEVELS=[
+ {name:'Их тоо',op:'>',k:5,lo:1,hi:10,goal:5,then:[['оноо',1],['цуглуулсан',1]],els:[['амьдрал',-1]],en:0,tip:'5-аас ИХ тоог ид! 5 өөрөө ХУДАЛ — «5 > 5» биш шүү.'},
+ {name:'Бага тоо',op:'<',k:4,lo:1,hi:9,goal:5,then:[['оноо',1],['цуглуулсан',1]],els:[['амьдрал',-1]],en:1,tip:'4-өөс БАГА: 1, 2, 3. Алдаа-могойн биеийг мөргөвөл амьдрал −1!'},
+ {name:'Яг тэнцүү',op:'=',k:7,lo:3,hi:11,goal:4,then:[['оноо',1],['цуглуулсан',1]],els:[['амьдрал',-1]],en:1,tip:'Зөвхөн 7! «=» гэдэг нь яг ТЭНЦҮҮ.'},
+ {name:'Хоёр зам',op:'>',k:10,lo:5,hi:16,goal:4,then:[['оноо',2],['цуглуулсан',1]],els:[['оноо',-1]],en:2,tip:'«Үгүй бол» салаа энд ОНОО хасна! 10-аас их тоо = +2.'},
+ {name:'Өсдөг босго',op:'>',kv:'босго',init:{'босго':4},lo:1,hi:20,goal:5,then:[['оноо',1],['цуглуулсан',1],['босго',2]],els:[['амьдрал',-1]],en:2,tip:'Нөхцөл ХУВЬСАГЧТАЙ харьцуулна: зөв идэх бүрт «босго» 2-оор өснө!'},
+];
+const QUESTIONS=[
+ {q:'Хувьсагч (variable) юу хийдэг вэ?',o:['Спрайтыг хөдөлгөдөг','Утга хадгалж, дараа нь солих боломж өгдөг','Дууг тоглуулдаг'],a:1,w:'Хувьсагч бол утга хадгалдаг нэртэй «хайрцаг»: оноо, амьдрал, түвшин.'},
+ {q:'Тоглоом ЭХЛЭХЭД оноог юу болгох ёстой вэ?',o:['Хэвээр үлдээх','«set оноо to 0» хийх','«change оноо by 1» хийх'],a:1,w:'ҮРГЭЛЖ «set оноо to 0». Мартвал өмнөх тоглоомын оноо хуримтлагдсаар байна.'},
+ {q:'оноо = 8. «хэрэв оноо > 10 бол «Хожлоо» гэ, үгүй бол «Дахин туршъя» гэ». Юу гэх вэ?',o:['«Хожлоо»','«Дахин туршъя»','Юу ч хэлэхгүй'],a:1,w:'8 > 10 нь ХУДАЛ → «үгүй бол» салаа гүйнэ → «Дахин туршъя».'},
+ {q:'«Үгүй бол» (else) салаа хэзээ хэрэгтэй вэ?',o:['Зөвхөн ТИЙМ үед хариу хэрэгтэй бол','ТИЙМ ба ҮГҮЙ хоёуланд хариу хэрэгтэй бол','Хэзээ ч хэрэггүй'],a:1,w:'Нэг зам → «хэрэв … бол». Хоёр зам → «… үгүй бол» нэм.'},
+ {q:'«оноо < 3» гэдэг ямар асуулт вэ?',o:['Оноо 3-аас ИХ үү?','Оноо 3-аас БАГА уу?','Оноо 3-тай ТЭНЦҮҮ үү?'],a:1,w:'> их, < бага, = тэнцүү. Нөхцөл үргэлж «тийм/үгүй»-гээр хариулагдана.'},
+];
+const OPW={'>':'их','<':'бага','=':'тэнцүү'};
+const ANSCOL=['#4ff0ff','#ff6bf0','#ffe94d'];
+
+/* ───────── төлөв ───────── */
+const WW=2600,WH=1700,STEP=3,SP=3;
+let state='start',paused=false,li=0,V={},showVars=[],snake=null,enemies=[],orbs=[],parts=[],floats=[],gateOrbs=[],curQ=null,qOrder=[];
+let shake=0,inv=0,wallCd=0,t=0,boost=false,keyL=false,keyR=false,mouse=null,useMouse=false,gateWrong=0;
+let best=0;try{best=+localStorage.getItem('h16best')||0;}catch(e){}
+const L=()=>LEVELS[li];
+
+/* ───────── спрайт (Safari-д shadowBlur-гүй гэрэлтэлт) ───────── */
+function glowSprite(col,r){const s=document.createElement('canvas'),R=r*2.2;s.width=s.height=R*2;const c=s.getContext('2d');let gr=c.createRadialGradient(R,R,r*.6,R,R,R);gr.addColorStop(0,col+'88');gr.addColorStop(1,col+'00');c.fillStyle=gr;c.fillRect(0,0,R*2,R*2);gr=c.createRadialGradient(R-r*.35,R-r*.35,r*.1,R,R,r);gr.addColorStop(0,'#ffffff');gr.addColorStop(.35,col);gr.addColorStop(1,shadeHex(col,-.45));c.fillStyle=gr;c.beginPath();c.arc(R,R,r,0,7);c.fill();return s;}
+function shadeHex(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,gg=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return '#'+[f(r),f(gg),f(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+const SPR={};function spr(col,r){const k=col+r;return SPR[k]||(SPR[k]=glowSprite(col,r));}
+const SKIN_HERO=['#33e1ff','#33e1ff','#7a5cff','#7a5cff'],SKIN_BUG=['#ff5a4e','#ffb13b'];
+const ORBCOL=['#4ff0ff','#ff6bf0','#ffe94d','#7dff6a','#ff9f43','#9d8bff'];
+let gridPat=null;
+function mkGrid(){const s=document.createElement('canvas');s.width=120;s.height=104;const c=s.getContext('2d');c.fillStyle='#0a0f1f';c.fillRect(0,0,120,104);c.strokeStyle='#17213f';c.lineWidth=2;
+ const hex=(x,y)=>{c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i;const X=x+30*Math.cos(a),Y=y+30*Math.sin(a);i?c.lineTo(X,Y):c.moveTo(X,Y);}c.closePath();c.stroke();};
+ hex(30,0);hex(30,104);hex(120,0);hex(120,104);hex(75,52);hex(-15,52);gridPat=g.createPattern(s,'repeat');}
+mkGrid();
+
+/* ───────── могой ───────── */
+function mkSnake(x,y,ang,len,skin,spd){const s={x,y,ang,len,skin,spd,acc:0,path:[],wt:{x,y},wtT:0};for(let i=0;i<len*SP+6;i++)s.path.push({x:x-Math.cos(ang)*i*STEP,y:y-Math.sin(ang)*i*STEP});return s;}
+const headR=s=>11+Math.min(7,s.len/14);
+function moveSnake(s,dt,spd){const d=spd*dt;s.x+=Math.cos(s.ang)*d;s.y+=Math.sin(s.ang)*d;s.acc+=d;const pts=[];while(s.acc>=STEP){s.acc-=STEP;pts.push({x:s.x-Math.cos(s.ang)*s.acc,y:s.y-Math.sin(s.ang)*s.acc});}for(const p of pts)s.path.unshift(p);const max=s.len*SP+6;if(s.path.length>max)s.path.length=max;}
+function turnTo(s,target,rate,dt){let d=target-s.ang;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;s.ang+=Math.max(-rate*dt,Math.min(rate*dt,d));}
+function wallBounce(s){const m=30;let hit=false;if(s.x<m){s.x=m;hit=true;}if(s.x>WW-m){s.x=WW-m;hit=true;}if(s.y<m){s.y=m;hit=true;}if(s.y>WH-m){s.y=WH-m;hit=true;}if(hit)s.ang=Math.atan2(WH/2-s.y,WW/2-s.x)+(Math.random()-.5)*.6;return hit;}
+
+/* ───────── бөмбөлөг ───────── */
+const cmp=(a,op,b)=>op==='>'?a>b:op==='<'?a<b:a===b;
+const rhs=()=>L().kv?V[L().kv]:L().k;
+function pickValue(){const l=L(),want=Math.random()<.5,r=rhs();const pool=[];for(let v=l.lo;v<=l.hi;v++)if(cmp(v,l.op,r)===want)pool.push(v);
+ if(l.op==='='&&want)return l.k;if(!pool.length){const all=[];for(let v=l.lo;v<=l.hi;v++)all.push(v);return all[(Math.random()*all.length)|0];}return pool[(Math.random()*pool.length)|0];}
+function spawnOrb(near){let x,y,tries=0;do{if(near&&snake){const a=Math.random()*7,d=260+Math.random()*420;x=snake.x+Math.cos(a)*d;y=snake.y+Math.sin(a)*d;}else{x=80+Math.random()*(WW-160);y=80+Math.random()*(WH-160);}tries++;}while((x<80||y<80||x>WW-80||y>WH-80||(snake&&Math.hypot(x-snake.x,y-snake.y)<220)||orbs.some(o=>Math.hypot(o.x-x,o.y-y)<70))&&tries<40);
+ orbs.push({x:Math.max(80,Math.min(WW-80,x)),y:Math.max(80,Math.min(WH-80,y)),v:pickValue(),col:ORBCOL[(Math.random()*ORBCOL.length)|0],ph:Math.random()*7,s:0});}
+function fillOrbs(){orbs=[];for(let i=0;i<26;i++)spawnOrb(i<12);}
+
+/* ───────── хувьсагч ───────── */
+function renderVars(){$('vars').innerHTML=showVars.map(n=>`<div class="mon" data-v="${n}"><span>${n}</span><b>${V[n]}</b></div>`).join('');}
+function flashVar(n,neg){const el=document.querySelector(`.mon[data-v="${n}"]`);if(!el)return;el.querySelector('b').textContent=V[n];el.classList.add('flash');el.classList.toggle('neg',!!neg);clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('flash','neg'),450);}
+function log(html){const d=document.createElement('div');d.className='vb';d.innerHTML=html;$('log').prepend(d);while($('log').children.length>5)$('log').lastChild.remove();setTimeout(()=>d.remove(),3300);}
+function setVar(n,v){V[n]=v;flashVar(n,false);log(`set <i>${n}</i> to <i>${v}</i>`);}
+function changeVar(n,d){V[n]+=d;flashVar(n,d<0);log(`change <i>${n}</i> by <i>${d}</i>`);if(snake)floats.push({x:snake.x,y:snake.y-30,txt:`${n} ${d>0?'+':''}${d}`,col:d>0?'#5f5':'#f77',life:1.2});}
+
+/* ───────── дүрмийн карт ───────── */
+const actHTML=a=>a.map(([n,d])=>`<span class="vb">change <i>${n}</i> by <i>${d}</i></span>`).join('');
+function ruleHTML(sub){const l=L();const right=l.kv?`<span class="tok" style="background:#FF8C1A;color:#fff">${l.kv}</span>`:`<span class="tok">${l.k}</span>`;
+ return `<div class="sc"><div class="ev">🟢 бөмбөлөг идэхэд</div><div class="ifh">хэрэв <span class="cond" id="cond"><span class="tok" id="ctok">тоо</span> ${l.op} ${right}</span> бол <span class="badge" id="cbadge" style="display:none"></span></div><div class="in" id="r-then">${actHTML(l.then)}</div><div class="mid">үгүй бол</div><div class="in" id="r-else">${actHTML(l.els)}</div><div class="end"></div></div>`;}
+function flashRule(v,ok){const c=$('cond'),b=$('cbadge');if(!c)return;$('ctok').textContent=v;c.className='cond '+(ok?'t':'f');b.style.display='';b.textContent=`${v} ${L().op} ${rhs()} → ${ok?'ҮНЭН ✔':'ХУДАЛ ✘'}`;
+ $('r-then').className='in'+(ok?' on':'');$('r-else').className='in'+(ok?'':' onbad');clearTimeout(c._t);c._t=setTimeout(()=>{if(!$('cond'))return;$('ctok').textContent='тоо';c.className='cond';b.style.display='none';$('r-then').className='in';$('r-else').className='in';},1300);}
+function tipline(txt,ms){const e=$('tipline');e.innerHTML=txt;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',ms||3500);}
+
+/* ───────── overlay ───────── */
+let ovPrimary=null;
+function ov(html,btns){$('ovbox').innerHTML=html+`<div class="btns">${btns.map((b,i)=>`<button class="btn${b.pri?' pri':''}" id="ovb${i}">${b.t}</button>`).join('')}</div>`;btns.forEach((b,i)=>$('ovb'+i).onclick=()=>{beep(600,.05);b.f();});ovPrimary=btns.find(b=>b.pri)||btns[0];$('ov').classList.add('show');const p=$('ovb'+btns.indexOf(ovPrimary));if(p)p.focus();}
+function ovHide(){$('ov').classList.remove('show');ovPrimary=null;}
+function progHTML(l){const right=l.kv||l.k;return `<div class="prog"><div class="hat">🚩 түвшин эхлэхэд</div><div class="ind vb">set <i>цуглуулсан</i> to <i>0</i></div>${l.init?Object.entries(l.init).map(([n,v])=>`<div class="ind vb">set <i>${n}</i> to <i>${v}</i></div>`).join(''):''}
+ <div class="hat" style="margin-top:8px">🟢 бөмбөлөг идэхэд</div><div class="ind ctl">хэрэв ‹ тоо ${l.op} ${right} › бол</div>${l.then.map(([n,d])=>`<div class="ind2 vb">change <i>${n}</i> by <i>${d}</i></div>`).join('')}<div class="ind ctl">үгүй бол</div>${l.els.map(([n,d])=>`<div class="ind2 vb">change <i>${n}</i> by <i>${d}</i></div>`).join('')}
+ <div class="hat" style="margin-top:8px">🔁 үргэлж шалга</div><div class="ind ctl">хэрэв ‹ цуглуулсан = ${l.goal} › бол</div><div class="ind2 say">«Түвшин давлаа!» гэ</div></div>`;}
+
+/* ───────── урсгал ───────── */
+function showStart(){state='start';hud(false);
+ ov(`<div class="kick">4-р анги · Хичээл 16 · Нөхцөл (if) ба хувьсагч</div><h1>🐍 Бит могой</h1>
+ <p>Компьютерийн санах ойд амьдардаг неон могой <b>Бит</b>-ийн тоглоомын <b>«оноо»</b> хайрцгийг 🐞 алдаа-могойнууд эвдчихжээ!</p>
+ <p>Дээд талын <b>«хэрэв … бол … үгүй бол»</b> дүрмийг уншиж, <b>ҮНЭН</b> болох тоотой бөмбөлгийг идээрэй. ХУДАЛ тоо идвэл <b>«үгүй бол»</b> салаа гүйнэ!</p>
+ <ul><li><b>Хулгана</b> — могойг чиглүүлэх (эсвэл <b>← →</b> сумаар эргэх)</li><li><b>Space</b> / хулганы товч дарж барих — хурдлах ⚡</li><li>Асуултын үед <b>1 2 3</b> эсвэл хариултын бөмбөлгийг идэх</li><li><b>P</b> — түр зогсоох</li></ul>
+ <p>Зүүн дээд талын <b style="color:#FF8C1A">хувьсагчдыг</b> ажигла — блок бүр тэднийг өөрчилнө.${best?` 🏆 Дээд оноо: <b>${best}</b>`:''}</p>`,[{t:'🚩 Эхлэх',pri:true,f:newGame}]);}
+function hud(on){['vars','rule','lvl','log'].forEach(id=>$(id).style.display=on?'':'none');if(!on){$('gatebar').style.display='none';$('tipline').style.display='none';}}
+function newGame(){li=0;V={'оноо':0,'амьдрал':5,'цуглуулсан':0};showVars=['оноо','амьдрал','цуглуулсан'];renderVars();inv=0;paused=false;
+ qOrder=QUESTIONS.map((_,i)=>i);
+ snake=mkSnake(WW/2,WH/2,0,14,SKIN_HERO,165);hud(true);
+ setVar('оноо',0);setTimeout(()=>setVar('амьдрал',5),250);SFX.set();
+ startLevel();}
+function startLevel(){const l=L();state='intro';
+ if(l.init)for(const n in l.init)if(!showVars.includes(n))showVars.push(n);renderVars();
+ $('rule').innerHTML=ruleHTML();$('rule').style.display='none';
+ $('lvl').innerHTML=`Түвшин ${li+1} / ${LEVELS.length}<br><span style="color:#9fd">${l.name}</span>`;
+ ov(`<div class="kick">Түвшин ${li+1} / ${LEVELS.length}</div><h2>${l.name}</h2><p>Энэ түвшний программ. <b>ҮНЭН</b> бол дээд салаа, <b>ХУДАЛ</b> бол «үгүй бол» салаа гүйнэ:</p>${progHTML(l)}<p>💡 ${l.tip}</p>`,[{t:'▶ Тоглох (Enter)',pri:true,f:play}]);}
+function play(){ovHide();const l=L();V['цуглуулсан']=0;setVar('цуглуулсан',0);if(l.init)for(const n in l.init){V[n]=l.init[n];setTimeout(()=>setVar(n,l.init[n]),200);}SFX.set();
+ $('rule').style.display='';fillOrbs();
+ enemies=[];for(let i=0;i<l.en;i++){const a=Math.random()*7;enemies.push(mkSnake(WW/2+Math.cos(a)*700,WH/2+Math.sin(a)*500,a,26,SKIN_BUG,95));}
+ inv=1.5;state='play';tipline('💡 '+l.tip,4500);}
+function eat(o){const l=L(),r=rhs(),ok=cmp(o.v,l.op,r);flashRule(o.v,ok);
+ const acts=ok?l.then:l.els;acts.forEach(([n,d])=>changeVar(n,d));
+
+ for(let i=0;i<14;i++){const a=Math.random()*7,s=60+Math.random()*160;parts.push({x:o.x,y:o.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.6,col:ok?o.col:'#ff4a3a'});}
+ if(ok){snake.len+=3;SFX.good();}else{SFX.bad();shake=.35;tipline(`✘ ${o.v} ${l.op} ${r} нь <b>ХУДАЛ</b> → «үгүй бол» салаа гүйлээ.`,2600);}
+ checkAfter();}
+function checkAfter(){if(state!=='play')return;if(V['амьдрал']<=0){gameOver();return;}if(V['цуглуулсан']>=L().goal)levelClear();}
+function levelClear(){state='clear';SFX.gate();tipline(`✔ хэрэв цуглуулсан = ${L().goal} бол → <b>«Түвшин давлаа!»</b>`,2500);setTimeout(askQ,1300);}
+function askQ(){if(state!=='clear')return;state='ask';const qi=qOrder[li%qOrder.length];curQ=QUESTIONS[qi];
+ // хариултын дарааллыг холих
+ const idx=[0,1,2].sort(()=>Math.random()-.5);curQ={q:curQ.q,o:idx.map(i=>curQ.o[i]),a:idx.indexOf(curQ.a),w:curQ.w};
+ const opsHTML=curQ.o.map((s,i)=>`<div class="op"><span class="L" style="background:${ANSCOL[i]}">${i+1}</span>${s}</div>`).join('');
+ ov(`<div class="kick">❓ Хаалганы асуулт · ${li+1}</div><h2>${curQ.q}</h2><div class="qopts">${opsHTML}</div><p>Бэлэн болмогц зөв хариултын <b>өнгөт бөмбөлгийг</b> ид (эсвэл <b>1 2 3</b> дар). <span class="ok">Зөв: оноо +3</span> · <span class="bad">Буруу: амьдрал −1</span></p>`,[{t:'Бэлэн ▶ (Enter)',pri:true,f:openGate}]);}
+function openGate(){ovHide();state='gate';snake.x=Math.max(420,Math.min(WW-420,snake.x));snake.y=Math.max(420,Math.min(WH-420,snake.y));snake.ang=-Math.PI/2;useMouse=false;
+ // хариултууд: зүүн, баруун, доор — могой дээш харсан тул аль нь ч шууд урдаа биш
+ const pos=[[-340,40],[340,40],[0,250]],ord=[0,1,2].sort(()=>Math.random()-.5);
+ gateOrbs=ord.map((k,i)=>({x:snake.x+pos[k][0],y:snake.y+pos[k][1],i,ph:i*2}));
+ $('gq').textContent=curQ.q;$('gops').innerHTML=curQ.o.map((s,i)=>`<div class="op"><span class="L" style="background:${ANSCOL[i]}">${i+1}</span>${s}</div>`).join('');$('gatebar').style.display='block';$('rule').style.display='none';}
+function answer(i){if(state!=='gate')return;$('gatebar').style.display='none';gateOrbs=[];const ok=i===curQ.a;state='fb';
+ if(ok){SFX.good();changeVar('оноо',3);}else{SFX.bad();shake=.35;changeVar('амьдрал',-1);}
+ const lastLevel=li>=LEVELS.length-1;
+ ov(`<div class="kick">хэрэв ‹ хариулт = зөв › бол</div><h2 class="${ok?'ok':'bad'}">${ok?'✔ Зөв! → change оноо by 3':'✘ Буруу → change амьдрал by −1'}</h2>${ok?'':`<p>Зөв хариулт: <b>${curQ.o[curQ.a]}</b></p>`}<p>📘 ${curQ.w}</p>`,
+  [{t:V['амьдрал']<=0?'Үргэлжлүүлэх':lastLevel?'🏁 Дүнгээ харах':'Дараагийн түвшин ▶',pri:true,f:()=>{if(V['амьдрал']<=0){gameOver();return;}if(lastLevel){win();return;}li++;startLevel();}}]);}
+function gameOver(){state='over';hud(false);SFX.hit();saveBest();
+ ov(`<div class="kick">хэрэв ‹ амьдрал = 0 › бол</div><h2 class="bad">💥 Тоглоом дууслаа</h2><div class="res"><div>${V['оноо']}<small>оноо</small></div><div>${li+1}<small>түвшин</small></div></div>
+ <p>Дахин эхлэхэд программ эхлээд <b>«set оноо to 0»</b>, <b>«set амьдрал to 5»</b> хийнэ. Мартвал өмнөх тоглоомын оноо хуримтлагдана!</p>`,[{t:'🚩 Дахин эхлэх',pri:true,f:()=>{ovHide();newGame();}},{t:'Нүүр',f:showStart}]);}
+function win(){state='win';hud(false);SFX.win();saveBest();const s=V['оноо'],ok=s>25;
+ ov(`<div class="kick">Бүх түвшин дууслаа!</div><h1>${ok?'🏆 Хожлоо!':'🎯 Дахин туршъя!'}</h1>
+ <div class="prog"><div class="ctl">хэрэв ‹ оноо > 25 › бол <span class="badge">${s} > 25 → ${ok?'ҮНЭН':'ХУДАЛ'}</span></div><div class="ind say" style="${ok?'outline:3px solid #5f5':'opacity:.45'}">«Хожлоо! 🏆» гэ</div><div class="ctl">үгүй бол</div><div class="ind say" style="${ok?'opacity:.45':'outline:3px solid #f77'}">«Дахин туршъя» гэ</div></div>
+ <div class="res"><div>${s}<small>оноо</small></div><div>${'❤'.repeat(Math.max(0,V['амьдрал']))||'0'}<small>амьдрал</small></div><div>${best}<small>дээд оноо</small></div></div>
+ <p>Чи хувьсагч (<b>оноо, амьдрал, цуглуулсан, босго</b>) хэрхэн өөрчлөгдөж, <b>«хэрэв … бол … үгүй бол»</b> хэрхэн шийдвэр гаргадгийг харлаа!</p>`,[{t:'🚩 Дахин тоглох',pri:true,f:()=>{ovHide();newGame();}},{t:'Нүүр',f:showStart}]);}
+function saveBest(){if(V['оноо']>best){best=V['оноо'];try{localStorage.setItem('h16best',best);}catch(e){}}}
+function setPause(p){if(!['play','gate'].includes(state))return;paused=p;$('b-pause').textContent=p?'▶':'⏸';if(p)ov(`<h2>⏸ Түр зогслоо</h2><p>P эсвэл Enter дарж үргэлжлүүл.</p>`,[{t:'▶ Үргэлжлүүлэх',pri:true,f:()=>setPause(false)}]);else ovHide();}
+
+/* ───────── шинэчлэл ───────── */
+function update(dt){t+=dt;if(paused)return;
+ shake=Math.max(0,shake-dt);inv=Math.max(0,inv-dt);wallCd=Math.max(0,wallCd-dt);
+ for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.92;p.vy*=.92;p.life-=dt;}parts=parts.filter(p=>p.life>0);
+ for(const f of floats){f.y-=40*dt;f.life-=dt;}floats=floats.filter(f=>f.life>0);
+ for(const o of orbs)o.s=Math.min(1,o.s+dt*3);
+ if(!snake||!(state==='play'||state==='gate'||state==='clear'))return;
+ // жолоодлого
+ if(useMouse&&mouse){turnTo(snake,Math.atan2(mouse.y-VH/2,mouse.x-VW/2),4.2,dt);}
+ if(keyL)snake.ang-=3.4*dt;if(keyR)snake.ang+=3.4*dt;
+ const spd=state==='gate'?125:snake.spd*(boost?1.65:1);
+ moveSnake(snake,dt,spd);
+ if(wallBounce(snake)&&wallCd<=0){wallCd=4;tipline('🧱 хэрэв ‹ хана мөргөв үү? › бол → эргэ',2000);}
+ const hr=headR(snake);
+ if(state==='play'){
+  for(let i=orbs.length-1;i>=0;i--){const o=orbs[i];if(Math.hypot(o.x-snake.x,o.y-snake.y)<hr+20){orbs.splice(i,1);eat(o);spawnOrb(true);if(state!=='play')break;}}
+  // L5: босго өсөхөд ҮНЭН бөмбөлөг дутахгүй байх
+  if(L().kv&&!orbs.some(o=>cmp(o.v,L().op,rhs()))){orbs.shift();spawnOrb(true);}
+  for(const e of enemies){
+   e.wtT-=dt;if(e.wtT<=0||Math.hypot(e.wt.x-e.x,e.wt.y-e.y)<60){e.wt={x:150+Math.random()*(WW-300),y:150+Math.random()*(WH-300)};e.wtT=3+Math.random()*3;}
+   turnTo(e,Math.atan2(e.wt.y-e.y,e.wt.x-e.x)+Math.sin(t*2+e.len)*.4,2.2,dt);moveSnake(e,dt,e.spd);wallBounce(e);
+   if(inv<=0){for(let k=2;k<e.len;k++){const p=e.path[k*SP];if(p&&Math.hypot(p.x-snake.x,p.y-snake.y)<hr+9){hitEnemy(e);break;}}}
+  }
+ }
+ if(state==='gate'){for(const go of gateOrbs){if(Math.hypot(go.x-snake.x,go.y-snake.y)<hr+42){answer(go.i);break;}}}
+}
+function hitEnemy(e){inv=2;shake=.4;SFX.hit();tipline('🐞 хэрэв ‹ алдаа-могой мөргөв үү? › бол → change амьдрал by −1',2400);changeVar('амьдрал',-1);
+ snake.ang+=Math.PI;for(let i=0;i<16;i++){const a=Math.random()*7;parts.push({x:snake.x,y:snake.y,vx:Math.cos(a)*180,vy:Math.sin(a)*180,life:.5,col:'#ff5a4e'});}
+ setTimeout(checkAfter,40);}
+
+/* ───────── зураг ───────── */
+function drawSnake(s,hero){const n=Math.min(s.len,Math.floor((s.path.length-1)/SP)),hr=headR(s);
+ const blink=hero&&inv>0&&Math.floor(t*10)%2===0;if(blink)g.globalAlpha=.45;
+ for(let i=n;i>=1;i--){const p=s.path[i*SP];const k=1-i/(n+6)*.45,r=Math.round(hr*k);const col=s.skin[Math.floor(i/3)%s.skin.length];const sp=spr(col,r);g.drawImage(sp,p.x-sp.width/2,p.y-sp.height/2);}
+ const sp=spr(s.skin[0],Math.round(hr));g.drawImage(sp,s.x-sp.width/2,s.y-sp.height/2);
+ // нүд
+ const ex=Math.cos(s.ang),ey=Math.sin(s.ang),px=-ey,py=ex;
+ for(const sd of [-1,1]){const x=s.x+ex*hr*.35+px*sd*hr*.45,y=s.y+ey*hr*.35+py*sd*hr*.45;g.fillStyle='#fff';g.beginPath();g.arc(x,y,hr*.32,0,7);g.fill();g.fillStyle=hero?'#0a0f1f':'#600';g.beginPath();g.arc(x+ex*hr*.13,y+ey*hr*.13,hr*.17,0,7);g.fill();}
+ if(!hero){g.strokeStyle='#ffb13b';g.lineWidth=2;for(const sd of [-1,1]){g.beginPath();g.moveTo(s.x+ex*hr*.6+px*sd*hr*.3,s.y+ey*hr*.6+py*sd*hr*.3);g.lineTo(s.x+ex*hr*1.3+px*sd*hr*.8,s.y+ey*hr*1.3+py*sd*hr*.8);g.stroke();}}
+ g.globalAlpha=1;}
+function draw(){
+ g.setTransform(DPR,0,0,DPR,0,0);
+ const cx=snake?snake.x:WW/2,cy=snake?snake.y:WH/2;let sx=0,sy=0;if(shake>0){sx=(Math.random()-.5)*14*shake;sy=(Math.random()-.5)*14*shake;}
+ const ox=Math.round(VW/2-cx+sx),oy=Math.round(VH/2-cy+sy);
+ g.fillStyle='#05070f';g.fillRect(0,0,VW,VH);
+ g.save();g.translate(ox,oy);
+ g.fillStyle=gridPat;g.fillRect(0,0,WW,WH);
+ g.strokeStyle='#ff3b6b';g.lineWidth=6;g.strokeRect(-3,-3,WW+6,WH+6);
+ g.strokeStyle='rgba(255,59,107,.25)';g.lineWidth=22;g.strokeRect(-14,-14,WW+28,WH+28);
+ const vis=(x,y,m)=>x>cx-VW/2-m&&x<cx+VW/2+m&&y>cy-VH/2-m&&y<cy+VH/2+m;
+ // бөмбөлөг
+ g.textAlign='center';g.textBaseline='middle';
+ if(state!=='gate')for(const o of orbs){if(!vis(o.x,o.y,60))continue;const r=Math.round(20*o.s)||1,bob=Math.sin(t*3+o.ph)*3;const sp=spr(o.col,20);g.save();g.translate(o.x,o.y+bob);g.scale(o.s,o.s);g.drawImage(sp,-sp.width/2,-sp.height/2);g.fillStyle='#0a0f1f';g.font='900 19px -apple-system,Arial';g.fillText(o.v,0,1);g.restore();}
+ for(const go of gateOrbs){const bob=Math.sin(t*3+go.ph)*4,sp=spr(ANSCOL[go.i],42);g.drawImage(sp,go.x-sp.width/2,go.y+bob-sp.height/2);g.fillStyle='#0a0f1f';g.font='900 38px -apple-system,Arial';g.fillText(go.i+1,go.x,go.y+bob+2);
+  g.strokeStyle=ANSCOL[go.i];g.globalAlpha=.4+.3*Math.sin(t*5);g.lineWidth=3;g.beginPath();g.arc(go.x,go.y+bob,56+4*Math.sin(t*4),0,7);g.stroke();g.globalAlpha=1;}
+ if(state!=='gate')for(const e of enemies)drawSnake(e,false);
+ if(snake)drawSnake(snake,true);
+ for(const p of parts){g.globalAlpha=Math.max(0,p.life/.6);g.fillStyle=p.col;g.beginPath();g.arc(p.x,p.y,4,0,7);g.fill();}g.globalAlpha=1;
+ for(const f of floats){g.globalAlpha=Math.min(1,f.life);g.font='800 18px -apple-system,Arial';g.lineWidth=4;g.strokeStyle='#05070f';g.strokeText(f.txt,f.x,f.y);g.fillStyle=f.col;g.fillText(f.txt,f.x,f.y);}g.globalAlpha=1;
+ g.restore();
+ // хариулт руу заах сум
+ if(state==='gate'&&snake)for(const go of gateOrbs){const dx=go.x-snake.x,dy=go.y-snake.y;if(vis(go.x,go.y,-40))continue;const a=Math.atan2(dy,dx),R=Math.min(VW,VH)/2-50;const x=VW/2+Math.cos(a)*R,y=VH/2+Math.sin(a)*R;g.save();g.translate(x,y);g.rotate(a);g.fillStyle=ANSCOL[go.i];g.beginPath();g.moveTo(18,0);g.lineTo(-10,-12);g.lineTo(-10,12);g.closePath();g.fill();g.restore();g.fillStyle=ANSCOL[go.i];g.font='900 16px -apple-system,Arial';g.fillText(go.i+1,x-Math.cos(a)*24,y-Math.sin(a)*24);}
+ // жижиг газрын зураг
+ if(snake&&state!=='start'){const mw=150,mh=mw*WH/WW,mx=VW-mw-12,my=VH-mh-12;g.fillStyle='rgba(10,15,31,.75)';g.fillRect(mx,my,mw,mh);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1;g.strokeRect(mx,my,mw,mh);
+  const k=mw/WW;if(state!=='gate'){g.fillStyle='rgba(255,255,255,.55)';for(const o of orbs)g.fillRect(mx+o.x*k-1,my+o.y*k-1,2,2);g.fillStyle='#ff5a4e';for(const e of enemies)g.fillRect(mx+e.x*k-2,my+e.y*k-2,4,4);}
+  for(const go of gateOrbs){g.fillStyle=ANSCOL[go.i];g.beginPath();g.arc(mx+go.x*k,my+go.y*k,4,0,7);g.fill();}
+  g.fillStyle='#33e1ff';g.beginPath();g.arc(mx+snake.x*k,my+snake.y*k,3.5,0,7);g.fill();}
+}
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop);}
+
+/* ───────── оролт ───────── */
+addEventListener('keydown',e=>{
+ if($('ov').classList.contains('show')){if((e.key==='Enter'||e.key===' ')&&ovPrimary&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();ovPrimary.f();}else if(e.code==='KeyP'&&paused){setPause(false);}return;}
+ if(e.code==='KeyP'||e.key==='Escape'){setPause(!paused);return;}
+ if(e.key==='ArrowLeft'){keyL=true;useMouse=false;}if(e.key==='ArrowRight'){keyR=true;useMouse=false;}
+ if(e.key===' '||e.key==='ArrowUp'){boost=true;e.preventDefault();}
+ if(state==='gate'&&['1','2','3'].includes(e.key))answer(+e.key-1);
+});
+addEventListener('keyup',e=>{if(e.key==='ArrowLeft')keyL=false;if(e.key==='ArrowRight')keyR=false;if(e.key===' '||e.key==='ArrowUp')boost=false;});
+cv.addEventListener('pointermove',e=>{mouse={x:e.clientX,y:e.clientY};if(!keyL&&!keyR)useMouse=true;});
+cv.addEventListener('pointerdown',e=>{mouse={x:e.clientX,y:e.clientY};useMouse=true;if(e.pointerType==='mouse')boost=true;});
+addEventListener('pointerup',e=>{if(e.pointerType==='mouse')boost=false;});
+if('ontouchstart' in window){$('touch').style.display='flex';const tb=$('t-boost');tb.addEventListener('pointerdown',e=>{e.stopPropagation();boost=true;});tb.addEventListener('pointerup',()=>boost=false);}
+$('b-pause').onclick=()=>setPause(!paused);
+$('b-snd').onclick=()=>{soundOn=!soundOn;$('b-snd').textContent=soundOn?'🔊':'🔇';};
+$('b-fs').onclick=()=>{const d=document,el=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);}else{(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}};
+addEventListener('blur',()=>{keyL=keyR=boost=false;});
+
+showStart();requestAnimationFrame(loop);
+window.__game={update,state:()=>state,V:()=>V,snake:()=>snake,orbs:()=>orbs,gateOrbs:()=>gateOrbs,curQ:()=>curQ,answer,level:()=>li,L,cmp,rhs,ovPrimary:()=>ovPrimary,enemies:()=>enemies,setSteer:a=>{useMouse=false;if(snake)snake.ang=a;}};
+</script>
+</body>
+</html>
